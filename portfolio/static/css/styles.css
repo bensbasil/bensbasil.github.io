@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    /* Glassmorphism Effect for Project Cards */
+    .ml-card {
+        @apply bg-ml-slate/50 border border-white/5 backdrop-blur-sm 
+               rounded-2xl p-8 transition-all duration-300 
+               hover:border-ml-accent/50 hover:shadow-[0_0_30px_-10px_rgba(56,189,248,0.2)];
+    }
+
+    /* Mathematical Variable Styling */
+    .math-text {
+        @apply font-mono text-ml-math italic tracking-tighter;
+    }
+
+    /* Navigation Links */
+    .nav-link {
+        @apply text-sm font-medium uppercase tracking-[0.2em] text-slate-400 
+               hover:text-ml-accent transition-colors duration-300;
+    }
+}
+
+/* Custom Scrollbar for a technical feel */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #0F172A;
+}
+::-webkit-scrollbar-thumb {
+    background: #1E293B;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #38BDF8;
+}

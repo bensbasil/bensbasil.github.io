@@ -1,0 +1,75 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML Portfolio | Feature Engineering</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+
+<body class="bg-ml-navy text-slate-300 font-sans selection:bg-ml-accent/30 bg-grid-pattern">
+
+    <header class="fixed top-0 w-full z-50 border-b border-white/5 bg-ml-navy/90 backdrop-blur-md">
+        <nav class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="text-xl font-bold text-white tracking-tighter">
+                <span class="math-text text-ml-accent">y = Wx + b</span>
+            </div>
+            <div class="hidden md:flex space-x-12">
+                <a href="#about" class="nav-link">About</a>
+                <a href="#projects" class="nav-link">Projects</a>
+                <a href="#contact" class="nav-link">Connect</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-6 pt-40">
+        
+        <section id="about" class="mb-32">
+            <div class="max-w-3xl">
+                <h2 class="text-ml-accent font-mono mb-4 tracking-widest uppercase text-sm">Hello, I am a Machine Learning Engineer</h2>
+                <h1 class="text-5xl md:text-7xl font-bold text-white mb-8 tracking-tight">
+                    I build the <span class="text-transparent bg-clip-text bg-gradient-to-r from-ml-accent to-cyan-300">math</span> that powers the <span class="italic">machine.</span>
+                </h1>
+                <p class="text-lg text-slate-400 leading-relaxed mb-10">
+                    Focused on feature engineering and model optimization. I believe that clean data and robust linear foundations ($W$ and $b$) are the difference between a project and a product.
+                </p>
+            </div>
+        </section>
+
+        <section id="projects" class="pb-20">
+            <div class="flex items-center gap-4 mb-12">
+                <h3 class="text-2xl font-bold text-white">Featured Work</h3>
+                <div class="h-[1px] flex-grow bg-white/10"></div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="ml-card group">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="p-3 bg-ml-accent/10 rounded-lg text-ml-accent">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
+                        </div>
+                        <a href="#" class="text-slate-500 hover:text-ml-accent transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                        </a>
+                    </div>
+                    <h4 class="text-xl font-bold text-white mb-2">Automated Feature Engineering Pipeline</h4>
+                    <p class="text-slate-400 text-sm mb-6 leading-relaxed">A Django-integrated tool for cleaning noisy datasets and optimizing weight initialization for gradient descent.</p>
+                    <ul class="flex gap-4 font-mono text-[10px] uppercase tracking-tighter text-ml-accent/70">
+                        <li>Pandas</li>
+                        <li>Scikit-Learn</li>
+                        <li>Django</li>
+                    </ul>
+                </div>
+
+                </div>
+        </section>
+    </main>
+
+    <footer class="py-10 border-t border-white/5 text-center text-xs font-mono text-slate-600">
+        &copy; 2026 | Built with Django & Tailwind
+    </footer>
+
+</body>
+</html>

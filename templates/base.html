@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S.B. | Portfolio</title>
+    <title>B B | Portfolio</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -26,9 +26,9 @@
             <a href="/" class="text-black font-bold text-xl tracking-tighter hover:opacity-70 transition">S.B<span class="text-blue-600">.</span></a>
             
             <div class="hidden md:flex items-center space-x-10 text-[13px] font-bold tracking-wide uppercase">
-                <a href="#about" class="text-zinc-500 hover:text-black transition">About</a>
-                <a href="#services" class="text-zinc-500 hover:text-black transition">Services</a>
-                <a href="#projects" class="text-zinc-500 hover:text-black transition">Projects</a>
+                <a href="{% url 'home' %}#about" class="text-zinc-500 hover:text-black transition">About</a>
+                <a href="{% url 'home' %}#services" class="text-zinc-500 hover:text-black transition">Services</a>
+                <a href="{% url 'home' %}#projects" class="text-zinc-500 hover:text-black transition">Projects</a>
                 <a href="{% url 'contact' %}" class="bg-black text-white px-6 py-2.5 rounded-full hover:bg-zinc-800 transition duration-300 shadow-lg shadow-black/10">Contact</a>
             </div>
         </div>

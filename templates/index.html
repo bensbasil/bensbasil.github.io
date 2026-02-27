@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section id="about" class="pt-40 pb-32">
+    <div class="max-w-4xl">
+        <div class="inline-flex items-center space-x-2 bg-zinc-50 border border-zinc-200 px-4 py-2 rounded-full mb-8">
+            <span class="relative flex h-2 w-2">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-600"></span>
+            </span>
+            <span class="text-xs font-bold text-zinc-600 uppercase tracking-widest">Available for new projects</span>
+        </div>
+        <h1 class="text-5xl md:text-8xl font-bold text-black tracking-tight leading-[0.9] mb-10">
+            Designing <span class="text-zinc-300">digital</span> experiences.
+        </h1>
+        <p class="text-xl md:text-2xl text-zinc-500 leading-relaxed mb-12 max-w-2xl font-light">
+            I'm a freelance developer specializing in high-performance web apps and AI-driven automation.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-6">
+            <a href="#contact" class="bg-blue-600 text-white px-10 py-5 rounded-2xl font-bold text-lg hover:bg-blue-700 transition-all shadow-xl shadow-blue-500/20 text-center">Start a project</a>
+            <a href="#projects" class="group flex items-center justify-center space-x-3 text-black font-bold text-lg">
+                <span>View my work</span>
+                <span class="group-hover:translate-x-1 transition-transform">→</span>
+            </a>
+        </div>
+    </div>
+</section>
+
+<section id="services" class="py-32 border-t border-zinc-100">
+    <h2 class="text-xs font-bold text-zinc-400 uppercase tracking-[0.3em] mb-16">Expertise</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="bg-white border border-zinc-200 p-10 rounded-[2.5rem] hover:shadow-2xl hover:shadow-zinc-200/50 transition duration-500 group">
+            <div class="text-blue-600 text-3xl mb-8 group-hover:scale-110 transition-transform">01</div>
+            <h3 class="text-black text-2xl font-bold mb-4">Web Design</h3>
+            <p class="text-zinc-500 leading-relaxed font-light text-lg">Fast, user-centric interfaces designed to convert and rank on search engines.</p>
+        </div>
+        <div class="bg-white border border-zinc-200 p-10 rounded-[2.5rem] hover:shadow-2xl hover:shadow-zinc-200/50 transition duration-500 group">
+            <div class="text-blue-600 text-3xl mb-8 group-hover:scale-110 transition-transform">02</div>
+            <h3 class="text-black text-2xl font-bold mb-4">AI Solutions</h3>
+            <p class="text-zinc-500 leading-relaxed font-light text-lg">Integrating intelligent LLMs and automation to streamline your business workflows.</p>
+        </div>
+        <div class="bg-white border border-zinc-200 p-10 rounded-[2.5rem] hover:shadow-2xl hover:shadow-zinc-200/50 transition duration-500 group">
+            <div class="text-blue-600 text-3xl mb-8 group-hover:scale-110 transition-transform">03</div>
+            <h3 class="text-black text-2xl font-bold mb-4">MLOps</h3>
+            <p class="text-zinc-500 leading-relaxed font-light text-lg">Building robust pipelines for deploying and monitoring machine learning models.</p>
+        </div>
+    </div>
+</section>
+
+<section id="projects" class="py-32 border-t border-zinc-100">
+    <div class="flex justify-between items-end mb-20">
+        <h2 class="text-4xl md:text-6xl font-bold text-black tracking-tighter">Selected <span class="text-zinc-300">Works</span></h2>
+    </div>
+
+    <div class="grid grid-cols-1 gap-24">
+        {% for project in projects %}
+        <div class="group relative grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+            <div class="lg:col-span-7 overflow-hidden rounded-[2rem] bg-zinc-50 border border-zinc-100 shadow-sm">
+                <img src="{{ project.image.url }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000">
+            </div>
+            <div class="lg:col-span-5">
+                <div class="flex items-center space-x-4 mb-6">
+                    <span class="text-blue-600 font-bold text-xs uppercase tracking-widest">{{ project.technologies }}</span>
+                    <span class="h-[1px] w-10 bg-zinc-200"></span>
+                    <span class="text-zinc-400 text-xs font-bold uppercase tracking-widest">2026</span>
+                </div>
+                <h3 class="text-3xl md:text-4xl font-bold text-black mb-6 group-hover:text-blue-600 transition">{{ project.title }}</h3>
+                <p class="text-zinc-500 text-lg font-light leading-relaxed mb-10">{{ project.description }}</p>
+                <a href="{{ project.github_link }}" class="inline-flex items-center space-x-3 text-black font-bold border-b-2 border-zinc-100 pb-2 hover:border-blue-600 transition">
+                    <span>View Case Study</span>
+                    <span>→</span>
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

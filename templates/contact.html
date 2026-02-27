@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="pt-40 pb-32">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 items-start">
+        
+        <div class="max-w-md">
+            <h1 class="text-5xl md:text-7xl font-bold text-black tracking-tight leading-[0.9] mb-8">
+                Let’s start a <span class="text-zinc-300">conversation.</span>
+            </h1>
+            <p class="text-xl text-zinc-500 leading-relaxed mb-12 font-light">
+                I’m currently available for freelance work and full-time opportunities in Web Development and Machine Learning.
+            </p>
+
+            <div class="space-y-10">
+                <div class="group">
+                    <p class="text-[10px] uppercase tracking-[0.3em] font-bold text-zinc-400 mb-2">Email Me</p>
+                    <a href="mailto:hello@yourdomain.com" class="text-2xl text-black font-semibold hover:text-blue-600 transition-colors underline decoration-zinc-200 underline-offset-8 group-hover:decoration-blue-600">
+                        hello@yourdomain.com
+                    </a>
+                </div>
+
+                <div>
+                    <p class="text-[10px] uppercase tracking-[0.3em] font-bold text-zinc-400 mb-2">Based In</p>
+                    <p class="text-2xl text-black font-semibold">Trivandrum, Kerala</p>
+                </div>
+
+                <div>
+                    <p class="text-[10px] uppercase tracking-[0.3em] font-bold text-zinc-400 mb-4">Follow</p>
+                    <div class="flex space-x-6 text-black font-bold">
+                        <a href="#" class="hover:text-blue-600 transition">LinkedIn</a>
+                        <a href="#" class="hover:text-blue-600 transition">GitHub</a>
+                        <a href="#" class="hover:text-blue-600 transition">Twitter</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-zinc-50 border border-zinc-100 p-8 md:p-12 rounded-[2.5rem] shadow-sm">
+            {% if messages %}
+                {% for message in messages %}
+                <div class="mb-8 p-4 rounded-2xl text-sm {% if message.tags == 'success' %}bg-green-50 border border-green-100 text-green-700{% else %}bg-red-50 border border-red-100 text-red-700{% endif %}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+
+            <form action="{% url 'contact' %}" method="POST" class="space-y-8">
+                {% csrf_token %}
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="relative">
+                        <label class="text-[10px] uppercase tracking-widest font-bold text-zinc-400 mb-2 block">Name</label>
+                        <input type="text" name="name" required placeholder="John Doe" 
+                               class="w-full bg-white border-b-2 border-zinc-200 py-3 focus:outline-none focus:border-black transition-colors placeholder-zinc-300 text-black">
+                    </div>
+                    <div class="relative">
+                        <label class="text-[10px] uppercase tracking-widest font-bold text-zinc-400 mb-2 block">Email</label>
+                        <input type="email" name="email" required placeholder="john@example.com" 
+                               class="w-full bg-white border-b-2 border-zinc-200 py-3 focus:outline-none focus:border-black transition-colors placeholder-zinc-300 text-black">
+                    </div>
+                </div>
+
+                <div class="relative">
+                    <label class="text-[10px] uppercase tracking-widest font-bold text-zinc-400 mb-2 block">Project Details</label>
+                    <textarea name="message" rows="4" required placeholder="Tell me what you're building..." 
+                              class="w-full bg-white border-b-2 border-zinc-200 py-3 focus:outline-none focus:border-black transition-colors placeholder-zinc-300 text-black resize-none"></textarea>
+                </div>
+
+                <button type="submit" 
+                        class="w-full bg-black text-white py-5 rounded-2xl font-bold text-lg hover:bg-zinc-800 transition duration-300 transform active:scale-[0.98] shadow-xl shadow-black/10">
+                    Send Inquiry
+                </button>
+            </form>
+        </div>
+
+    </div>
+</section>
+{% endblock %}

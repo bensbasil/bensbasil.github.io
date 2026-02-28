@@ -4,40 +4,89 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bens Basil | Portfolio</title>
-    <script src="https://cdn.tailwindcss.com">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
         tailwind.config = {
-        theme: {
-            extend: {
-                colors: {
-                    brand: {
-                        white: '#ffffff',
-                        dark: '#1a1a1a',
-                        green: '#2bd6a9',
-                        coral: '#f77662',
-                        light: '#f4f4f5',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            white: '#ffffff',
+                            dark: '#1a1a1a',
+                            green: '#2bd6a9',
+                            coral: '#f77662',
+                            light: '#f4f4f5',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    transitionTimingFunction: {
+                        'premium': 'cubic-bezier(0.22, 1, 0.36, 1)',
                     }
-                },
-                fontFamily: {
-                    sans: ['Plus Jakarta Sans', 'sans-serif'],
-                },
-                // ADD THIS SECTION BELOW
-                transitionTimingFunction: {
-                    'premium': 'cubic-bezier(0.22, 1, 0.36, 1)', // This is the "snappy" reveal
                 }
             }
         }
-    }</script>
+    </script>
+
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
     <style>
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: #ffffff; /* Pure White Background */
-            color: #18181b; /* Zinc 900 for Primary Text */
+            background-color: #ffffff;
+            color: #18181b;
         }
         .nav-blur {
-            background: rgba(255, 255, 255, 0.8); /* Light Blur */
+            background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(15px);
-            border-bottom: 1px solid #f4f4f5; /* Zinc 100 border */
+            border-bottom: 1px solid #f4f4f5;
+        }
+
+        /* --- LOGO ANIMATION --- */
+        .logo-container {
+            perspective: 1200px;
+        }
+
+        .expansion-wrapper {
+            display: inline-flex;
+            max-width: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: max-width 0.7s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease;
+        }
+
+        /* Expand the container on hover */
+        .group:hover .expansion-wrapper {
+            max-width: 300px; /* Adjust based on font size */
+            opacity: 1;
+        }
+
+        .flip-letter {
+            display: inline-block;
+            opacity: 0;
+            /* Starting State: Inverted and slightly below */
+            transform: rotateX(180deg) translateY(25px); 
+            filter: blur(4px);
+        }
+
+        /* Trigger the "straighten" animation on hover */
+        .group:hover .flip-letter {
+            animation: straighten 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            /* Stagger based on --i variable */
+            animation-delay: calc(var(--i) * 0.07s);
+        }
+
+        @keyframes straighten {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+                transform: rotateX(0deg) translateY(0);
+                filter: blur(0);
+            }
         }
     </style>
 </head>
@@ -45,21 +94,31 @@
 
     <nav class="nav-blur fixed top-0 w-full z-50">
         <div class="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
-            <a href="{% url 'home' %}" svg class="group relative flex items-center text-black font-bold text-xl tracking-tighter overflow-hidden whitespace-nowrap">
-    <span>B</span>
+            
+            <a href="{% url 'home' %}" class="group logo-container relative flex items-center text-black font-bold text-xl tracking-tighter overflow-hidden whitespace-nowrap">
+                <span class="z-10 bg-white">B</span>
 
-    <span class="max-w-0 opacity-0 group-hover:max-w-[100px] group-hover:opacity-100 transition-all duration-700 ease-premium overflow-hidden">
-        ens
-    </span>
+                <span class="expansion-wrapper">
+                    <span class="flex">
+                        <span class="flip-letter" style="--i:1">e</span>
+                        <span class="flip-letter" style="--i:2">n</span>
+                        <span class="flip-letter" style="--i:3">s</span>
+                    </span>
+                </span>
 
-    <span class="ml-[2px]">B</span>
+                <span class="z-10 bg-white ml-[2px]">B</span>
 
-    <span class="max-w-0 opacity-0 group-hover:max-w-[100px] group-hover:opacity-100 transition-all duration-700 ease-premium overflow-hidden">
-        asil
-    </span>
+                <span class="expansion-wrapper">
+                    <span class="flex">
+                        <span class="flip-letter" style="--i:4">a</span>
+                        <span class="flip-letter" style="--i:5">s</span>
+                        <span class="flip-letter" style="--i:6">i</span>
+                        <span class="flip-letter" style="--i:7">l</span>
+                    </span>
+                </span>
 
-    <span class="text-blue-600">.</span>
-</a>
+                <span class="text-blue-600">.</span>
+            </a>
             
             <div class="hidden md:flex items-center space-x-10 text-[13px] font-bold tracking-wide uppercase">
                 <a href="{% url 'home' %}#about" class="text-zinc-500 hover:text-black transition">About</a>

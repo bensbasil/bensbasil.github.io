@@ -4,15 +4,18 @@
 {% block content %}
 <section id="about" class="relative flex flex-col min-h-screen bg-black">
     
-    <div class="relative w-full aspect-video bg-black overflow-hidden">
+    <div class="hero-image-container relative w-full aspect-video">
+        
         <img src="{% static 'img/me.png' %}" 
              alt="Bens Basil" 
-             class="absolute inset-0 w-full h-full object-cover object-top opacity-60 grayscale">
+             class="premium-hero-img absolute inset-0 w-full h-full object-cover object-top opacity-70 grayscale">
         
-        <div id="floating-name" class="absolute inset-0 flex flex-col justify-end p-8 md:p-20 z-20 bg-gradient-to-t from-black/80 via-transparent to-transparent will-change-transform">
+        <div class="vignette-overlay"></div>
+
+        <div id="floating-name" class="absolute inset-0 flex flex-col justify-end p-8 md:p-20 z-20 bg-gradient-to-t from-black via-transparent to-transparent will-change-transform">
             <h1 class="silver-text text-7xl md:text-[12rem] font-bold tracking-tighter leading-[0.8] drop-shadow-2xl">
-    Bens<br>Basil<span class="text-brand-green">.</span>
-</h1>
+                Bens<br>Basil<span class="text-brand-green">.</span>
+            </h1>
             <div class="flex items-center space-x-4 mt-8 text-brand-green">
                 <span class="h-[1px] w-16 bg-current"></span>
                 <p class="font-bold uppercase tracking-[0.5em] text-xs">Developer & MLOps</p>
@@ -55,12 +58,9 @@
     window.addEventListener('scroll', function() {
         const distance = window.scrollY;
         const nameElement = document.getElementById('floating-name');
-        
         if (nameElement && window.innerWidth > 768) {
-            // This moves the name to the LEFT as you scroll DOWN
-            // Adjust '-0.5' to make the float faster or slower
+            // Horizontal float (moves left)
             nameElement.style.transform = `translateX(${distance * -0.3}px)`;
-            // Slight fade out as it floats away
             nameElement.style.opacity = 1 - (distance / 800);
         }
     });

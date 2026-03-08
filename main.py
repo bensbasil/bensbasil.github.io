@@ -50,16 +50,18 @@ async def load_projects():
             live = p.get('live_link', '#')
             
             # Format technologies as crisp teal tags
-            tech_tags = "".join([f"<span class='px-3 py-1 bg-brand-teal/10 text-brand-teal rounded-full text-[10px] uppercase tracking-widest font-bold'>{t.strip()}</span>" for t in tech.split(',') if t.strip()])
+            tech_tags = "".join([f"<span class='px-3 py-1 bg-white border border-black/5 text-gray-500 rounded-full text-xs font-semibold'>{t.strip()}</span>" for t in tech.split(',') if t.strip()])
             
             html += f"""
-            <div class='reveal delay-{delay} group bg-white dark:bg-[#0f0f0f] border border-black/5 dark:border-white/5 p-8 lg:p-12 rounded-[2rem] shadow-sm dark:shadow-none hover:-translate-y-2 hover:shadow-2xl dark:hover:shadow-none hover:border-brand-teal/30 dark:hover:border-brand-teal/30 transition-all duration-500 overflow-hidden relative'>
-                <!-- Glow effect on hover -->
-                <div class='absolute -inset-px bg-gradient-to-br from-brand-teal/10 dark:from-brand-teal/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-[2rem] pointer-events-none blur-xl'></div>
-                
+            <div class='reveal delay-{delay} group bg-[#F9F9F9] p-8 lg:p-12 rounded-[2rem] hover:bg-white transition-colors duration-300 relative'>
+                <!-- Top Right Simple Arrow -->
+                <div class='absolute top-8 right-8 text-gray-300 group-hover:text-brand-green transform group-hover:-rotate-45 transition-all duration-300'>
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </div>
+
                 <div class='relative z-10'>
-                    <h3 class='text-3xl font-black text-brand-dark dark:text-white mb-6 group-hover:text-brand-teal transition-colors duration-300'>{title}</h3>
-                    <p class='text-zinc-500 dark:text-zinc-400 mb-8 leading-relaxed max-w-md'>{desc}</p>
+                    <h3 class='text-3xl font-bold text-brand-dark mb-4'>{title}</h3>
+                    <p class='text-gray-500 mb-8 leading-relaxed max-w-md font-medium text-lg'>{desc}</p>
                     
                     <div class='flex flex-wrap gap-2 mb-10'>
                         {tech_tags}
@@ -67,11 +69,10 @@ async def load_projects():
                 </div>
 
                 <div class='relative z-10 flex gap-6 items-center'>
-                    <a href='{live}' target='_blank' class='inline-flex items-center space-x-2 text-sm font-bold uppercase tracking-widest text-brand-dark dark:text-white hover:text-brand-teal dark:hover:text-brand-teal transition-colors'>
-                        <span>Live Site</span>
-                        <svg class="w-4 h-4 transform group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                    <a href='{live}' target='_blank' class='inline-flex items-center space-x-2 font-bold text-brand-dark hover:text-brand-green transition-colors'>
+                        <span>View Project</span>
                     </a>
-                    <a href='{github}' target='_blank' class='text-sm font-bold uppercase tracking-widest text-zinc-500 dark:text-zinc-500 hover:text-brand-dark dark:hover:text-white transition-colors'>GitHub</a>
+                    <a href='{github}' target='_blank' class='font-bold text-gray-400 hover:text-brand-dark transition-colors'>GitHub source</a>
                 </div>
             </div>
             """

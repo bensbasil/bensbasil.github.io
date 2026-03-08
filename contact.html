@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="static/favicon.ico">
+    <title>Bens Basil | Contact</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { white: '#ffffff', dark: '#1a1a1a', green: '#2bd6a9', coral: '#f77662', light: '#f4f4f5' }
+                    },
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
+                    transitionTimingFunction: { 'premium': 'cubic-bezier(0.22, 1, 0.36, 1)' }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- PyScript setup -->
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
+    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #ffffff;
+            color: #18181b;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-link-style {
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            color: #ffffff;
+            transition: opacity 0.3s ease;
+        }
+
+        .nav-link-style:hover {
+            opacity: 0.6;
+        }
+
+        .logo-style {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.4em;
+            color: #ffffff;
+        }
+
+        .hero-image-container {
+            overflow: hidden;
+            background-color: #000000;
+            position: relative;
+        }
+
+        .premium-hero-img {
+            transition: transform 1.5s cubic-bezier(0.22, 1, 0.36, 1), filter 1s ease;
+            will-change: transform, filter;
+        }
+
+        .hero-image-container:hover .premium-hero-img {
+            transform: scale(1.05);
+            filter: grayscale(0%) brightness(110%);
+        }
+
+        .vignette-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 10;
+            background: radial-gradient(circle at 70% 30%, transparent 0%, rgba(0, 0, 0, 0.8) 100%);
+        }
+
+        #mobile-menu {
+            transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+            transform: translateX(100%);
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+        }
+
+        #mobile-menu.active {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+
+<body class="text-zinc-600 antialiased selection:bg-brand-green selection:text-brand-dark">
+
+    <nav class="bg-[#000000] fixed top-0 w-full z-50">
+        <div class="max-w-full mx-auto px-6 md:px-12 h-20 md:h-24 flex items-center justify-between">
+            <a href="index.html"
+                class="relative z-[60] text-white font-bold text-[11px] tracking-[0.3em] uppercase whitespace-nowrap hover:opacity-60 transition-opacity">Bens
+                Basil</a>
+            <div class="hidden md:flex items-center space-x-12 text-[11px] font-bold tracking-[0.2em] uppercase">
+                <a href="index.html#about" class="text-zinc-400 hover:text-white transition">About</a>
+                <a href="index.html#services" class="text-zinc-400 hover:text-white transition">Services</a>
+                <a href="contact.html"
+                    class="bg-brand-green text-brand-dark px-6 py-2.5 rounded-full font-bold">Contact</a>
+            </div>
+            <button id="menu-toggle" class="md:hidden relative z-[60] text-white p-2">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path id="menu-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 6h16M4 12h16m-7 6h7"></path>
+                </svg>
+            </button>
+        </div>
+        <div id="mobile-menu"
+            class="fixed inset-0 bg-black z-[50] flex flex-col items-center justify-center space-y-8 md:hidden">
+            <a href="index.html#about" class="text-4xl font-bold chrome-text mobile-link">About</a>
+            <a href="index.html#services" class="text-4xl font-bold chrome-text mobile-link">Services</a>
+            <a href="contact.html" class="text-brand-green text-2xl font-bold mobile-link">Contact</a>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Contact Page Content -->
+        <section class="pt-32 md:pt-48 pb-32 bg-white">
+            <div class="max-w-full mx-auto px-8 md:px-16 lg:px-24">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 items-start">
+
+                    <div class="max-w-xl">
+                        <h1 class="text-5xl md:text-7xl font-bold text-black tracking-tighter leading-[0.9] mb-10">
+                            Let’s start a <br><span class="text-zinc-300">conversation.</span>
+                        </h1>
+                        <p class="text-xl text-zinc-500 leading-relaxed mb-16 font-light max-w-md">
+                            I’m currently available for freelance work and full-time opportunities in Web Development
+                            and Machine Learning.
+                        </p>
+                        <div class="space-y-12">
+                            <div class="group">
+                                <p class="text-[10px] uppercase tracking-[0.3em] font-bold text-zinc-400 mb-3">Email Me
+                                </p>
+                                <a href="mailto:bensdbasil@gmail.com"
+                                    class="text-2xl md:text-3xl font-bold text-black hover:text-zinc-500 transition-all duration-300 border-b border-zinc-200 pb-2 inline-block">
+                                    bensdbasil@gmail.com
+                                </a>
+                            </div>
+                            <div>
+                                <p class="text-[10px] uppercase tracking-[0.3em] font-bold text-zinc-400 mb-3">Based In
+                                </p>
+                                <p class="text-2xl text-black font-semibold tracking-tight">Trivandrum, Kerala</p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] uppercase tracking-[0.3em] font-bold text-zinc-400 mb-4">Follow
+                                </p>
+                                <div class="flex space-x-8 text-[11px] uppercase tracking-[0.2em] font-bold text-black">
+                                    <a href="https://linkedin.com/in/bensbasil"
+                                        class="hover:opacity-50 transition-opacity">LinkedIn</a>
+                                    <a href="https://github.com/bensbasil"
+                                        class="hover:opacity-50 transition-opacity">GitHub</a>
+                                    <a href="#" class="hover:opacity-50 transition-opacity">Twitter</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-zinc-50 border border-zinc-100 p-8 md:p-14 rounded-[2.5rem] shadow-sm">
+
+                        <div id="form-message" class="hidden mb-8 p-5 rounded-2xl text-sm"></div>
+
+                        <form id="contact-form" class="space-y-10">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                                <div class="relative">
+                                    <label
+                                        class="text-[10px] uppercase tracking-[0.2em] font-bold text-zinc-400 mb-3 block">Name</label>
+                                    <input type="text" id="name" required placeholder="John Doe"
+                                        class="w-full bg-transparent border-b border-zinc-200 py-3 focus:outline-none focus:border-black transition-colors placeholder-zinc-300 text-black">
+                                </div>
+                                <div class="relative">
+                                    <label
+                                        class="text-[10px] uppercase tracking-[0.2em] font-bold text-zinc-400 mb-3 block">Email</label>
+                                    <input type="email" id="email" required placeholder="john@example.com"
+                                        class="w-full bg-transparent border-b border-zinc-200 py-3 focus:outline-none focus:border-black transition-colors placeholder-zinc-300 text-black">
+                                </div>
+                            </div>
+                            <div class="relative">
+                                <label
+                                    class="text-[10px] uppercase tracking-[0.2em] font-bold text-zinc-400 mb-3 block">Project
+                                    Details</label>
+                                <textarea id="message" rows="4" required placeholder="Tell me what you're building..."
+                                    class="w-full bg-transparent border-b border-zinc-200 py-3 focus:outline-none focus:border-black transition-colors placeholder-zinc-300 text-black resize-none"></textarea>
+                            </div>
+                            <button type="submit"
+                                class="w-full bg-black text-white py-6 rounded-2xl font-bold text-[13px] uppercase tracking-[0.2em] hover:bg-zinc-800 transition duration-300 transform active:scale-[0.98]">
+                                Send Inquiry
+                            </button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer
+        class="max-w-7xl mx-auto px-6 border-t border-zinc-100 py-12 flex flex-col md:flex-row justify-between items-center gap-6 text-[12px]">
+        <p class="text-zinc-400">&copy; 2026 Built with PyScript & Tailwind.</p>
+        <div class="flex items-center space-x-8">
+            <a href="https://github.com/bensbasil" target="_blank" rel="noopener noreferrer"
+                class="group flex items-center space-x-2 text-zinc-900 hover:text-brand-green transition-all duration-300">
+                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                    <path
+                        d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.583 8.185-6.074 8.185-11.385 0-6.627-5.373-12-12-12" />
+                </svg>
+                <span class="uppercase tracking-[0.2em] font-bold">GitHub</span>
+            </a>
+            <a href="https://linkedin.com/in/bensbasil" target="_blank" rel="noopener noreferrer"
+                class="group flex items-center space-x-2 text-zinc-900 hover:text-brand-green transition-all duration-300">
+                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                    <path
+                        d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                </svg>
+                <span class="uppercase tracking-[0.2em] font-bold">LinkedIn</span>
+            </a>
+        </div>
+    </footer>
+
+    <script>
+        const btn = document.getElementById('menu-toggle');
+        const menu = document.getElementById('mobile-menu');
+        const links = document.querySelectorAll('.mobile-link');
+        btn.addEventListener('click', () => {
+            menu.classList.toggle('active');
+            const icon = document.getElementById('menu-icon');
+            if (menu.classList.contains('active')) {
+                icon.setAttribute('d', 'M6 18L18 6M6 6l12 12');
+            } else {
+                icon.setAttribute('d', 'M4 6h16M4 12h16m-7 6h7');
+            }
+        });
+        links.forEach(link => {
+            link.addEventListener('click', () => menu.classList.remove('active'));
+        });
+    </script>
+
+    <!-- PyScript Main Logic -->
+    <script type="py" src="./main.py"></script>
+</body>
+
+</html>

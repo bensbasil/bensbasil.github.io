@@ -37,10 +37,11 @@ async def load_projects():
         projects = await response.json()
         
         if not projects:
-            container.innerHTML = "<p class='text-zinc-500'>Check back soon for new projects.</p>"
+            container.innerHTML = "<p class='text-gray-500 reveal delay-100'>Check back soon for new projects.</p>"
             return
             
         html = ""
+        delay = 100
         for p in projects:
             title = p.get('title', 'Project')
             desc = p.get('description', '')
@@ -48,18 +49,38 @@ async def load_projects():
             github = p.get('github_link', '#')
             live = p.get('live_link', '#')
             
+            # Format technologies as crisp teal tags
+            tech_tags = "".join([f"<span class='px-3 py-1 bg-brand-teal/10 text-brand-teal rounded-full text-[10px] uppercase tracking-widest font-bold'>{t.strip()}</span>" for t in tech.split(',') if t.strip()])
+            
             html += f"""
-            <div class='bg-white border border-zinc-100 p-8 rounded-[2rem] hover:shadow-lg transition-all'>
-                <h3 class='text-2xl font-bold text-brand-dark mb-4'>{title}</h3>
-                <p class='text-zinc-500 mb-6'>{desc}</p>
-                <div class='text-xs font-bold uppercase tracking-widest text-brand-green mb-8'>{tech}</div>
-                <div class='flex gap-4'>
-                    <a href='{live}' target='_blank' class='text-sm font-bold text-brand-dark hover:text-brand-green'>Live Site &rarr;</a>
-                    <a href='{github}' target='_blank' class='text-sm font-bold text-zinc-400 hover:text-brand-dark'>GitHub</a>
+            <div class='reveal delay-{delay} group bg-[#0f0f0f] border border-white/5 p-8 lg:p-12 rounded-[2rem] hover:-translate-y-2 hover:bg-[#161616] hover:border-white/10 transition-all duration-500 overflow-hidden relative'>
+                <!-- Glow effect on hover -->
+                <div class='absolute -inset-px bg-gradient-to-br from-brand-teal/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-[2rem] pointer-events-none blur-xl'></div>
+                
+                <div class='relative z-10'>
+                    <h3 class='text-3xl font-black text-white mb-6 group-hover:text-brand-teal transition-colors duration-300'>{title}</h3>
+                    <p class='text-gray-400 mb-8 leading-relaxed max-w-md'>{desc}</p>
+                    
+                    <div class='flex flex-wrap gap-2 mb-10'>
+                        {tech_tags}
+                    </div>
+                </div>
+
+                <div class='relative z-10 flex gap-6 items-center'>
+                    <a href='{live}' target='_blank' class='inline-flex items-center space-x-2 text-sm font-bold uppercase tracking-widest text-white hover:text-brand-teal transition-colors'>
+                        <span>Live Site</span>
+                        <svg class="w-4 h-4 transform group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                    </a>
+                    <a href='{github}' target='_blank' class='text-sm font-bold uppercase tracking-widest text-gray-500 hover:text-white transition-colors'>GitHub</a>
                 </div>
             </div>
             """
+            delay = min(delay + 100, 500)
+            
         container.innerHTML = html
+        
+        # Trigger the intersection observer manually if defined (since these are injected late)
+        window.observeElements()
         
     except Exception as e:
         print("Could not load projects:", e)

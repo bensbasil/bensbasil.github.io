@@ -1,22 +1,23 @@
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth bg-[#050505]">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="static/favicon.ico">
     <title>Bens Basil | Portfolio</title>
-    
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        brand: { 
+                        brand: {
                             dark: '#050505',
-                            card: '#0f0f0f', 
-                            teal: '#2ec4b6', 
-                            light: '#f4f4f5' 
+                            card: '#0f0f0f',
+                            teal: '#2ec4b6',
+                            light: '#f4f4f5'
                         }
                     },
                     fontFamily: { sans: ['Inter', 'sans-serif'] },
@@ -42,60 +43,87 @@
         }
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
-    
+
     <!-- PyScript setup -->
     <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
     <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
 
     <style>
-    body { font-family: 'Inter', sans-serif; background-color: #050505; color: #f4f4f5; overflow-x: hidden; margin: 0; padding: 0; }
-    
-    /* Premium Glassmorphism Navigation */
-    .nav-glass {
-        background: rgba(5, 5, 5, 0.7);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    }
-    
-    /* Scroll Reveal Classes */
-    .reveal {
-        opacity: 0;
-        transform: translateY(40px);
-        transition: all 1.2s cubic-bezier(0.22, 1, 0.36, 1);
-        will-change: opacity, transform;
-    }
-    .reveal.active {
-        opacity: 1;
-        transform: translateY(0);
-    }
-    .delay-100 { transition-delay: 100ms; }
-    .delay-200 { transition-delay: 200ms; }
-    
-    #mobile-menu { transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1); transform: translateX(100%); }
-    #mobile-menu.active { transform: translateX(0); }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #050505;
+            color: #f4f4f5;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Premium Glassmorphism Navigation */
+        .nav-glass {
+            background: rgba(5, 5, 5, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Scroll Reveal Classes */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+            will-change: opacity, transform;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .delay-100 {
+            transition-delay: 100ms;
+        }
+
+        .delay-200 {
+            transition-delay: 200ms;
+        }
+
+        #mobile-menu {
+            transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+            transform: translateX(100%);
+        }
+
+        #mobile-menu.active {
+            transform: translateX(0);
+        }
     </style>
 </head>
+
 <body class="text-gray-400 antialiased selection:bg-brand-teal selection:text-brand-dark">
 
     <nav class="nav-glass fixed top-0 w-full z-50 transition-all duration-300">
         <div class="max-w-7xl mx-auto px-6 md:px-12 h-24 flex items-center justify-between">
-            <a href="index.html" class="relative z-[60] text-white font-bold text-[11px] tracking-[0.3em] uppercase whitespace-nowrap hover:text-brand-teal transition-colors duration-300">
+            <a href="index.html"
+                class="relative z-[60] text-white font-bold text-[11px] tracking-[0.3em] uppercase whitespace-nowrap hover:text-brand-teal transition-colors duration-300">
                 Bens Basil
             </a>
             <div class="hidden md:flex items-center space-x-12 text-[11px] font-bold tracking-[0.2em] uppercase">
-                <a href="index.html#about" class="text-zinc-500 hover:text-white transition-colors duration-300">About</a>
-                <a href="index.html#projects" class="text-zinc-500 hover:text-white transition-colors duration-300">Work</a>
-                <a href="contact.html" class="border border-white/20 text-white px-6 py-2.5 rounded-full font-bold hover:bg-white hover:text-brand-dark transition-all duration-300">Contact</a>
+                <a href="index.html#about"
+                    class="text-zinc-500 hover:text-white transition-colors duration-300">About</a>
+                <a href="index.html#projects"
+                    class="text-zinc-500 hover:text-white transition-colors duration-300">Work</a>
+                <a href="contact.html"
+                    class="border border-white/20 text-white px-6 py-2.5 rounded-full font-bold hover:bg-white hover:text-brand-dark transition-all duration-300">Contact</a>
             </div>
             <button id="menu-toggle" class="md:hidden relative z-[60] text-white p-2">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path id="menu-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                    <path id="menu-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 6h16M4 12h16m-7 6h7"></path>
                 </svg>
             </button>
         </div>
-        
-        <div id="mobile-menu" class="fixed inset-0 bg-[#050505] z-[50] flex flex-col items-center justify-center space-y-8 md:hidden">
+
+        <div id="mobile-menu"
+            class="fixed inset-0 bg-[#050505] z-[50] flex flex-col items-center justify-center space-y-8 md:hidden">
             <a href="index.html#about" class="text-4xl font-black text-white mobile-link">About</a>
             <a href="index.html#projects" class="text-4xl font-black text-white mobile-link">Work</a>
             <a href="contact.html" class="text-brand-teal text-2xl font-bold mobile-link">Contact</a>
@@ -105,49 +133,78 @@
     <main>
         <!-- Hero Section -->
         <section id="about" class="relative min-h-screen flex items-center justify-center overflow-hidden pt-24">
-            
+
+            <!-- Hero Image Background -->
+            <div class="absolute inset-0 z-0">
+                <img src="static/img/me.png" alt="Bens Basil"
+                    class="w-full h-full object-cover object-top opacity-30 grayscale mix-blend-luminosity">
+                <div class="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-[#050505]/30"></div>
+                <div class="absolute inset-0 bg-gradient-to-r from-[#050505] via-transparent to-[#050505]"></div>
+            </div>
+
             <!-- Ambient Background Glows -->
-            <div class="absolute top-0 -left-4 w-96 h-96 bg-indigo-500 rounded-full mix-blend-screen filter blur-[128px] opacity-20 animate-blob"></div>
-            <div class="absolute top-0 -right-4 w-96 h-96 bg-brand-teal rounded-full mix-blend-screen filter blur-[128px] opacity-20 animate-blob animation-delay-2000"></div>
-            <div class="absolute -bottom-32 left-20 w-96 h-96 bg-purple-500 rounded-full mix-blend-screen filter blur-[128px] opacity-20 animate-blob animation-delay-4000"></div>
-            
+            <div
+                class="absolute top-0 -left-4 w-96 h-96 bg-indigo-500 rounded-full mix-blend-screen filter blur-[128px] opacity-20 animate-blob">
+            </div>
+            <div
+                class="absolute top-0 -right-4 w-96 h-96 bg-brand-teal rounded-full mix-blend-screen filter blur-[128px] opacity-20 animate-blob animation-delay-2000">
+            </div>
+            <div
+                class="absolute -bottom-32 left-20 w-96 h-96 bg-purple-500 rounded-full mix-blend-screen filter blur-[128px] opacity-20 animate-blob animation-delay-4000">
+            </div>
+
             <!-- Grid Lines -->
-            <div class="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_70%,transparent_100%)]"></div>
+            <div
+                class="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_70%,transparent_100%)]">
+            </div>
 
             <div class="relative z-10 w-full max-w-7xl mx-auto px-6 flex flex-col items-center text-center">
-                
-                <div class="reveal inline-flex items-center space-x-3 bg-white/5 border border-white/10 px-4 py-2 rounded-full mb-12 backdrop-blur-sm">
+
+                <div
+                    class="reveal inline-flex items-center space-x-3 bg-white/5 border border-white/10 px-4 py-2 rounded-full mb-12 backdrop-blur-sm">
                     <span class="relative flex h-2 w-2">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-teal opacity-75"></span>
+                        <span
+                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-teal opacity-75"></span>
                         <span class="relative inline-flex rounded-full h-2 w-2 bg-brand-teal"></span>
                     </span>
-                    <span class="text-[10px] font-bold text-gray-300 uppercase tracking-[0.2em]">Open for opportunities</span>
+                    <span class="text-[10px] font-bold text-gray-300 uppercase tracking-[0.2em]">Open for
+                        opportunities</span>
                 </div>
-                
-                <h1 id="hero-title" class="reveal delay-100 text-6xl md:text-8xl lg:text-[9rem] font-black text-white tracking-tighter leading-[0.9] mb-8 will-change-transform">
-                    Bens <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-teal to-indigo-500">Basil.</span>
+
+                <h1 id="hero-title"
+                    class="reveal delay-100 text-6xl md:text-8xl lg:text-[9rem] font-black text-white tracking-tighter leading-[0.9] mb-8 will-change-transform">
+                    Bens <span
+                        class="text-transparent bg-clip-text bg-gradient-to-r from-brand-teal to-indigo-500">Basil.</span>
                 </h1>
-                
-                <p class="reveal delay-200 text-lg md:text-2xl text-gray-400 font-light max-w-2xl leading-relaxed mb-16">
-                    A freelance developer based in Trivandrum, architecting intelligent, high-performance web applications and AI-driven automation.
+
+                <p
+                    class="reveal delay-200 text-lg md:text-2xl text-gray-400 font-light max-w-2xl leading-relaxed mb-16">
+                    A freelance developer based in Trivandrum, architecting intelligent, high-performance web
+                    applications and AI-driven automation.
                 </p>
 
                 <div class="reveal delay-200 flex flex-col sm:flex-row items-center justify-center gap-6">
-                    <a href="contact.html" class="bg-white text-brand-dark px-10 py-5 rounded-full font-bold text-[13px] uppercase tracking-[0.2em] hover:bg-gray-200 hover:scale-105 transition-all duration-300">
+                    <a href="contact.html"
+                        class="bg-white text-brand-dark px-10 py-5 rounded-full font-bold text-[13px] uppercase tracking-[0.2em] hover:bg-gray-200 hover:scale-105 transition-all duration-300">
                         Start a Project
                     </a>
                 </div>
             </div>
 
             <!-- Marquee Background Text -->
-            <div class="absolute bottom-10 w-full overflow-hidden whitespace-nowrap opacity-5 select-none pointer-events-none">
+            <div
+                class="absolute bottom-10 w-full overflow-hidden whitespace-nowrap opacity-5 select-none pointer-events-none">
                 <div class="inline-block animate-marquee">
-                    <span class="text-[10rem] font-black uppercase tracking-tighter mx-4 text-white">DEVELOPER &bull; MLOPS &bull; ENGINEER &bull; </span>
-                    <span class="text-[10rem] font-black uppercase tracking-tighter mx-4 text-brand-teal">DEVELOPER &bull; MLOPS &bull; ENGINEER &bull; </span>
+                    <span class="text-[10rem] font-black uppercase tracking-tighter mx-4 text-white">DEVELOPER &bull;
+                        MLOPS &bull; ENGINEER &bull; </span>
+                    <span class="text-[10rem] font-black uppercase tracking-tighter mx-4 text-brand-teal">DEVELOPER
+                        &bull; MLOPS &bull; ENGINEER &bull; </span>
                 </div>
                 <div class="inline-block animate-marquee" aria-hidden="true">
-                    <span class="text-[10rem] font-black uppercase tracking-tighter mx-4 text-white">DEVELOPER &bull; MLOPS &bull; ENGINEER &bull; </span>
-                    <span class="text-[10rem] font-black uppercase tracking-tighter mx-4 text-brand-teal">DEVELOPER &bull; MLOPS &bull; ENGINEER &bull; </span>
+                    <span class="text-[10rem] font-black uppercase tracking-tighter mx-4 text-white">DEVELOPER &bull;
+                        MLOPS &bull; ENGINEER &bull; </span>
+                    <span class="text-[10rem] font-black uppercase tracking-tighter mx-4 text-brand-teal">DEVELOPER
+                        &bull; MLOPS &bull; ENGINEER &bull; </span>
                 </div>
             </div>
         </section>
@@ -155,8 +212,9 @@
         <!-- Projects section powered by PyScript -->
         <section id="projects" class="py-32 bg-[#050505] relative border-t border-white/5">
             <div class="max-w-7xl mx-auto px-6">
-                
-                <div class="reveal mb-20 flex flex-col md:flex-row md:items-end justify-between border-b border-white/10 pb-10">
+
+                <div
+                    class="reveal mb-20 flex flex-col md:flex-row md:items-end justify-between border-b border-white/10 pb-10">
                     <div>
                         <div class="flex items-center space-x-4 text-brand-teal mb-6">
                             <span class="h-[1px] w-12 bg-current"></span>
@@ -164,7 +222,8 @@
                         </div>
                         <h2 class="text-5xl md:text-7xl font-black text-white tracking-tighter">Selected Works.</h2>
                     </div>
-                    <p class="text-gray-500 max-w-xs mt-6 md:mt-0 text-sm">A collection of web experiences and machine learning integrations.</p>
+                    <p class="text-gray-500 max-w-xs mt-6 md:mt-0 text-sm">A collection of web experiences and machine
+                        learning integrations.</p>
                 </div>
 
                 <div id="projects-container" class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
@@ -177,21 +236,26 @@
 
     <footer class="bg-[#0f0f0f] border-t border-white/5 pt-32 pb-12">
         <div class="max-w-7xl mx-auto px-6 space-y-32">
-            
+
             <div class="reveal text-center max-w-4xl mx-auto">
                 <h2 class="text-5xl md:text-8xl font-black text-white tracking-tighter leading-[0.9] mb-12">
-                    Ready to build <br>something <span class="text-brand-teal italic font-serif font-light">next-level?</span>
+                    Ready to build <br>something <span
+                        class="text-brand-teal italic font-serif font-light">next-level?</span>
                 </h2>
-                <a href="contact.html" class="inline-block bg-brand-teal text-brand-dark px-12 py-6 rounded-full font-black text-lg hover:scale-105 hover:bg-white transition-all duration-300 shadow-[0_0_40px_rgba(46,196,182,0.3)]">
+                <a href="contact.html"
+                    class="inline-block bg-brand-teal text-brand-dark px-12 py-6 rounded-full font-black text-lg hover:scale-105 hover:bg-white transition-all duration-300 shadow-[0_0_40px_rgba(46,196,182,0.3)]">
                     Let's Talk
                 </a>
             </div>
 
-            <div class="flex flex-col md:flex-row justify-between items-center gap-6 text-[12px] border-t border-white/10 pt-12">
+            <div
+                class="flex flex-col md:flex-row justify-between items-center gap-6 text-[12px] border-t border-white/10 pt-12">
                 <p class="text-zinc-500 font-medium tracking-wide">&copy; 2026 Developed by Bens Basil.</p>
                 <div class="flex items-center space-x-8">
-                    <a href="https://github.com/bensbasil" target="_blank" rel="noopener noreferrer" class="text-white hover:text-brand-teal uppercase tracking-[0.2em] font-bold transition-colors">GitHub</a>
-                    <a href="https://linkedin.com/in/bensbasil" target="_blank" rel="noopener noreferrer" class="text-white hover:text-brand-teal uppercase tracking-[0.2em] font-bold transition-colors">LinkedIn</a>
+                    <a href="https://github.com/bensbasil" target="_blank" rel="noopener noreferrer"
+                        class="text-white hover:text-brand-teal uppercase tracking-[0.2em] font-bold transition-colors">GitHub</a>
+                    <a href="https://linkedin.com/in/bensbasil" target="_blank" rel="noopener noreferrer"
+                        class="text-white hover:text-brand-teal uppercase tracking-[0.2em] font-bold transition-colors">LinkedIn</a>
                 </div>
             </div>
         </div>
@@ -205,7 +269,7 @@
         btn.addEventListener('click', () => {
             menu.classList.toggle('active');
             const icon = document.getElementById('menu-icon');
-            if(menu.classList.contains('active')) {
+            if (menu.classList.contains('active')) {
                 icon.setAttribute('d', 'M6 18L18 6M6 6l12 12');
             } else {
                 icon.setAttribute('d', 'M4 6h16M4 12h16m-7 6h7');
@@ -235,7 +299,7 @@
 
             // Observe existing elements
             document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-            
+
             // Allow PyScript to trigger this globally after rendering project cards
             window.observeElements = () => {
                 document.querySelectorAll('.reveal:not(.active)').forEach(el => observer.observe(el));
@@ -256,8 +320,9 @@
         // Run setup when DOM is ready
         document.addEventListener('DOMContentLoaded', setupObserver);
     </script>
-    
+
     <!-- PyScript Main Logic -->
     <script type="py" src="./main.py"></script>
 </body>
+
 </html>

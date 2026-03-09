@@ -16,7 +16,7 @@
                         brand: {
                             dark: '#111111',
                             light: '#F2F2F2',
-                            green: '#14D19E',
+                            green: '#00C0B5',
                             coral: '#FF6B6B'
                         }
                     },
@@ -156,21 +156,30 @@
     <!-- Minimalist Navigation -->
     <nav
         class="fixed top-0 w-full z-50 transition-all duration-300 border-b border-white/10 bg-transparent backdrop-blur-[2px]">
-        <div class="max-w-[90rem] mx-auto px-6 md:px-12 h-24 flex items-center justify-between">
+        <div class="max-w-[90rem] mx-auto px-6 md:px-12 h-24 flex items-center justify-between font-sans">
             <a href="index.html"
-                class="relative z-[60] bg-brand-dark text-white px-6 py-2.5 rounded-full font-semibold text-sm tracking-tight hover:text-brand-green transition-colors">
-                Bens Basil.
+                class="relative z-[60] text-gray-300 hover:text-white font-bold text-xs tracking-[0.2em] uppercase transition-colors">
+                BENS BASIL
             </a>
-            <div class="hidden md:flex items-center space-x-10 text-sm font-semibold text-gray-500">
+            <div
+                class="hidden md:flex items-center space-x-10 text-[11px] font-bold tracking-[0.15em] text-gray-300 uppercase">
                 <a href="#services" class="hover:text-white transition-colors">Services</a>
                 <a href="#projects" class="hover:text-white transition-colors">Work</a>
-                <a href="contact.html"
-                    class="bg-brand-dark text-white px-6 py-2.5 rounded-full hover:bg-brand-green transition-colors">
-                    Let's Talk
-                </a>
+                <a href="#" class="hover:text-white transition-colors">Teaching</a>
+                <a href="#" class="hover:text-white transition-colors">About Me</a>
+                <a href="contact.html" class="hover:text-white transition-colors">Contact</a>
+                <span class="text-gray-600">|</span>
+                <div class="flex items-center space-x-2">
+                    <a href="#" class="text-white border-b border-white pb-0.5">EN</a>
+                    <span class="text-gray-500">/</span>
+                    <a href="#" class="text-gray-500 hover:text-white transition-colors">ES</a>
+                    <span class="text-gray-500">/</span>
+                    <a href="#" class="text-gray-500 hover:text-white transition-colors">CA</a>
+                </div>
             </div>
 
-            <button id="menu-toggle" class="md:hidden relative z-[60] text-brand-dark p-2">
+            <button id="menu-toggle"
+                class="md:hidden relative z-[60] text-gray-300 p-2 hover:text-white transition-colors">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path id="menu-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M4 6h16M4 12h16m-7 6h7"></path>
@@ -179,10 +188,18 @@
         </div>
 
         <div id="mobile-menu"
-            class="fixed inset-0 bg-brand-light z-[50] flex flex-col items-center justify-center space-y-8 md:hidden">
-            <a href="#services" class="text-4xl font-extrabold text-brand-dark mobile-link">Services</a>
-            <a href="#projects" class="text-4xl font-extrabold text-brand-dark mobile-link">Work</a>
-            <a href="contact.html" class="text-brand-green text-2xl font-bold mobile-link">Let's Talk</a>
+            class="fixed inset-0 bg-[#111111] z-[50] flex flex-col items-center justify-center space-y-8 md:hidden">
+            <a href="#services"
+                class="text-2xl font-bold tracking-[0.2em] text-gray-300 hover:text-white uppercase transition-colors mobile-link">Services</a>
+            <a href="#projects"
+                class="text-2xl font-bold tracking-[0.2em] text-gray-300 hover:text-white uppercase transition-colors mobile-link">Work</a>
+            <a href="#"
+                class="text-2xl font-bold tracking-[0.2em] text-gray-300 hover:text-white uppercase transition-colors mobile-link">Teaching</a>
+            <a href="#"
+                class="text-2xl font-bold tracking-[0.2em] text-gray-300 hover:text-white uppercase transition-colors mobile-link">About
+                Me</a>
+            <a href="contact.html"
+                class="text-2xl font-bold tracking-[0.2em] text-brand-green hover:text-white uppercase transition-colors mobile-link">Contact</a>
         </div>
     </nav>
 

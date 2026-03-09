@@ -37,6 +37,12 @@
     <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
     <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
 
+    <!-- GSAP & Splitting.js for Text Animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/splitting/dist/splitting.css" />
+    <link rel="stylesheet" href="https://unpkg.com/splitting/dist/splitting-cells.css" />
+    <script src="https://unpkg.com/splitting/dist/splitting.min.js"></script>
+
     <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
@@ -77,6 +83,30 @@
 
         .delay-300 {
             transition-delay: 300ms;
+        }
+
+        /* Image Mask Slide Reveal */
+        .img-reveal-img {
+            clip-path: polygon(0 100%, 100% 100%, 100% 100%, 0 100%);
+            transform: scale(1.05) translateY(40px);
+            opacity: 0;
+            transition: clip-path 1.4s cubic-bezier(0.25, 1, 0.5, 1) 0.2s,
+                transform 1.4s cubic-bezier(0.25, 1, 0.5, 1) 0.2s,
+                opacity 1.4s cubic-bezier(0.25, 1, 0.5, 1) 0.2s;
+            will-change: clip-path, transform, opacity;
+        }
+
+        .reveal.active .img-reveal-img {
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+
+        /* Post-reveal hover transition */
+        .reveal.active.group:hover .img-reveal-img {
+            transform: scale(1.02) translateX(-10px);
+            transition-delay: 0s;
+            transition-duration: 0.8s;
         }
 
         /* Hollow rotating shapes for the dark section */
@@ -144,8 +174,11 @@
         <section class="relative min-h-[90vh] flex items-center pt-32 pb-20 bg-brand-light overflow-hidden">
             <div class="max-w-[90rem] mx-auto px-6 md:px-12 w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 
-                <!-- Left: Massive Typography -->
-                <div class="flex flex-col items-start z-10">
+                <!-- Spacer for mobile flow, invisible on desktop grid -->
+                <div class="hidden lg:block w-full h-full pointer-events-none"></div>
+
+                <!-- Right: Massive Typography -->
+                <div class="flex flex-col items-start lg:items-end lg:text-right z-10 lg:pl-10">
                     <div
                         class="reveal inline-flex items-center space-x-2 bg-white px-4 py-2 rounded-full mb-8 shadow-sm border border-black/5">
                         <span class="relative flex h-2.5 w-2.5">
@@ -156,20 +189,20 @@
                         <span class="text-xs font-bold text-gray-600 tracking-wide uppercase">Available for work</span>
                     </div>
 
-                    <h1
-                        class="reveal delay-100 text-6xl sm:text-7xl md:text-8xl lg:text-[7rem] font-black text-brand-dark tracking-tighter leading-[0.9] mb-8">
+                    <h1 class="gsap-reveal text-6xl sm:text-7xl md:text-8xl lg:text-[7rem] font-black text-brand-dark tracking-tighter leading-[0.9] mb-8"
+                        data-splitting>
                         Freelance<br>
                         Developer<br>
                         <span class="text-brand-green">& AI Engineer.</span>
                     </h1>
 
-                    <p
-                        class="reveal delay-200 text-lg md:text-xl text-gray-500 font-medium max-w-lg leading-relaxed mb-10">
+                    <p class="gsap-reveal text-lg md:text-xl text-gray-500 font-medium max-w-lg leading-relaxed mb-10"
+                        data-splitting>
                         Based in Trivandrum, I architect high-performance, SEO-optimised web applications and
                         intelligent AI-driven automation.
                     </p>
 
-                    <div class="reveal delay-300 flex items-center gap-4">
+                    <div class="reveal delay-300 flex flex-wrap items-center gap-4 lg:justify-end">
                         <a href="contact.html"
                             class="bg-brand-green text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-brand-dark hover:scale-105 transition-all duration-300 shadow-lg shadow-brand-green/20">
                             Start a Project
@@ -180,18 +213,28 @@
                         </a>
                     </div>
                 </div>
+            </div>
 
-                <!-- Right: Clean Portrait -->
-                <div class="reveal delay-200 relative w-full h-full flex justify-center lg:justify-end items-end z-10">
-                    <!-- Decorative subtle circle behind image -->
-                    <div
-                        class="absolute w-[400px] h-[400px] bg-white rounded-full blur-[80px] opacity-70 bottom-0 lg:-right-20 pointer-events-none">
-                    </div>
-
-                    <img src="static/img/me.png" alt="Bens Basil"
-                        class="w-full max-w-[550px] object-contain drop-shadow-2xl relative z-10 
-                                                                         [mask-image:linear-gradient(to_top,transparent_0%,black_15%)]">
+            <!-- Absolute hero image filling the left side (Dark Portrait) -->
+            <div
+                class="reveal delay-200 mt-10 lg:mt-0 lg:absolute lg:bottom-0 lg:left-0 w-full lg:w-[50vw] h-[60vh] lg:h-[95vh] flex justify-center lg:justify-start items-end z-0 group pointer-events-none">
+                <!-- Cinematic background glow to frame the dark photo -->
+                <div
+                    class="absolute w-[80vw] lg:w-[45vw] h-[80vw] lg:h-[45vw] bg-brand-dark rounded-full blur-[120px] lg:blur-[160px] opacity-10 bottom-0 lg:left-0 transition-all duration-1000 group-hover:scale-110 group-hover:bg-brand-green group-hover:opacity-20">
                 </div>
+                <!-- Secondary accent glow -->
+                <div
+                    class="absolute w-[60vw] lg:w-[35vw] h-[60vw] lg:h-[35vw] bg-gray-500 rounded-full blur-[100px] lg:blur-[140px] opacity-20 bottom-10 lg:-left-10 transition-all duration-1000 group-hover:translate-x-12">
+                </div>
+
+                <!-- 
+                   Slide Reveal Animation classes: "img-reveal-img" 
+                   Fills page height/width natively: w-full h-full, object-contain
+                -->
+                <img src="static/img/me.png" alt="Bens Basil" class="img-reveal-img pointer-events-auto w-full h-full object-contain object-bottom lg:object-left-bottom relative z-10 lg:-left-10 
+                           contrast-[1.15] saturate-[.85] brightness-110
+                           drop-shadow-[0_40px_40px_rgba(0,0,0,0.5)]
+                           [mask-image:linear-gradient(to_top,transparent_0%,black_15%)]">
             </div>
         </section>
 
@@ -212,11 +255,12 @@
 
             <div class="max-w-[90rem] mx-auto px-6 md:px-12 relative z-10">
 
-                <div class="reveal max-w-3xl mb-24">
-                    <h2 class="text-5xl md:text-7xl font-black tracking-tighter mb-8 leading-none">
+                <div class="max-w-3xl mb-24">
+                    <h2 class="gsap-reveal text-5xl md:text-7xl font-black tracking-tighter mb-8 leading-none"
+                        data-splitting>
                         All Freelance Services.
                     </h2>
-                    <p class="text-xl text-gray-400 font-light leading-relaxed">
+                    <p class="gsap-reveal text-xl text-gray-400 font-light leading-relaxed" data-splitting>
                         I build fast, scalable, and maintainable applications using modern front-end technologies and
                         cutting-edge machine learning pipelines.
                     </p>
@@ -382,7 +426,52 @@
             }
         };
 
-        document.addEventListener('DOMContentLoaded', setupObserver);
+        const setupGsapTextAnimations = () => {
+            // Initialize Splitting.js on elements with data-splitting
+            Splitting({ target: '.gsap-reveal', by: 'words' });
+
+            // Replicate word-variation-2 from React code using ScrollTrigger
+            const gsapElements = document.querySelectorAll('.gsap-reveal');
+
+            gsapElements.forEach(el => {
+                const words = el.querySelectorAll('.word');
+                if (!words.length) return;
+
+                // Hide initially before scroll
+                gsap.set(words, {
+                    willChange: "transform, opacity",
+                    transformOrigin: "50% 0%",
+                    scaleY: 0,
+                    opacity: 0,
+                    overflow: "hidden"
+                });
+
+                // Simple scroll observer for the text animations
+                const textObserver = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            gsap.to(words, {
+                                ease: "back.inOut",
+                                opacity: 1,
+                                scaleY: 1,
+                                yPercent: 0,
+                                stagger: 0.1,
+                                duration: 1,
+                                // Only play once
+                                onComplete: () => observer.unobserve(entry.target)
+                            });
+                        }
+                    });
+                }, { threshold: 0.1 });
+
+                textObserver.observe(el);
+            });
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setupObserver();
+            setupGsapTextAnimations();
+        });
     </script>
 
     <!-- PyScript Main Logic -->

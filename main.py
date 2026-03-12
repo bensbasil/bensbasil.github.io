@@ -18,7 +18,7 @@ def handle_contact_submit(event):
     msg_box.className = "mb-8 p-5 rounded-2xl text-sm bg-green-50 text-green-700 block"
     msg_box.style.display = "block"
     
-    subject = "Portfolio Inquiry"
+    subject = f"[Portfolio Contact] Inquiry from {name}"
     body = f"From: {name} ({email})\n\n{message}"
     mailto_url = f"mailto:bensdbasil@gmail.com?subject={urllib.parse.quote(subject)}&body={urllib.parse.quote(body)}"
     

@@ -155,31 +155,22 @@
 
     <!-- Minimalist Navigation -->
     <nav
-        class="fixed top-0 w-full z-50 transition-all duration-300 border-b border-white/10 bg-transparent backdrop-blur-[2px]">
-        <div class="max-w-[90rem] mx-auto px-6 md:px-12 h-24 flex items-center justify-between font-sans">
+        class="fixed top-0 w-full z-50 transition-all duration-300 bg-transparent backdrop-blur-[2px]" id="navbar">
+        <div class="w-full px-8 md:px-16 lg:px-24 h-24 flex items-center justify-between font-sans">
             <a href="index.html"
-                class="relative z-[60] text-gray-300 hover:text-white font-bold text-xs tracking-[0.2em] uppercase transition-colors">
+                class="relative z-[60] font-bold text-xs tracking-[0.2em] uppercase transition-colors nav-text hover:text-white text-gray-300">
                 BENS BASIL
             </a>
             <div
-                class="hidden md:flex items-center space-x-10 text-[11px] font-bold tracking-[0.15em] text-gray-300 uppercase">
+                class="hidden md:flex items-center space-x-10 text-[11px] font-bold tracking-[0.15em] uppercase nav-text text-gray-300">
                 <a href="#services" class="hover:text-white transition-colors">Services</a>
                 <a href="#projects" class="hover:text-white transition-colors">Work</a>
-                <a href="#" class="hover:text-white transition-colors">Teaching</a>
-                <a href="#" class="hover:text-white transition-colors">About Me</a>
+                <a href="#about" class="hover:text-white transition-colors">About Me</a>
                 <a href="contact.html" class="hover:text-white transition-colors">Contact</a>
-                <span class="text-gray-600">|</span>
-                <div class="flex items-center space-x-2">
-                    <a href="#" class="text-white border-b border-white pb-0.5">EN</a>
-                    <span class="text-gray-500">/</span>
-                    <a href="#" class="text-gray-500 hover:text-white transition-colors">HI</a>
-                    <span class="text-gray-500">/</span>
-                    <a href="#" class="text-gray-500 hover:text-white transition-colors">AR</a>
-                </div>
             </div>
 
             <button id="menu-toggle"
-                class="md:hidden relative z-[60] text-gray-300 p-2 hover:text-white transition-colors">
+                class="md:hidden relative z-[60] p-2 transition-colors nav-text text-gray-300 hover:text-white">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path id="menu-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M4 6h16M4 12h16m-7 6h7"></path>
@@ -193,7 +184,7 @@
                 class="text-2xl font-bold tracking-[0.2em] text-gray-300 hover:text-white uppercase transition-colors mobile-link">Services</a>
             <a href="#projects"
                 class="text-2xl font-bold tracking-[0.2em] text-gray-300 hover:text-white uppercase transition-colors mobile-link">Work</a>
-            <a href="#"
+            <a href="#about"
                 class="text-2xl font-bold tracking-[0.2em] text-gray-300 hover:text-white uppercase transition-colors mobile-link">About
                 Me</a>
             <a href="contact.html"
@@ -247,6 +238,67 @@
             </div>
         </section>
 
+        <!-- About Section -->
+        <section id="about" class="relative py-32 bg-white text-brand-dark overflow-hidden border-b border-black/5">
+            <div class="max-w-[90rem] mx-auto px-6 md:px-12 relative z-10">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+                    
+                    <!-- Left: Typography & Intro -->
+                    <div class="space-y-10">
+                        <h2 class="gsap-reveal text-5xl md:text-7xl font-black tracking-tighter leading-none text-brand-dark" data-splitting>
+                            About Me.
+                        </h2>
+                        
+                        <div class="space-y-6 text-xl text-gray-500 font-medium leading-relaxed max-w-2xl reveal delay-100">
+                            <p>
+                                Hi, I'm <span class="text-brand-dark font-bold">Bens</span> — a data enthusiast with a background in IT, focused on data science, machine learning, and scalable backend development. I thrive on transforming raw data into meaningful insights and engineering intelligent systems that solve complex, real-world problems.
+                            </p>
+                            <p>
+                                My core technical stack includes <span class="text-brand-dark font-bold">Python, SQL, Scikit-learn, FastAPI, and PostgreSQL</span>. I excel working across the entire data pipeline — from rigorous data preprocessing and model experimentation to robust API development and seamless deployment.
+                            </p>
+                            <p>
+                                Currently, I am actively deepening my expertise in advanced machine learning and high-performance backend systems, continually building practical projects that demonstrate measurable, real-world impact.
+                            </p>
+                        </div>
+
+                        <div class="reveal delay-200 pt-4">
+                            <a href="contact.html" class="inline-flex items-center space-x-3 text-brand-dark font-bold tracking-wide hover:text-brand-green transition-colors group">
+                                <span class="uppercase text-sm tracking-[0.2em]">Let's collaborate</span>
+                                <svg class="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Right: Abstract/Aesthetic Visual or Stats -->
+                    <div class="reveal delay-300 relative bg-[#F8F8F8] p-12 rounded-[2rem] border border-black/5 flex flex-col justify-center min-h-[400px]">
+                        <!-- Decorative background element -->
+                        <div class="absolute top-0 right-0 w-64 h-64 bg-brand-green/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+                        
+                        <div class="relative z-10 grid grid-cols-2 gap-12">
+                            <div>
+                                <p class="text-[10px] uppercase tracking-[0.2em] font-bold text-gray-400 mb-2">Focus</p>
+                                <p class="text-2xl font-black text-brand-dark">ML & AI Systems</p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] uppercase tracking-[0.2em] font-bold text-gray-400 mb-2">Background</p>
+                                <p class="text-2xl font-black text-brand-dark">IT & Data Science</p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] uppercase tracking-[0.2em] font-bold text-gray-400 mb-2">Based In</p>
+                                <p class="text-2xl font-black text-brand-dark">Trivandrum, IN</p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] uppercase tracking-[0.2em] font-bold text-gray-400 mb-2">Approach</p>
+                                <p class="text-2xl font-black text-brand-dark">End-to-End Pipeline</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
 
         <!-- Services Section (Light Background) -->
         <section id="services" class="relative py-32 bg-brand-light text-brand-dark overflow-hidden">
@@ -490,9 +542,30 @@
             });
         };
 
+        const setupNavbarScroll = () => {
+            const navbar = document.getElementById('navbar');
+            const aboutSection = document.getElementById('about');
+            
+            window.addEventListener('scroll', () => {
+                if (!aboutSection || !navbar) return;
+                
+                const aboutRect = aboutSection.getBoundingClientRect();
+                
+                // Hide navbar when about section is reached or mostly reached
+                if (aboutRect.top <= 120) {
+                    navbar.classList.add('opacity-0', '-translate-y-full', 'pointer-events-none');
+                    navbar.classList.remove('opacity-100', 'translate-y-0');
+                } else {
+                    navbar.classList.remove('opacity-0', '-translate-y-full', 'pointer-events-none');
+                    navbar.classList.add('opacity-100', 'translate-y-0');
+                }
+            });
+        };
+
         document.addEventListener('DOMContentLoaded', () => {
             setupObserver();
             setupGsapTextAnimations();
+            setupNavbarScroll();
         });
     </script>
 

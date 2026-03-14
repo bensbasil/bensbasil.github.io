@@ -74,7 +74,7 @@ def create_contact_submission(
     # 3. Configure the Message Schema
     # Send it to YOUR email address, NOT the submitters!
     message = MessageSchema(
-        subject=f"New Portfolio Inquiry from {submission.name}",
+        subject=f"[Inquiry #{db_submission.id}] Portfolio Inquiry from {submission.name}",
         recipients=[os.getenv("MAIL_FROM", "bensdbasil@gmail.com")], 
         body=html,
         subtype=MessageType.html

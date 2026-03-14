@@ -6,7 +6,7 @@ from pyodide.http import pyfetch
 
 # --- Contact Form Logic ---
 @when("submit", "#contact-form")
-def handle_contact_submit(event):
+async def handle_contact_submit(event):
     event.preventDefault()
     
     name = document.getElementById("name").value
@@ -14,16 +14,33 @@ def handle_contact_submit(event):
     message = document.getElementById("message").value
     
     msg_box = document.getElementById("form-message")
-    msg_box.innerHTML = f"Thanks {name}! Opening your email client..."
-    msg_box.className = "mb-8 p-5 rounded-2xl text-sm bg-green-50 text-green-700 block"
+    msg_box.innerHTML = "Sending message..."
+    msg_box.className = "mb-8 p-5 rounded-2xl text-sm border border-blue-200 bg-blue-50 text-blue-700 block"
     msg_box.style.display = "block"
     
-    subject = f"[Portfolio Contact] Inquiry from {name}"
-    body = f"From: {name} ({email})\n\n{message}"
-    mailto_url = f"mailto:bensdbasil@gmail.com?subject={urllib.parse.quote(subject)}&body={urllib.parse.quote(body)}"
-    
-    # Redirect to mailto link
-    window.location.href = mailto_url
+    try:
+        response = await pyfetch(
+            "http://localhost:8001/contact",
+            method="POST",
+            headers={
+                "Content-Type": "application/json"
+            },
+            body=json.dumps({
+                "name": name,
+                "email": email,
+                "message": message
+            })
+        )
+        if response.ok:
+            msg_box.innerHTML = f"Thanks {name}! Your message has been securely submitted."
+            msg_box.className = "mb-8 p-5 rounded-2xl text-sm border border-green-200 bg-green-50 text-green-700 block"
+            document.getElementById("contact-form").reset()
+        else:
+            msg_box.innerHTML = "Failed to send message. Please try again."
+            msg_box.className = "mb-8 p-5 rounded-2xl text-sm border border-red-200 bg-red-50 text-red-700 block"
+    except Exception as e:
+        msg_box.innerHTML = f"Network Error: Could not connect to the backend server."
+        msg_box.className = "mb-8 p-5 rounded-2xl text-sm border border-red-200 bg-red-50 text-red-700 block"
 
 
 # --- Projects Fetching Logic ---

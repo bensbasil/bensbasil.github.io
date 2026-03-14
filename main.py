@@ -20,7 +20,7 @@ async def handle_contact_submit(event):
     
     try:
         response = await pyfetch(
-            "http://localhost:8001/contact",
+            "https://api.bensbasil.in/contact",
             method="POST",
             headers={
                 "Content-Type": "application/json"

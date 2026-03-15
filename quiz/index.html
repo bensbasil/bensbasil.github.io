@@ -1,1112 +1,790 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>What color are you?</title>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap"
-    rel="stylesheet">
-  <style>
-    :root {
-      --cream: #FAF7F2;
-      --ink: #1C1917;
-      --ink-soft: #57534E;
-      --ink-muted: #A8A29E;
-      --border: #E7E2D9;
-      --red: #C0392B;
-      --red-bg: #FDF0EF;
-      --red-mid: #E85D4A;
-      --yellow: #B45309;
-      --yellow-bg: #FFFBEB;
-      --yellow-mid: #F59E0B;
-      --green: #166534;
-      --green-bg: #F0FDF4;
-      --green-mid: #22C55E;
-      --blue: #1E3A8A;
-      --blue-bg: #EFF6FF;
-      --blue-mid: #3B82F6;
-    }
-
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--cream);
-      color: var(--ink);
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
-
-    /* subtle grain texture */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .wrap {
-      position: relative;
-      z-index: 1;
-      max-width: 560px;
-      margin: 0 auto;
-      padding: 2rem 1.5rem 4rem;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* ── SCREENS ── */
-    .screen {
-      display: none;
-      flex-direction: column;
-      flex: 1;
-    }
-
-    .screen.active {
-      display: flex;
-      animation: fadeUp .45s ease both;
-    }
-
-    @keyframes fadeUp {
-      from {
-        opacity: 0;
-        transform: translateY(14px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    /* ── INTRO ── */
-    .intro-top {
-      margin-top: 3rem;
-      margin-bottom: 2rem;
-    }
-
-    .eyebrow {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: .15em;
-      text-transform: uppercase;
-      color: var(--ink-muted);
-      margin-bottom: .75rem;
-    }
-
-    .intro-title {
-      font-family: 'Lora', serif;
-      font-size: clamp(28px, 6vw, 38px);
-      font-weight: 400;
-      line-height: 1.25;
-      margin-bottom: 1rem;
-      color: var(--ink);
-    }
-
-    .intro-title em {
-      font-style: italic;
-    }
-
-    .intro-sub {
-      font-size: 15px;
-      line-height: 1.8;
-      color: var(--ink-soft);
-      margin-bottom: 2rem;
-      max-width: 440px;
-    }
-
-    .color-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 2.5rem;
-    }
-
-    .color-pill {
-      font-size: 12px;
-      font-weight: 500;
-      padding: 6px 14px;
-      border-radius: 20px;
-      letter-spacing: .02em;
-    }
-
-    .btn-start {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      background: var(--ink);
-      color: var(--cream);
-      border: none;
-      border-radius: 40px;
-      padding: 14px 28px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 15px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: transform .15s, opacity .15s;
-      width: fit-content;
-    }
-
-    .btn-start:hover {
-      opacity: .88;
-      transform: translateY(-1px);
-    }
-
-    .btn-start svg {
-      width: 16px;
-      height: 16px;
-    }
-
-    .deco-line {
-      width: 48px;
-      height: 2px;
-      background: var(--ink-muted);
-      border-radius: 2px;
-      margin: 2.5rem 0;
-      opacity: .3;
-    }
-
-    /* ── PROGRESS ── */
-    .prog-wrap {
-      margin-bottom: 2rem;
-    }
-
-    .prog-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: .6rem;
-    }
-
-    .prog-mood {
-      font-size: 12px;
-      color: var(--ink-muted);
-      font-style: italic;
-      font-family: 'Lora', serif;
-    }
-
-    .prog-num {
-      font-size: 12px;
-      color: var(--ink-muted);
-      font-weight: 500;
-    }
-
-    .prog-track {
-      height: 2px;
-      background: var(--border);
-      border-radius: 2px;
-      overflow: hidden;
-    }
-
-    .prog-fill {
-      height: 100%;
-      background: var(--ink);
-      border-radius: 2px;
-      transition: width .6s cubic-bezier(.4, 0, .2, 1);
-      width: 0%;
-    }
-
-    /* ── QUESTION ── */
-    .q-category {
-      font-size: 10px;
-      font-weight: 500;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      color: var(--ink-muted);
-      margin-bottom: .75rem;
-    }
-
-    .q-text {
-      font-family: 'Lora', serif;
-      font-size: clamp(18px, 4vw, 22px);
-      font-weight: 400;
-      line-height: 1.5;
-      color: var(--ink);
-      margin-bottom: 2rem;
-    }
-
-    /* ── OPTIONS ── */
-    .opts {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .opt {
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 14px 18px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 14px;
-      line-height: 1.5;
-      color: var(--ink-soft);
-      text-align: left;
-      cursor: pointer;
-      transition: border-color .15s, background .15s, color .15s, transform .12s;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .opt:hover {
-      border-color: var(--ink);
-      color: var(--ink);
-      transform: translateX(3px);
-    }
-
-    .opt-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      flex-shrink: 0;
-      border: 1.5px solid var(--border);
-      transition: background .15s, border-color .15s;
-    }
-
-    .opt:hover .opt-dot {
-      border-color: var(--ink);
-      background: var(--ink);
-    }
-
-    /* ── DASHBOARD ── */
-    .dash-header {
-      margin-bottom: 2rem;
-    }
-
-    .joke-card {
-      border-radius: 16px;
-      padding: 16px 20px;
-      font-family: 'Lora', serif;
-      font-size: 14px;
-      font-style: italic;
-      line-height: 1.8;
-      margin-bottom: 1.75rem;
-      position: relative;
-    }
-
-    .joke-card::before {
-      content: '"';
-      font-size: 48px;
-      line-height: 1;
-      position: absolute;
-      top: 8px;
-      left: 14px;
-      opacity: .2;
-      font-family: 'Lora', serif;
-    }
-
-    .joke-text {
-      padding-left: 8px;
-    }
-
-    .result-card {
-      border-radius: 20px;
-      padding: 22px 22px 18px;
-      margin-bottom: 1rem;
-    }
-
-    .result-eyebrow {
-      font-size: 10px;
-      font-weight: 500;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      margin-bottom: 6px;
-    }
-
-    .result-name {
-      font-family: 'Lora', serif;
-      font-size: 24px;
-      font-weight: 400;
-      margin-bottom: 8px;
-    }
-
-    .result-body {
-      font-size: 13.5px;
-      line-height: 1.75;
-      opacity: .85;
-    }
-
-    .section-label {
-      font-size: 10px;
-      font-weight: 500;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      color: var(--ink-muted);
-      margin-bottom: .75rem;
-      margin-top: 1.75rem;
-    }
-
-    /* color quad */
-    .quad {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-bottom: .5rem;
-    }
-
-    .qcell {
-      border-radius: 14px;
-      padding: 14px;
-      text-align: center;
-      transition: transform .2s;
-    }
-
-    .qcell:hover {
-      transform: scale(1.02);
-    }
-
-    .qcell-name {
-      font-size: 10px;
-      font-weight: 500;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-    }
-
-    .qcell-pct {
-      font-size: 26px;
-      font-weight: 400;
-      font-family: 'Lora', serif;
-      margin-top: 3px;
-    }
-
-    /* bars */
-    .bar-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .bar-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .bar-lbl {
-      font-size: 12px;
-      color: var(--ink-muted);
-      min-width: 56px;
-    }
-
-    .bar-track {
-      flex: 1;
-      height: 6px;
-      background: var(--border);
-      border-radius: 3px;
-      overflow: hidden;
-    }
-
-    .bar-fill {
-      height: 100%;
-      border-radius: 3px;
-      width: 0%;
-      transition: width 1s cubic-bezier(.4, 0, .2, 1);
-    }
-
-    .bar-pct {
-      font-size: 12px;
-      color: var(--ink-muted);
-      min-width: 32px;
-      text-align: right;
-    }
-
-    /* insight cards */
-    .icard {
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 16px 18px;
-      margin-bottom: 10px;
-    }
-
-    .icard-head {
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--ink);
-      margin-bottom: 6px;
-    }
-
-    .icard-body {
-      font-size: 13.5px;
-      color: var(--ink-soft);
-      line-height: 1.75;
-    }
-
-    .tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 10px;
-    }
-
-    .tag {
-      font-size: 11px;
-      font-weight: 500;
-      padding: 4px 12px;
-      border-radius: 20px;
-    }
-
-    /* watch cards */
-    .wcard {
-      background: white;
-      border: 1px solid var(--border);
-      border-left: 3px solid;
-      border-radius: 0 14px 14px 0;
-      padding: 14px 16px;
-      margin-bottom: 9px;
-    }
-
-    .wcard-head {
-      font-size: 13px;
-      font-weight: 500;
-      margin-bottom: 5px;
-    }
-
-    .wcard-body {
-      font-size: 13.5px;
-      color: var(--ink-soft);
-      line-height: 1.75;
-    }
-
-    /* growth */
-    .growth-card {
-      border-radius: 16px;
-      padding: 18px 20px;
-      margin-top: .25rem;
-    }
-
-    .growth-text {
-      font-family: 'Lora', serif;
-      font-size: 15px;
-      font-style: italic;
-      line-height: 1.85;
-      color: var(--ink);
-    }
-
-    .restart-btn {
-      width: 100%;
-      margin-top: 2rem;
-      padding: 13px;
-      background: transparent;
-      border: 1px solid var(--border);
-      border-radius: 40px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 13px;
-      color: var(--ink-muted);
-      cursor: pointer;
-      transition: background .15s, color .15s;
-    }
-
-    .restart-btn:hover {
-      background: white;
-      color: var(--ink);
-    }
-
-    /* fade-in stagger for dashboard cards */
-    .fade-in {
-      animation: fadeUp .4s ease both;
-    }
-
-    .fade-in:nth-child(1) {
-      animation-delay: .05s;
-    }
-
-    .fade-in:nth-child(2) {
-      animation-delay: .12s;
-    }
-
-    .fade-in:nth-child(3) {
-      animation-delay: .19s;
-    }
-
-    .fade-in:nth-child(4) {
-      animation-delay: .26s;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What Element Are You? — Ben's Basil</title>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root {
+  --purple:#7C3AED; --purple-l:#EDE9FE; --purple-m:#A78BFA; --purple-d:#4C1D95;
+  --yellow:#F59E0B; --yellow-l:#FEF3C7; --yellow-d:#92400E;
+  --coral:#F87171;  --coral-l:#FEE2E2;  --coral-d:#991B1B;
+  --green:#10B981;  --green-l:#D1FAE5;  --green-d:#065F46;
+  --blue:#3B82F6;   --blue-l:#DBEAFE;   --blue-d:#1E3A8A;
+  --ink:#1E1B4B; --ink-s:#6B7280; --ink-m:#9CA3AF;
+  --bg:#F5F3FF; --white:#FFFFFF;
+  --sh:0 8px 32px rgba(124,58,237,0.10);
+  --sh2:0 16px 48px rgba(124,58,237,0.18);
+  --r-xl:24px; --r-lg:16px; --r-md:12px; --r-pill:999px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--ink);}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-thumb{background:var(--purple-m);border-radius:3px;}
+
+/* ── SHELL ── */
+.shell{display:grid;grid-template-columns:230px 1fr 300px;height:100vh;gap:0;padding:20px;gap:16px;max-width:1300px;margin:0 auto;}
+
+/* ── SIDEBAR ── */
+.sidebar{display:flex;flex-direction:column;gap:14px;overflow-y:auto;}
+.nav-card{background:var(--white);border-radius:var(--r-xl);padding:22px 18px;box-shadow:var(--sh);}
+.logo{width:42px;height:42px;background:var(--purple);border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;margin-bottom:24px;}
+.nav-list{list-style:none;display:flex;flex-direction:column;gap:3px;}
+.nav-item a{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:var(--r-md);font-size:13.5px;font-weight:500;color:var(--ink-s);text-decoration:none;transition:background .18s,color .18s;cursor:pointer;}
+.nav-item a:hover,.nav-item.active a{background:var(--purple-l);color:var(--purple);}
+.nav-item.active a{font-weight:600;}
+.nav-icon{width:17px;height:17px;flex-shrink:0;}
+.mascot-card{background:var(--purple);border-radius:var(--r-xl);padding:22px 18px;position:relative;overflow:hidden;flex:1;min-height:180px;}
+.mascot-card::before{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:rgba(255,255,255,0.08);border-radius:50%;}
+.mascot-card::after{content:'';position:absolute;bottom:-20px;left:-15px;width:90px;height:90px;background:rgba(255,255,255,0.06);border-radius:50%;}
+.mascot-title{font-family:'Clash Display',sans-serif;font-size:18px;font-weight:700;color:white;line-height:1.35;margin-bottom:16px;position:relative;z-index:1;}
+.mascot-svg-wrap{position:absolute;bottom:0;right:10px;width:90px;height:110px;z-index:1;}
+.progress-ring-wrap{display:flex;flex-direction:column;gap:6px;position:relative;z-index:1;}
+.progress-label{font-size:11px;color:rgba(255,255,255,0.7);font-weight:500;}
+.prog-track{height:6px;background:rgba(255,255,255,0.2);border-radius:3px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:3px;transition:width .6s cubic-bezier(.4,0,.2,1);}
+
+/* ── MAIN ── */
+.main{display:flex;flex-direction:column;gap:16px;overflow-y:auto;}
+.main-card{background:var(--white);border-radius:var(--r-xl);padding:28px 26px;box-shadow:var(--sh);animation:fadeUp .4s ease both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.93)}to{opacity:1;transform:scale(1)}}
+
+/* ── RIGHT PANEL ── */
+.right-panel{display:flex;flex-direction:column;gap:14px;overflow-y:auto;}
+.right-card{background:var(--white);border-radius:var(--r-xl);box-shadow:var(--sh);overflow:hidden;animation:scaleIn .4s ease both;}
+
+/* ── INTRO ── */
+.page-eyebrow{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-m);margin-bottom:.5rem;}
+.page-title{font-family:'Clash Display',sans-serif;font-size:clamp(26px,3vw,36px);font-weight:700;color:var(--ink);line-height:1.2;margin-bottom:.75rem;}
+.page-title em{color:var(--purple);font-style:normal;}
+.page-sub{font-size:14px;line-height:1.8;color:var(--ink-s);margin-bottom:1.5rem;max-width:420px;}
+.element-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1.75rem;}
+.echip{font-size:12px;font-weight:600;padding:6px 14px;border-radius:var(--r-pill);letter-spacing:.02em;transition:transform .15s;}
+.echip:hover{transform:translateY(-2px);}
+.btn-primary{display:inline-flex;align-items:center;gap:10px;background:var(--purple);color:white;border:none;border-radius:var(--r-pill);padding:13px 26px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:transform .15s,box-shadow .15s;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(124,58,237,0.4);}
+.btn-primary svg{width:15px;height:15px;}
+
+/* ── QUIZ ── */
+.q-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;}
+.q-count{font-size:12px;font-weight:600;color:var(--ink-m);}
+.q-cat{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--purple);margin-bottom:.6rem;}
+.q-text{font-family:'Clash Display',sans-serif;font-size:clamp(17px,2.5vw,22px);font-weight:600;color:var(--ink);line-height:1.4;margin-bottom:1.5rem;}
+.opts-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.opt-card{border-radius:var(--r-lg);padding:16px;cursor:pointer;border:2px solid transparent;transition:transform .2s cubic-bezier(.175,.885,.32,1.275),box-shadow .2s,opacity .15s;position:relative;overflow:hidden;min-height:90px;display:flex;flex-direction:column;justify-content:space-between;}
+.opt-card:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 12px 32px rgba(0,0,0,0.13);}
+.opt-card.c-red{background:var(--coral);}
+.opt-card.c-yellow{background:var(--yellow);}
+.opt-card.c-green{background:var(--green);}
+.opt-card.c-blue{background:var(--blue);}
+.opt-text{font-size:13px;font-weight:600;color:white;line-height:1.4;position:relative;z-index:1;}
+.opt-icon{width:32px;height:32px;background:rgba(255,255,255,0.25);border-radius:50%;display:flex;align-items:center;justify-content:center;align-self:flex-end;position:relative;z-index:1;}
+.opt-card.selected{transform:scale(0.97);opacity:.75;pointer-events:none;}
+.opt-bg-shape{position:absolute;bottom:-15px;right:-15px;width:70px;height:70px;background:rgba(255,255,255,0.12);border-radius:50%;}
+
+/* ── RESULTS ── */
+.results-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem;}
+.res-card{border-radius:var(--r-lg);padding:18px;position:relative;overflow:hidden;min-height:110px;display:flex;flex-direction:column;justify-content:space-between;cursor:default;transition:transform .2s;}
+.res-card:hover{transform:translateY(-2px);}
+.res-card.red{background:var(--coral);}
+.res-card.yellow{background:var(--yellow);}
+.res-card.green{background:var(--green);}
+.res-card.blue{background:var(--blue);}
+.res-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,0.8);}
+.res-pct{font-family:'Clash Display',sans-serif;font-size:32px;font-weight:700;color:white;line-height:1;}
+.res-name{font-size:11px;color:rgba(255,255,255,0.75);margin-top:2px;}
+.res-bg{position:absolute;bottom:-20px;right:-20px;width:80px;height:80px;background:rgba(255,255,255,0.1);border-radius:50%;}
+
+.section-label{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-m);margin-bottom:.65rem;margin-top:1.4rem;}
+.bar-list{display:flex;flex-direction:column;gap:8px;}
+.bar-row{display:flex;align-items:center;gap:10px;}
+.bar-lbl{font-size:12px;color:var(--ink-s);min-width:54px;}
+.bar-track{flex:1;height:7px;background:#F3F4F6;border-radius:4px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:4px;width:0%;transition:width 1s cubic-bezier(.4,0,.2,1);}
+.bar-pct{font-size:11px;color:var(--ink-m);min-width:30px;text-align:right;}
+
+.insight-row{display:flex;flex-direction:column;gap:8px;}
+.insight-card{background:#F9FAFB;border-radius:var(--r-lg);padding:14px 16px;}
+.insight-head{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:4px;display:flex;align-items:center;gap:8px;}
+.insight-body{font-size:13px;color:var(--ink-s);line-height:1.7;}
+.tag-wrap{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.tag{font-size:11px;font-weight:600;padding:4px 11px;border-radius:var(--r-pill);}
+.watch-card{border-radius:0 var(--r-lg) var(--r-lg) 0;border-left:3px solid;padding:13px 15px;background:#F9FAFB;margin-bottom:8px;}
+.watch-head{font-size:13px;font-weight:600;margin-bottom:4px;}
+.watch-body{font-size:12.5px;color:var(--ink-s);line-height:1.7;}
+.growth-card{border-radius:var(--r-lg);padding:16px 18px;margin-top:4px;}
+.growth-text{font-family:'Clash Display',sans-serif;font-size:15px;font-weight:500;line-height:1.75;font-style:italic;}
+.restart-btn{width:100%;margin-top:1.5rem;padding:13px;background:transparent;border:1.5px solid #E5E7EB;border-radius:var(--r-pill);font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;color:var(--ink-s);cursor:pointer;transition:background .15s,color .15s,border-color .15s;}
+.restart-btn:hover{background:var(--purple-l);color:var(--purple);border-color:var(--purple);}
+
+/* ── RIGHT PANEL DETAIL ── */
+.rp-hero{height:180px;position:relative;overflow:hidden;}
+.rp-nav{position:absolute;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;z-index:2;}
+.rp-icon-btn{width:34px;height:34px;background:rgba(255,255,255,0.88);border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s;}
+.rp-icon-btn:hover{transform:scale(1.1);}
+.rp-body{padding:18px;}
+.rp-title{font-family:'Clash Display',sans-serif;font-size:18px;font-weight:700;color:var(--ink);margin-bottom:4px;}
+.rp-sub{font-size:12px;color:var(--ink-m);margin-bottom:10px;}
+.rp-meta{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px;}
+.meta-pill{display:flex;align-items:center;gap:4px;background:#F9FAFB;border-radius:var(--r-pill);padding:4px 11px;font-size:11px;font-weight:500;}
+.rp-desc{font-size:12.5px;color:var(--ink-s);line-height:1.7;}
+.element-badge{display:inline-flex;align-items:center;gap:7px;padding:6px 14px;border-radius:var(--r-pill);font-size:12px;font-weight:600;margin-bottom:.75rem;}
+.mascot-result{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid #F3F4F6;}
+.mascot-result svg{width:54px;height:64px;flex-shrink:0;}
+.mascot-speech{font-size:12.5px;font-style:italic;color:var(--ink-s);line-height:1.65;}
+
+/* ── ANALYTICS ── */
+.analytics-hero{border-radius:var(--r-xl);padding:24px;background:linear-gradient(135deg,var(--purple-d),var(--purple));color:white;margin-bottom:14px;position:relative;overflow:hidden;}
+.analytics-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:rgba(255,255,255,0.07);border-radius:50%;}
+.analytics-hero-title{font-family:'Clash Display',sans-serif;font-size:22px;font-weight:700;margin-bottom:4px;position:relative;z-index:1;}
+.analytics-hero-sub{font-size:13px;color:rgba(255,255,255,0.75);position:relative;z-index:1;}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;}
+.stat-card{background:var(--white);border-radius:var(--r-lg);padding:14px;box-shadow:var(--sh);text-align:center;}
+.stat-num{font-family:'Clash Display',sans-serif;font-size:26px;font-weight:700;color:var(--purple);}
+.stat-label{font-size:11px;color:var(--ink-m);margin-top:2px;}
+.chart-card{background:var(--white);border-radius:var(--r-xl);padding:20px;box-shadow:var(--sh);margin-bottom:14px;}
+.chart-title{font-family:'Clash Display',sans-serif;font-size:16px;font-weight:600;margin-bottom:14px;}
+.chart-wrap{position:relative;}
+.no-data{text-align:center;padding:40px 20px;color:var(--ink-m);font-size:13px;line-height:1.7;}
+.no-data-icon{font-size:32px;margin-bottom:8px;}
+.cluster-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.cluster-pill{display:flex;align-items:center;gap:8px;padding:10px 13px;background:#F9FAFB;border-radius:var(--r-md);font-size:12px;}
+.cluster-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+
+/* ── ELEMENT PARTICLES ── */
+#el-canvas{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:0;transition:opacity 1s;}
+#el-canvas.on{opacity:1;}
+.shell{position:relative;z-index:1;}
+#quiz-overlay{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:0;transition:background 2s,opacity 2s;}
+
+/* ── MASCOT ANIMS ── */
+@keyframes gloop{0%,100%{transform:scale(1,1)}50%{transform:scale(1.08,.95)}}
+@keyframes gloop-w{0%,100%{transform:scale(1,1) rotate(0deg)}33%{transform:scale(1.05,.97) rotate(-1.5deg)}66%{transform:scale(.97,1.04) rotate(1.5deg)}}
+@keyframes zip-f{0%,100%{transform:translate(0,0) rotate(0deg)}25%{transform:translate(2px,-3px) rotate(2deg)}75%{transform:translate(-1px,-1px) rotate(-1deg)}}
+@keyframes zip-a{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes hfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes hfire{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-7px) rotate(8deg)}}
+@keyframes pop{0%{opacity:0;transform:scale(.6) translateY(12px)}70%{transform:scale(1.08) translateY(-2px)}100%{opacity:1;transform:scale(1) translateY(0)}}
+.ag{animation:gloop 3s ease-in-out infinite;transform-origin:bottom;}
+.agw{animation:gloop-w 4s ease-in-out infinite;transform-origin:center;}
+.azf{animation:zip-f .12s ease-in-out infinite;}
+.aza{animation:zip-a 2.5s ease-in-out infinite;}
+.ah{animation:hfloat 2s ease-in-out infinite;}
+.ahf{animation:hfire .5s ease-in-out infinite;}
+.pop{animation:pop .6s cubic-bezier(.175,.885,.32,1.275) both;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1050px){.shell{grid-template-columns:200px 1fr 260px;}}
+@media(max-width:800px){.shell{grid-template-columns:1fr;height:auto;overflow:auto;}.right-panel{display:none;}body,html{overflow:auto;}}
+@media(max-width:500px){.opts-grid{grid-template-columns:1fr;}.results-grid{grid-template-columns:1fr 1fr;}}
+</style>
 </head>
-
 <body>
-  <div class="wrap">
+<canvas id="el-canvas"></canvas>
+<div id="quiz-overlay"></div>
 
-    <!-- ── INTRO ── -->
-    <div class="screen active" id="s-intro">
-      <div class="intro-top">
-        <div class="eyebrow">personality colors</div>
-        <h1 class="intro-title">Hey — just a few<br><em>everyday questions.</em></h1>
-        <p class="intro-sub">No right or wrong answers. Just pick what feels most like you. By the end you'll see
-          yourself in color — and get honest reflections on who you are, where you thrive, and who you naturally click
-          with.</p>
-        <div class="color-row">
-          <span class="color-pill" style="background:var(--red-bg);color:var(--red)">Red — the pioneer</span>
-          <span class="color-pill" style="background:var(--yellow-bg);color:var(--yellow)">Yellow — the energizer</span>
-          <span class="color-pill" style="background:var(--green-bg);color:var(--green)">Green — the anchor</span>
-          <span class="color-pill" style="background:var(--blue-bg);color:var(--blue)">Blue — the architect</span>
+<div class="shell">
+
+  <!-- ══ SIDEBAR ══ -->
+  <aside class="sidebar">
+    <div class="nav-card">
+      <div class="logo">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <ul class="nav-list">
+        <li class="nav-item active" id="nav-intro" onclick="showScreen('intro')">
+          <a>
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+            Discover
+          </a>
+        </li>
+        <li class="nav-item" id="nav-quiz" onclick="showScreen('quiz')">
+          <a>
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+            Take Quiz
+          </a>
+        </li>
+        <li class="nav-item" id="nav-results" onclick="showScreen('results')">
+          <a>
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            Your Results
+          </a>
+        </li>
+        <li class="nav-item" id="nav-analytics" onclick="showScreen('analytics')">
+          <a>
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+            Analytics
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="mascot-card">
+      <p class="mascot-title" id="sidebar-title">What element<br>are you?</p>
+      <div class="progress-ring-wrap" id="sidebar-progress" style="display:none">
+        <div class="progress-label">🔥 Fire</div>
+        <div class="prog-track"><div class="prog-fill" id="sp-red" style="background:#F87171;width:0%"></div></div>
+        <div class="progress-label">💨 Air</div>
+        <div class="prog-track"><div class="prog-fill" id="sp-yellow" style="background:#F59E0B;width:0%"></div></div>
+        <div class="progress-label">🌿 Earth</div>
+        <div class="prog-track"><div class="prog-fill" id="sp-green" style="background:#10B981;width:0%"></div></div>
+        <div class="progress-label">💧 Water</div>
+        <div class="prog-track"><div class="prog-fill" id="sp-blue" style="background:#3B82F6;width:0%"></div></div>
+      </div>
+      <div class="mascot-svg-wrap" id="sidebar-mascot">
+        <!-- Gloop default -->
+        <svg viewBox="0 0 120 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path class="ag" d="M20,140 L20,50 Q20,10 60,10 Q100,10 100,50 L100,140 Z" fill="#A78BFA" stroke="white" stroke-width="1.5"/>
+          <circle cx="45" cy="45" r="13" fill="white"/><circle cx="48" cy="48" r="3" fill="#4C1D95"/>
+          <circle cx="75" cy="45" r="13" fill="white"/><circle cx="78" cy="48" r="3" fill="#4C1D95"/>
+          <path d="M48,68 Q60,78 73,68" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <g class="ah"><circle cx="10" cy="100" r="8" fill="#A78BFA" stroke="white" stroke-width="1.5"/><circle cx="110" cy="100" r="8" fill="#A78BFA" stroke="white" stroke-width="1.5"/></g>
+        </svg>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ══ MAIN CONTENT ══ -->
+  <main class="main" id="main-area">
+
+    <!-- INTRO -->
+    <div id="screen-intro" class="main-card">
+      <div class="page-eyebrow">personality colors · DISC elements</div>
+      <h1 class="page-title">Discover your<br><em>Element</em></h1>
+      <p class="page-sub">12 everyday questions. No right or wrong answers. You'll see yourself in color — and find out which element you carry and what it means for your life, work, and relationships.</p>
+      <div class="element-chips">
+        <span class="echip" style="background:var(--coral-l);color:var(--coral-d)">🔥 Red — Fire · Pioneer</span>
+        <span class="echip" style="background:var(--yellow-l);color:var(--yellow-d)">💨 Yellow — Air · Energizer</span>
+        <span class="echip" style="background:var(--green-l);color:var(--green-d)">🌿 Green — Earth · Anchor</span>
+        <span class="echip" style="background:var(--blue-l);color:var(--blue-d)">💧 Blue — Water · Architect</span>
+      </div>
+      <button class="btn-primary" onclick="beginQuiz()">
+        Start the quiz
+        <svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+
+    <!-- QUIZ -->
+    <div id="screen-quiz" style="display:none">
+      <div class="main-card" id="quiz-card">
+        <div class="q-header">
+          <span class="q-cat" id="q-cat">how you spend your time</span>
+          <span class="q-count" id="q-count">1 / 12</span>
         </div>
-        <button class="btn-start" onclick="startQuiz()">
-          Let's go
-          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-              stroke-linejoin="round" />
-          </svg>
-        </button>
+        <div class="q-text" id="q-text">Loading question...</div>
+        <div class="opts-grid" id="opts"></div>
       </div>
     </div>
 
-    <!-- ── QUIZ ── -->
-    <div class="screen" id="s-quiz">
-      <div class="prog-wrap">
-        <div class="prog-top">
-          <span class="prog-mood" id="prog-mood">just getting started</span>
-          <span class="prog-num" id="prog-num">1 / 12</span>
-        </div>
-        <div class="prog-track">
-          <div class="prog-fill" id="prog-fill"></div>
+    <!-- RESULTS -->
+    <div id="screen-results" style="display:none">
+      <div class="main-card" id="results-main">
+        <div class="page-eyebrow">your color profile</div>
+        <h2 class="page-title" id="res-title" style="font-size:clamp(20px,2.5vw,28px)">Loading...</h2>
+
+        <div class="results-grid" id="results-grid"></div>
+
+        <div class="section-label">color breakdown</div>
+        <div class="bar-list" id="res-bars"></div>
+
+        <div class="section-label">where you thrive — careers</div>
+        <div class="insight-row" id="res-careers"></div>
+
+        <div class="section-label">relationships to watch out for</div>
+        <div id="res-watch"></div>
+
+        <div class="section-label">where you naturally click</div>
+        <div id="res-good"></div>
+
+        <div class="section-label">one thing worth sitting with</div>
+        <div id="res-growth"></div>
+
+        <button class="restart-btn" onclick="restart()">↺ Take it again</button>
+      </div>
+    </div>
+
+    <!-- ANALYTICS -->
+    <div id="screen-analytics" style="display:none">
+      <div class="analytics-hero">
+        <div class="analytics-hero-title">Population Analytics</div>
+        <div class="analytics-hero-sub">Real data from everyone who took the quiz — powered by Naive Bayes, K-Means & PCA</div>
+      </div>
+
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card"><div class="stat-num" id="stat-total">—</div><div class="stat-label">Total responses</div></div>
+        <div class="stat-card"><div class="stat-num" id="stat-combo" style="font-size:16px">—</div><div class="stat-label">Most common combo</div></div>
+        <div class="stat-card"><div class="stat-num" id="stat-conf">—</div><div class="stat-label">Model confidence</div></div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-title">Color distribution across all users</div>
+        <div class="chart-wrap" style="height:220px">
+          <canvas id="dist-chart"></canvas>
         </div>
       </div>
-      <div class="q-category" id="q-cat"></div>
-      <div class="q-text" id="q-text"></div>
-      <div class="opts" id="opts"></div>
+
+      <div class="chart-card">
+        <div class="chart-title">Question → color correlation heatmap</div>
+        <div id="heatmap-wrap"><div class="no-data"><div class="no-data-icon">🔬</div>Train models first — needs 5+ responses<br><small style="color:var(--ink-m)">Hit POST /ml/train in the API after collecting responses</small></div></div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-title">User clusters — K-Means (PCA projection)</div>
+        <div class="chart-wrap" style="height:260px">
+          <canvas id="scatter-chart"></canvas>
+        </div>
+      </div>
+
     </div>
 
-    <!-- ── DASHBOARD ── -->
-    <div class="screen" id="s-dash">
-      <div id="joke-wrap"></div>
-      <div id="result-wrap"></div>
-      <div class="section-label">your color breakdown</div>
-      <div class="quad" id="quad"></div>
-      <div class="section-label">how each color shows up</div>
-      <div class="bar-list" id="bars"></div>
-      <div class="section-label">where you'll thrive — careers</div>
-      <div id="careers"></div>
-      <div class="section-label">relationships to watch out for</div>
-      <div id="rel-watch"></div>
-      <div class="section-label">where you naturally click</div>
-      <div id="rel-good"></div>
-      <div class="section-label">one thing worth sitting with</div>
-      <div id="growth"></div>
-      <button class="restart-btn" onclick="restart()">↺ have another go</button>
+  </main>
+
+  <!-- ══ RIGHT PANEL ══ -->
+  <aside class="right-panel" id="right-panel">
+
+    <!-- Intro right panel -->
+    <div class="right-card" id="rp-intro">
+      <div class="rp-hero" style="background:linear-gradient(135deg,#FDA4AF,#FB923C,#FBBF24)">
+        <div class="rp-nav">
+          <button class="rp-icon-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1E1B4B" stroke-width="2.5"><path d="M15 18L9 12L15 6"/></svg></button>
+          <button class="rp-icon-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1E1B4B" stroke-width="2"><path d="M19 21L12 16L5 21V5a2 2 0 012-2h10a2 2 0 012 2v16z"/></svg></button>
+        </div>
+        <svg style="position:absolute;bottom:0;right:0;width:160px;height:160px" viewBox="0 0 160 160" fill="none">
+          <circle cx="110" cy="40" r="40" fill="white" opacity=".15"/>
+          <circle cx="80" cy="80" r="28" fill="#FBBF24"/>
+          <rect x="56" y="106" width="48" height="38" rx="14" fill="#7C3AED"/>
+          <path d="M56 118 Q38 112 36 132" stroke="#7C3AED" stroke-width="14" stroke-linecap="round" fill="none"/>
+          <path d="M104 118 Q122 112 124 132" stroke="#7C3AED" stroke-width="14" stroke-linecap="round" fill="none"/>
+          <circle cx="72" cy="76" r="4" fill="#1E1B4B"/>
+          <circle cx="88" cy="76" r="4" fill="#1E1B4B"/>
+          <path d="M73 88 Q80 94 87 88" stroke="#1E1B4B" stroke-width="2" stroke-linecap="round" fill="none"/>
+          <circle cx="108" cy="100" r="12" fill="#10B981"/>
+          <path d="M102 100L107 105L115 95" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="rp-body">
+        <div class="rp-title">About this quiz</div>
+        <div class="rp-sub">Based on DISC personality theory</div>
+        <div class="rp-meta">
+          <div class="meta-pill">⏱ ~3 mins</div>
+          <div class="meta-pill">12 questions</div>
+          <div class="meta-pill">4 elements</div>
+        </div>
+        <div class="rp-desc">Each color maps to an element — Fire, Air, Earth, or Water. Your answers reveal how you move through the world and where you naturally thrive. The analytics page shows real ML-powered insights from all responses collected.</div>
+      </div>
     </div>
 
-  </div>
+    <!-- Quiz right panel - live tracker -->
+    <div class="right-card" id="rp-quiz" style="display:none">
+      <div style="padding:18px">
+        <div style="font-family:'Clash Display',sans-serif;font-size:15px;font-weight:600;margin-bottom:14px">Live color tracker</div>
+        <div style="display:flex;flex-direction:column;gap:10px" id="rp-live-bars">
+          <div><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--ink-m);margin-bottom:4px"><span>🔥 Fire</span><span id="rp-red-pct">0%</span></div><div class="prog-track" style="background:#F3F4F6"><div class="prog-fill" id="rp-red" style="background:#F87171;width:0%"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--ink-m);margin-bottom:4px"><span>💨 Air</span><span id="rp-yellow-pct">0%</span></div><div class="prog-track" style="background:#F3F4F6"><div class="prog-fill" id="rp-yellow" style="background:#F59E0B;width:0%"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--ink-m);margin-bottom:4px"><span>🌿 Earth</span><span id="rp-green-pct">0%</span></div><div class="prog-track" style="background:#F3F4F6"><div class="prog-fill" id="rp-green" style="background:#10B981;width:0%"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--ink-m);margin-bottom:4px"><span>💧 Water</span><span id="rp-blue-pct">0%</span></div><div class="prog-track" style="background:#F3F4F6"><div class="prog-fill" id="rp-blue" style="background:#3B82F6;width:0%"></div></div></div>
+        </div>
+        <div style="margin-top:16px;padding:12px;background:#F9FAFB;border-radius:var(--r-md)">
+          <div style="font-size:11px;color:var(--ink-m);margin-bottom:4px">currently leading</div>
+          <div style="font-family:'Clash Display',sans-serif;font-size:16px;font-weight:600" id="rp-leading">—</div>
+        </div>
+      </div>
+    </div>
 
-  <script>
-    // generate a random UUID for anonymous session tracking
-    function generateUUID() {
-      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-        const r = Math.random() * 16 | 0;
-        const v = c === 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-      });
-    }
+    <!-- Results right panel -->
+    <div class="right-card" id="rp-results" style="display:none;animation:scaleIn .5s ease both">
+      <div class="mascot-result" id="rp-mascot-wrap">
+        <!-- mascot inserted by JS -->
+      </div>
+      <div style="padding:14px 18px">
+        <div id="rp-element-badge"></div>
+        <div style="font-size:12.5px;color:var(--ink-s);line-height:1.7;font-style:italic" id="rp-mascot-line"></div>
+      </div>
+    </div>
 
-    // create session ID once when page loads, reuse for this attempt
-    const SESSION_ID = generateUUID();
+  </aside>
 
-    const CM = {
-      red: { label: 'Red', hex: '#E85D4A', light: '#FDF0EF', dark: '#C0392B', name: 'The Pioneer', mid: '#E85D4A' },
-      yellow: { label: 'Yellow', hex: '#F59E0B', light: '#FFFBEB', dark: '#B45309', name: 'The Energizer', mid: '#F59E0B' },
-      green: { label: 'Green', hex: '#22C55E', light: '#F0FDF4', dark: '#166534', name: 'The Anchor', mid: '#22C55E' },
-      blue: { label: 'Blue', hex: '#3B82F6', light: '#EFF6FF', dark: '#1E3A8A', name: 'The Architect', mid: '#3B82F6' },
-    };
-    const CL = ['red', 'yellow', 'green', 'blue'];
-    const sc = { red: 0, yellow: 0, green: 0, blue: 0 };
-    let qi = 0, bias = 'open', cur = null;
-    const used = [];
-    const answerVector = []; // stores numeric choice index (0-3) for each question
-    const TOTAL = 12;
+</div>
 
-    // ── QUESTION BANK ──
-    const OPEN = {
-      cat: 'how you spend your time',
-      text: "How do you usually spend a Sunday when nobody needs anything from you?",
-      opts: [
-        { t: "Something productive — I'd feel restless otherwise", w: { red: 3, yellow: 0, green: 0, blue: 0 }, b: 'high_red' },
-        { t: "Out somewhere — coffee, shops, just being around life", w: { red: 0, yellow: 3, green: 0, blue: 0 }, b: 'high_yellow' },
-        { t: "Quietly at home, slow and no plans", w: { red: 0, yellow: 0, green: 3, blue: 0 }, b: 'high_green' },
-        { t: "Down a rabbit hole of something I'm curious about", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
-      ]
-    };
+<script>
+// ── ELEMENT SYSTEM ────────────────────────────────────────────────────────────
+const EL={
+  red:{name:'Fire',sym:'🔥',hex:'#F87171',light:'#FEE2E2',dark:'#991B1B',particleType:'fire',particleCol:'#F97316',particleCol2:'#EF4444',overlay:'rgba(239,68,68,0.05)'},
+  yellow:{name:'Air',sym:'💨',hex:'#F59E0B',light:'#FEF3C7',dark:'#92400E',particleType:'air',particleCol:'#FCD34D',particleCol2:'#F59E0B',overlay:'rgba(245,158,11,0.04)'},
+  green:{name:'Earth',sym:'🌿',hex:'#10B981',light:'#D1FAE5',dark:'#065F46',particleType:'earth',particleCol:'#86EFAC',particleCol2:'#10B981',overlay:'rgba(16,185,129,0.04)'},
+  blue:{name:'Water',sym:'💧',hex:'#3B82F6',light:'#DBEAFE',dark:'#1E3A8A',particleType:'water',particleCol:'#93C5FD',particleCol2:'#3B82F6',overlay:'rgba(59,130,246,0.05)'},
+};
 
-    const QB = {
-      high_red: [
-        {
-          cat: 'your everyday rhythm',
-          text: "Are you a morning person or do you come alive at night?",
-          opts: [
-            { t: "Morning — I like getting ahead of the day", w: { red: 3, yellow: 0, green: 0, blue: 0 }, b: 'high_red' },
-            { t: "Morning only if I have something to look forward to", w: { red: 1, yellow: 2, green: 0, blue: 0 }, b: 'high_yellow' },
-            { t: "Neither really — I just go at my own pace", w: { red: 0, yellow: 0, green: 3, blue: 0 }, b: 'high_green' },
-            { t: "Night — that's when my brain actually works", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
-          ]
-        },
-        {
-          cat: 'how you work',
-          text: "Do you make your bed in the morning or is that just not a thing for you?",
-          opts: [
-            { t: "Every single day without thinking about it", w: { red: 3, yellow: 0, green: 0, blue: 1 }, b: 'high_red' },
-            { t: "Sometimes, when the mood strikes", w: { red: 0, yellow: 2, green: 1, blue: 0 }, b: 'high_yellow' },
-            { t: "Nope — no one's going to see it anyway", w: { red: 0, yellow: 1, green: 2, blue: 0 }, b: 'high_green' },
-            { t: "Only if I have guests coming — otherwise why bother", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
-          ]
-        },
-        {
-          cat: 'how you work',
-          text: "Do you like being told exactly what to do or do you prefer figuring it out yourself?",
-          opts: [
-            { t: "Figure it out — being over-directed slows me down", w: { red: 3, yellow: 0, green: 0, blue: 0 }, b: 'high_red' },
-            { t: "A rough idea is fine, I'll improvise the rest", w: { red: 0, yellow: 3, green: 0, blue: 0 }, b: 'high_yellow' },
-            { t: "I like knowing expectations — I don't want to disappoint", w: { red: 0, yellow: 0, green: 3, blue: 0 }, b: 'high_green' },
-            { t: "Clear instructions please — I want to do it properly", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
-          ]
-        },
-        {
-          cat: 'small joys',
-          text: "What's something you're weirdly good at that surprises people?",
-          opts: [
-            { t: "Reading a room and knowing exactly what to do", w: { red: 3, yellow: 0, green: 0, blue: 0 }, b: 'mixed' },
-            { t: "Making anyone feel instantly comfortable", w: { red: 0, yellow: 3, green: 0, blue: 0 }, b: 'high_yellow' },
-            { t: "Remembering small details about people", w: { red: 0, yellow: 0, green: 3, blue: 0 }, b: 'high_green' },
-            { t: "Finding patterns in things others miss", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
-          ]
-        },
-      ],
-      high_yellow: [
-        {
-          cat: 'how you enjoy life',
-          text: "How much do you enjoy going out — shopping, wandering, being somewhere busy?",
-          opts: [
-            { t: "Love it. Outside is honestly where I feel most alive.", w: { red: 0, yellow: 3, green: 0, blue: 0 }, b: 'high_yellow' },
-            { t: "I enjoy it with a purpose — not just aimless wandering", w: { red: 2, yellow: 1, green: 0, blue: 0 }, b: 'high_red' },
-            { t: "Sometimes nice, sometimes draining — depends on the day", w: { red: 0, yellow: 0, green: 2, blue: 1 }, b: 'high_green' },
-            { t: "I could honestly skip most of it — online exists", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
-          ]
-        },
-        {
-          cat: 'about people',
-          text: "Do you like meeting new people or is your current circle honestly enough?",
-          opts: [
-            { t: "I like useful connections — quality over numbers", w: { red: 2, yellow: 1, green: 0, blue: 0 }, b: 'high_red' },
-            { t: "I genuinely love meeting new people — always", w: { red: 0, yellow: 3, green: 0, blue: 0 }, b: 'high_yellow' },
-            { t: "My current circle is everything — I don't need more", w: { red: 0, yellow: 0, green: 3, blue: 0 }, b: 'high_green' },
-            { t: "New people are draining unless there's real depth", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
-          ]
-        },
-        {
-          cat: 'about people',
-          text: "When you're with a group, are you usually the one talking or the one listening?",
-          opts: [
-            { t: "Talking — and steering things in a direction", w: { red: 2, yellow: 1, green: 0, blue: 0 }, b: 'high_red' },
-            { t: "Talking — and making everyone laugh somehow", w: { red: 0, yellow: 3, green: 0, blue: 0 }, b: 'high_yellow' },
-            { t: "Listening — I take everything in first", w: { red: 0, yellow: 0, green: 2, blue: 1 }, b: 'high_green' },
-            { t: "Listening — and only speaking when I have something real to add", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
-          ]
-        },
-        {
-          cat: 'about people',
-          text: "Do you gossip a little with close people — or do you keep things to yourself?",
-          opts: [
-            { t: "No, I don't see the point — too much to do", w: { red: 3, yellow: 0, green: 0, blue: 0 }, b: 'high_red' },
-            { t: "Yes and I love it — it's called staying connected", w: { red: 0, yellow: 3, green: 0, blue: 0 }, b: 'high_yellow' },
-            { t: "Only with my very few trusted people — and it's gentle", w: { red: 0, yellow: 0, green: 3, blue: 0 }, b: 'high_green' },
-            { t: "I listen more than I share in those conversations", w: { red: 0, yellow: 0, green: 1, blue: 2 }, b: 'high_blue' },
-          ]
-        },
-      ],
-      high_green: [
-        {
-          cat: 'your everyday rhythm',
-          text: "Do you eat the same things on repeat or do you like trying new food?",
-          opts: [
-            { t: "Variety — I get bored quickly", w: { red: 2, yellow: 1, green: 0, blue: 0 }, b: 'high_red' },
-            { t: "I love trying new places and cuisines", w: { red: 0, yellow: 3, green: 0, blue: 0 }, b: 'high_yellow' },
-            { t: "Honestly? Same comforting things most of the time", w: { red: 0, yellow: 0, green: 3, blue: 0 }, b: 'high_green' },
-            { t: "Depends — I research it thoroughly before trying anything new", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
-          ]
-        },
-        {
-          cat: 'about people',
-          text: "Are you the one in your group who remembers everyone's birthdays?",
-          opts: [
-            { t: "No — I'm focused on bigger things", w: { red: 3, yellow: 0, green: 0, blue: 0 }, b: 'high_red' },
-            { t: "Yes and I love making a big thing of it", w: { red: 0, yellow: 3, green: 0, blue: 0 }, b: 'high_yellow' },
-            { t: "Yes — I'd feel awful forgetting", w: { red: 0, yellow: 0, green: 3, blue: 0 }, b: 'high_green' },
-            { t: "I have it in my calendar — I don't trust memory", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
-          ]
-        },
-        {
-          cat: 'how you enjoy life',
-          text: "Do you like when people drop by unannounced or do you need a heads-up?",
-          opts: [
-            { t: "Fine with me if it's quick", w: { red: 2, yellow: 1, green: 0, blue: 0 }, b: 'high_red' },
-            { t: "Love it — the more the merrier honestly", w: { red: 0, yellow: 3, green: 0, blue: 0 }, b: 'high_yellow' },
-            { t: "I love it if I'm ready — but I'm always ready for the right people", w: { red: 0, yellow: 0, green: 3, blue: 0 }, b: 'high_green' },
-            { t: "Please warn me — I need to mentally prepare", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
-          ]
-        },
-        {
-          cat: 'small joys',
-          text: "What kind of weather genuinely makes you happy?",
-          opts: [
-            { t: "Clear and bright — good weather means getting things done", w: { red: 3, yellow: 0, green: 0, blue: 0 }, b: 'mixed' },
-            { t: "Warm and breezy — perfect for being outside with people", w: { red: 0, yellow: 3, green: 0, blue: 0 }, b: 'high_yellow' },
-            { t: "Soft rain and cool air — ideal for staying in", w: { red: 0, yellow: 0, green: 3, blue: 0 }, b: 'high_green' },
-            { t: "Overcast and quiet — perfect thinking weather", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
-          ]
-        },
-      ],
-      high_blue: [
-        {
-          cat: 'how you think',
-          text: "When you have a free hour, how often do you end up reading or going down a rabbit hole?",
-          opts: [
-            { t: "Rarely — I'd use it for something productive", w: { red: 3, yellow: 0, green: 0, blue: 0 }, b: 'high_red' },
-            { t: "I'd rather spend it with someone", w: { red: 0, yellow: 2, green: 1, blue: 0 }, b: 'high_yellow' },
-            { t: "Sometimes — if something earlier sparked a thought", w: { red: 0, yellow: 0, green: 1, blue: 2 }, b: 'high_green' },
-            { t: "Almost always — I can't help it", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
-          ]
-        },
-        {
-          cat: 'how you think',
-          text: "When you're curious about something, do you look it up immediately or just wonder about it?",
-          opts: [
-            { t: "I move on — there are more pressing things", w: { red: 3, yellow: 0, green: 0, blue: 0 }, b: 'high_red' },
-            { t: "I ask someone — talking it through is more fun", w: { red: 0, yellow: 3, green: 0, blue: 0 }, b: 'high_yellow' },
-            { t: "I wonder about it for a while before looking", w: { red: 0, yellow: 0, green: 2, blue: 1 }, b: 'high_green' },
-            { t: "I look it up immediately — I need to know now", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
-          ]
-        },
-        {
-          cat: 'how you work',
-          text: "Does a cluttered desk or messy shared folder actually bother you?",
-          opts: [
-            { t: "Only when it slows things down", w: { red: 3, yellow: 0, green: 0, blue: 0 }, b: 'mixed' },
-            { t: "Nah — I'm chaotic myself, I find it charming", w: { red: 0, yellow: 3, green: 0, blue: 0 }, b: 'high_yellow' },
-            { t: "Mild discomfort but I adapt without making a fuss", w: { red: 0, yellow: 0, green: 2, blue: 1 }, b: 'high_green' },
-            { t: "Yes. It genuinely stresses me out.", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
-          ]
-        },
-        {
-          cat: 'how you think',
-          text: "Do you prefer reading, watching, or listening when you want to learn something?",
-          opts: [
-            { t: "Watching — I want the condensed version fast", w: { red: 3, yellow: 0, green: 0, blue: 0 }, b: 'mixed' },
-            { t: "Listening — podcasts while I'm doing something else", w: { red: 0, yellow: 2, green: 1, blue: 0 }, b: 'high_yellow' },
-            { t: "Watching — but slowly, I like to pause and think", w: { red: 0, yellow: 0, green: 2, blue: 1 }, b: 'high_green' },
-            { t: "Reading — I need to go at my own pace and re-read", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
-          ]
-        },
-      ],
-      mixed: [
-        {
-          cat: 'your everyday rhythm',
-          text: "Are you someone who replies to messages instantly or do you need a moment?",
-          opts: [
-            { t: "Instantly if it's important — I don't let things pile up", w: { red: 3, yellow: 0, green: 0, blue: 0 }, b: 'high_red' },
-            { t: "Instantly — I love the back-and-forth", w: { red: 0, yellow: 3, green: 0, blue: 0 }, b: 'high_yellow' },
-            { t: "When I'm ready — I don't like feeling rushed", w: { red: 0, yellow: 0, green: 3, blue: 0 }, b: 'high_green' },
-            { t: "When I have something worth saying", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
-          ]
-        },
-        {
-          cat: 'how you enjoy life',
-          text: "Would you rather spend a Saturday doing something or genuinely doing nothing?",
-          opts: [
-            { t: "Doing something — downtime makes me restless", w: { red: 3, yellow: 0, green: 0, blue: 0 }, b: 'high_red' },
-            { t: "Doing something — preferably with people and spontaneity", w: { red: 0, yellow: 3, green: 0, blue: 0 }, b: 'high_yellow' },
-            { t: "Nothing — I genuinely love a slow day", w: { red: 0, yellow: 0, green: 3, blue: 0 }, b: 'high_green' },
-            { t: "Doing something solo — a project, a book, a walk alone", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
-          ]
-        },
-        {
-          cat: 'how you think',
-          text: "Are you someone who makes quick decisions or needs time to sit with it?",
-          opts: [
-            { t: "Quick — decide fast and correct if wrong", w: { red: 3, yellow: 0, green: 0, blue: 0 }, b: 'high_red' },
-            { t: "Quick — I go with how I feel in the moment", w: { red: 0, yellow: 3, green: 0, blue: 0 }, b: 'high_yellow' },
-            { t: "I sit with it — I want to make sure no one gets affected badly", w: { red: 0, yellow: 0, green: 3, blue: 0 }, b: 'high_green' },
-            { t: "I take a while — I want to understand every angle first", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
-          ]
-        },
-        {
-          cat: 'how you work',
-          text: "Do you work better with music on or in total silence?",
-          opts: [
-            { t: "Music — energetic, keeps me moving", w: { red: 2, yellow: 1, green: 0, blue: 0 }, b: 'high_red' },
-            { t: "Music — specifically something with good vibes", w: { red: 0, yellow: 3, green: 0, blue: 0 }, b: 'high_yellow' },
-            { t: "Soft background sounds — not silence, not loud", w: { red: 0, yellow: 0, green: 3, blue: 0 }, b: 'high_green' },
-            { t: "Silence — anything else pulls my attention", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
-          ]
-        },
-        {
-          cat: 'small joys',
-          text: "Do you have a hobby or interest that surprises people when they find out?",
-          opts: [
-            { t: "Something physical or competitive — people expect something quieter", w: { red: 3, yellow: 0, green: 0, blue: 0 }, b: 'mixed' },
-            { t: "Something artistic or performative — people don't expect the depth", w: { red: 0, yellow: 3, green: 0, blue: 0 }, b: 'high_yellow' },
-            { t: "Something gentle — gardening, baking, crafts", w: { red: 0, yellow: 0, green: 3, blue: 0 }, b: 'high_green' },
-            { t: "Something niche and nerdy — I know a lot about one very specific thing", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
-          ]
-        },
-      ]
-    };
+const CM={
+  red:{label:'Red',name:'The Pioneer'},
+  yellow:{label:'Yellow',name:'The Energizer'},
+  green:{label:'Green',name:'The Anchor'},
+  blue:{label:'Blue',name:'The Architect'},
+};
+const CL=['red','yellow','green','blue'];
+const sc={red:0,yellow:0,green:0,blue:0};
+let qi=0,bias='open',cur=null,hasResults=false;
+const used=[],av=[];
+const TOTAL=12;
+let SESSION_ID=generateUUID();
 
-    const JOKES = {
-      red: "Quick observation — you picked the decisive answer every time without pausing. Which is very on brand. You also probably already have a plan for what you're doing after this.",
-      yellow: "I could feel the energy through the screen. You probably also had music on while doing this, and have already told at least one person they should try it before you even finished.",
-      green: "You took a small moment on a few of those, didn't you? Wanted to make sure the answer was kind somehow. There was no unkind answer. You're fine. Everyone's fine. It's all fine.",
-      blue: "You were mentally auditing this quiz while taking it — I could tell. The irony is this might be the most self-aware ten minutes of your week, and you did it entirely through vibes.",
-    };
+function generateUUID(){return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==='x'?r:(r&0x3|0x8)).toString(16);});}
+function dom(){return CL.reduce((a,b)=>sc[a]>=sc[b]?a:b);}
+function tot(){return CL.reduce((s,c)=>s+sc[c],0)||1;}
 
-    const CAREERS = {
-      red: { why: "You do your best work when stakes are real and results are visible. Bureaucracy, slow consensus, and vague goals will drain you fast. You need ownership and a clear finish line.", tags: ["Entrepreneur", "Sales director", "Executive leadership", "Consulting", "Sports coaching", "Real estate", "Emergency services"] },
-      yellow: { why: "You thrive where people, energy, and creativity are the actual product. Isolated, repetitive work will quietly crush you. Give you a room and a reason — you'll outperform everyone.", tags: ["Marketing & brand", "PR & communications", "Teaching & training", "Creative direction", "Hosting & presenting", "Community building", "Startup culture"] },
-      green: { why: "People trust you without you trying. You shine in roles where your patience, warmth, and steadiness create safety for others. High-pressure, cutthroat environments will quietly wear you thin.", tags: ["Counselling & therapy", "Social work", "Human resources", "Nursing & care", "Operations management", "Community leadership", "Early years education"] },
-      blue: { why: "You do your best work when precision and depth matter more than speed. Vague briefs, chaotic systems, and fuzzy goals will genuinely stress you. You belong somewhere your rigor is respected.", tags: ["Data & analytics", "Engineering", "Research & academia", "Law & compliance", "Finance & auditing", "Medicine", "Systems design"] },
-    };
+// ── PARTICLES ────────────────────────────────────────────────────────────────
+const cvs=document.getElementById('el-canvas');
+const ctx=cvs.getContext('2d');
+let pts=[],raf=null,curEl=null;
+function resizeCvs(){cvs.width=window.innerWidth;cvs.height=window.innerHeight;}
+resizeCvs();window.addEventListener('resize',resizeCvs);
 
-    const RELWATCH = {
-      red: [
-        { h: "Another strong Red", b: "Two people who both need to lead and be right. You'll respect each other enormously — and clash constantly. Long term this needs very clear lanes, or it slowly erodes." },
-        { h: "A very passive Green", b: "They'll keep accommodating you without saying so — and you'll mistake the silence for harmony. By the time resentment surfaces on their side, a lot has already quietly built up." },
-      ],
-      yellow: [
-        { h: "Deep Blue personalities", b: "They want depth, precision, and stillness. You want movement, lightness, and spontaneity. They'll find you scattered; you'll find them cold. Not impossible — but it takes daily effort from both." },
-        { h: "Another Yellow", b: "Chaotic fun at first. But someone has to handle the boring, unglamorous, necessary things. In this pairing, it tends to be nobody — and that catches up eventually." },
-      ],
-      green: [
-        { h: "Dominant Red personalities", b: "Their directness will feel like pressure, and you'll absorb it without saying anything. Over years this erodes silently — and you may not speak up until real damage is already done." },
-        { h: "Another Green", b: "So conflict-avoidant that neither of you raises important things. Things go unsaid. The relationship drifts slowly without either of you meaning it to." },
-      ],
-      blue: [
-        { h: "Spontaneous Yellow types", b: "Their unpredictability will read as chaos to you. You'll analyse while they're three moves ahead on instinct alone. Not incompatible — but genuine patience is required every single day." },
-        { h: "Fast-moving Red personalities", b: "They decide in seconds; you need time. They'll call you slow; you'll call them reckless. Mutual respect makes this work beautifully. Without it, it's quietly exhausting for both." },
-      ],
-    };
+class P{
+  constructor(t,c1,c2){this.t=t;this.c1=c1;this.c2=c2;this.reset();}
+  reset(){const W=cvs.width,H=cvs.height;
+    if(this.t==='fire'){this.x=Math.random()*W;this.y=H+10;this.vx=(Math.random()-.5)*1.5;this.vy=-(Math.random()*3+2);this.life=1;this.d=Math.random()*.012+.008;this.s=Math.random()*16+7;this.w=Math.random()*Math.PI*2;}
+    else if(this.t==='air'){this.x=Math.random()<.5?-20:W+20;this.y=Math.random()*H;this.vx=this.x<0?(Math.random()*1.5+.5):-(Math.random()*1.5+.5);this.vy=(Math.random()-.5)*.8;this.life=1;this.d=Math.random()*.005+.003;this.s=Math.random()*5+2;this.w=Math.random()*Math.PI*2;}
+    else if(this.t==='earth'){this.x=Math.random()*W;this.y=H+5;this.vx=(Math.random()-.5)*.5;this.vy=-(Math.random()*1.2+.3);this.life=1;this.d=Math.random()*.006+.004;this.s=Math.random()*10+4;this.w=Math.random()*Math.PI*2;}
+    else{this.x=Math.random()*W;this.y=Math.random()*H*.3;this.vx=(Math.random()-.5)*1.2;this.vy=Math.random()*1.5+.5;this.life=1;this.d=Math.random()*.006+.003;this.s=Math.random()*8+3;this.w=Math.random()*Math.PI*2;this.rp=0;}
+  }
+  update(){this.w+=.04;
+    if(this.t==='fire'){this.x+=this.vx+Math.sin(this.w)*.8;this.y+=this.vy;this.s*=.987;}
+    else if(this.t==='air'){this.x+=this.vx;this.y+=this.vy+Math.sin(this.w)*.6;}
+    else if(this.t==='earth'){this.x+=this.vx+Math.sin(this.w)*.3;this.y+=this.vy;}
+    else{this.x+=this.vx+Math.sin(this.w)*.5;this.y+=this.vy;this.rp+=.05;}
+    this.life-=this.d;
+  }
+  draw(){ctx.save();ctx.globalAlpha=Math.max(0,this.life)*.7;
+    if(this.t==='fire'){const g=ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.s);g.addColorStop(0,'#fff');g.addColorStop(.3,this.c1);g.addColorStop(1,'transparent');ctx.fillStyle=g;ctx.beginPath();ctx.arc(this.x,this.y,this.s,0,Math.PI*2);ctx.fill();}
+    else if(this.t==='air'){ctx.strokeStyle=this.c1;ctx.lineWidth=this.s/3;ctx.beginPath();ctx.arc(this.x,this.y,this.s,0,Math.PI*1.4);ctx.stroke();}
+    else if(this.t==='earth'){ctx.fillStyle=this.c1;ctx.beginPath();ctx.ellipse(this.x,this.y,this.s*.5,this.s,Math.sin(this.w)*.4,0,Math.PI*2);ctx.fill();}
+    else{ctx.fillStyle=this.c2;ctx.beginPath();ctx.arc(this.x,this.y,this.s*.6,0,Math.PI*2);ctx.fill();ctx.strokeStyle=this.c1;ctx.lineWidth=1;ctx.globalAlpha=Math.max(0,this.life)*.25;ctx.beginPath();ctx.arc(this.x,this.y+this.s,this.rp*7,0,Math.PI*2);ctx.stroke();}
+    ctx.restore();
+  }
+}
 
-    const RELGOOD = {
-      red: [
-        { h: "Yellow — the energizer", b: "They bring warmth and human connection to your drive. You move them forward; they soften your edges. A genuinely powerful pair when the respect is mutual and real." },
-        { h: "Blue — the architect", b: "They back your instincts with rigor. You act; they check. Frustrating in the short term, brilliant over the long run — one of the most complementary pairings." },
-      ],
-      yellow: [
-        { h: "Green — the anchor", b: "They give you the stability you actually crave underneath all that energy. You pull them out of their shell. Beautifully complementary — one of your very best long-term pairings." },
-        { h: "Red — the pioneer", b: "They match your pace and add direction. You make them more human and warm; they help you actually finish what you start." },
-      ],
-      green: [
-        { h: "Yellow — the energizer", b: "They pull you gently into life. You ground them when things get chaotic. The warmth between you is natural and completely unforced — often a deeply happy pairing." },
-        { h: "Blue — the architect", b: "Slow, thoughtful, no unnecessary drama. You both value peace and depth over performance. Disagreements are rare — and when they happen, handled with real care." },
-      ],
-      blue: [
-        { h: "Green — the anchor", b: "Quiet, consistent, low-drama. Neither of you is performing for the other. Conversations go somewhere real; comfort is genuine. One of your very best long-term matches." },
-        { h: "Another Blue", b: "You understand each other's pace and need for depth completely. Can become a little insular over time — but intellectually and emotionally, genuinely hard to beat." },
-      ],
-    };
+function spawnPts(t,c1,c2,n){for(let i=0;i<n;i++)pts.push(new P(t,c1,c2));}
+function animPts(){ctx.clearRect(0,0,cvs.width,cvs.height);pts=pts.filter(p=>p.life>0);pts.forEach(p=>{p.update();p.draw();});
+  if(curEl&&pts.length<100){const e=EL[curEl];spawnPts(e.particleType,e.particleCol,e.particleCol2,2);}
+  raf=requestAnimationFrame(animPts);
+}
+function startEl(c){curEl=c;pts=[];cvs.classList.add('on');const e=EL[c];spawnPts(e.particleType,e.particleCol,e.particleCol2,35);if(raf)cancelAnimationFrame(raf);animPts();}
+function stopEl(){curEl=null;cvs.classList.remove('on');if(raf){cancelAnimationFrame(raf);raf=null;}ctx.clearRect(0,0,cvs.width,cvs.height);pts=[];}
 
-    const GROWTH = {
-      red: "You are capable of extraordinary things — and deep down you know it. The question worth sitting with is this: are you building something, or running from stillness? The people who love you most don't need to be impressed. They just want to be seen by you.",
-      yellow: "You make every room better simply by being in it. But underneath all that brightness there is a quieter version of you that doesn't always get airtime. That version is worth knowing too.",
-      green: "You give so naturally that people forget to ask how you are — and you let them forget. Your needs are just as real as everyone else's. You don't have to earn your place in the room.",
-      blue: "You are one of the clearest thinkers in any space you enter. But the life you're mapping so carefully doesn't always wait for the perfect plan. Sometimes the very best next step is just a step.",
-    };
+// ── QUESTIONS ─────────────────────────────────────────────────────────────────
+const OPEN={cat:'how you spend your time',text:"How do you usually spend a Sunday when nobody needs anything from you?",opts:[
+  {t:"Something productive — I'd feel restless otherwise",w:{red:3,yellow:0,green:0,blue:0},b:'high_red'},
+  {t:"Out somewhere — coffee, shops, just being around life",w:{red:0,yellow:3,green:0,blue:0},b:'high_yellow'},
+  {t:"Quietly at home, slow and no plans",w:{red:0,yellow:0,green:3,blue:0},b:'high_green'},
+  {t:"Down a rabbit hole of something I'm curious about",w:{red:0,yellow:0,green:0,blue:3},b:'high_blue'},
+]};
 
-    // ── LOGIC ──
-    function dom() { return CL.reduce((a, b) => sc[a] >= sc[b] ? a : b); }
-    function tot() { return CL.reduce((s, c) => s + sc[c], 0) || 1; }
+const QB={
+  high_red:[
+    {cat:'your everyday rhythm',text:"Are you a morning person or do you come alive at night?",opts:[{t:"Morning — I like getting ahead of the day",w:{red:3,yellow:0,green:0,blue:0},b:'high_red'},{t:"Morning only if I have something to look forward to",w:{red:1,yellow:2,green:0,blue:0},b:'high_yellow'},{t:"Neither really — I just go at my own pace",w:{red:0,yellow:0,green:3,blue:0},b:'high_green'},{t:"Night — that's when my brain actually works",w:{red:0,yellow:0,green:0,blue:3},b:'high_blue'}]},
+    {cat:'how you work',text:"Do you like being told exactly what to do or do you prefer figuring it out yourself?",opts:[{t:"Figure it out — being over-directed slows me down",w:{red:3,yellow:0,green:0,blue:0},b:'high_red'},{t:"A rough idea is fine, I'll improvise the rest",w:{red:0,yellow:3,green:0,blue:0},b:'high_yellow'},{t:"I like knowing expectations — I don't want to disappoint",w:{red:0,yellow:0,green:3,blue:0},b:'high_green'},{t:"Clear instructions please — I want to do it properly",w:{red:0,yellow:0,green:0,blue:3},b:'high_blue'}]},
+    {cat:'small joys',text:"What's something you're weirdly good at that surprises people?",opts:[{t:"Reading a room and knowing exactly what to do",w:{red:3,yellow:0,green:0,blue:0},b:'mixed'},{t:"Making anyone feel instantly comfortable",w:{red:0,yellow:3,green:0,blue:0},b:'high_yellow'},{t:"Remembering small details about people",w:{red:0,yellow:0,green:3,blue:0},b:'high_green'},{t:"Finding patterns in things others miss",w:{red:0,yellow:0,green:0,blue:3},b:'high_blue'}]},
+  ],
+  high_yellow:[
+    {cat:'how you enjoy life',text:"How much do you enjoy going out — shopping, wandering, being somewhere busy?",opts:[{t:"Love it. Outside is honestly where I feel most alive.",w:{red:0,yellow:3,green:0,blue:0},b:'high_yellow'},{t:"I enjoy it with a purpose — not just aimless wandering",w:{red:2,yellow:1,green:0,blue:0},b:'high_red'},{t:"Sometimes nice, sometimes draining — depends on the day",w:{red:0,yellow:0,green:2,blue:1},b:'high_green'},{t:"I could honestly skip most of it — online exists",w:{red:0,yellow:0,green:0,blue:3},b:'high_blue'}]},
+    {cat:'about people',text:"When you're with a group, are you usually the one talking or listening?",opts:[{t:"Talking — and steering things in a direction",w:{red:2,yellow:1,green:0,blue:0},b:'high_red'},{t:"Talking — and making everyone laugh somehow",w:{red:0,yellow:3,green:0,blue:0},b:'high_yellow'},{t:"Listening — I take everything in first",w:{red:0,yellow:0,green:2,blue:1},b:'high_green'},{t:"Listening — only speaking when I have something real to add",w:{red:0,yellow:0,green:0,blue:3},b:'high_blue'}]},
+    {cat:'about people',text:"Do you gossip a little with close people — or keep things to yourself?",opts:[{t:"No, I don't see the point — too much to do",w:{red:3,yellow:0,green:0,blue:0},b:'high_red'},{t:"Yes and I love it — it's called staying connected",w:{red:0,yellow:3,green:0,blue:0},b:'high_yellow'},{t:"Only with my very few trusted people — and it's gentle",w:{red:0,yellow:0,green:3,blue:0},b:'high_green'},{t:"I listen more than I share in those conversations",w:{red:0,yellow:0,green:1,blue:2},b:'high_blue'}]},
+  ],
+  high_green:[
+    {cat:'your everyday rhythm',text:"Do you eat the same things on repeat or do you like trying new food?",opts:[{t:"Variety — I get bored quickly",w:{red:2,yellow:1,green:0,blue:0},b:'high_red'},{t:"I love trying new places and cuisines",w:{red:0,yellow:3,green:0,blue:0},b:'high_yellow'},{t:"Honestly? Same comforting things most of the time",w:{red:0,yellow:0,green:3,blue:0},b:'high_green'},{t:"Depends — I research it thoroughly before trying anything new",w:{red:0,yellow:0,green:0,blue:3},b:'high_blue'}]},
+    {cat:'about people',text:"Are you the one in your group who remembers everyone's birthdays?",opts:[{t:"No — I'm focused on bigger things",w:{red:3,yellow:0,green:0,blue:0},b:'high_red'},{t:"Yes and I love making a big thing of it",w:{red:0,yellow:3,green:0,blue:0},b:'high_yellow'},{t:"Yes — I'd feel awful forgetting",w:{red:0,yellow:0,green:3,blue:0},b:'high_green'},{t:"I have it in my calendar — I don't trust memory",w:{red:0,yellow:0,green:0,blue:3},b:'high_blue'}]},
+    {cat:'small joys',text:"What kind of weather genuinely makes you happy?",opts:[{t:"Clear and bright — good weather means getting things done",w:{red:3,yellow:0,green:0,blue:0},b:'mixed'},{t:"Warm and breezy — perfect for being outside with people",w:{red:0,yellow:3,green:0,blue:0},b:'high_yellow'},{t:"Soft rain and cool air — ideal for staying in",w:{red:0,yellow:0,green:3,blue:0},b:'high_green'},{t:"Overcast and quiet — perfect thinking weather",w:{red:0,yellow:0,green:0,blue:3},b:'high_blue'}]},
+  ],
+  high_blue:[
+    {cat:'how you think',text:"When you have a free hour, how often do you end up reading or going down a rabbit hole?",opts:[{t:"Rarely — I'd use it for something productive",w:{red:3,yellow:0,green:0,blue:0},b:'high_red'},{t:"I'd rather spend it with someone",w:{red:0,yellow:2,green:1,blue:0},b:'high_yellow'},{t:"Sometimes — if something earlier sparked a thought",w:{red:0,yellow:0,green:1,blue:2},b:'high_green'},{t:"Almost always — I can't help it",w:{red:0,yellow:0,green:0,blue:3},b:'high_blue'}]},
+    {cat:'how you work',text:"Does a cluttered desk or messy shared folder actually bother you?",opts:[{t:"Only when it slows things down",w:{red:3,yellow:0,green:0,blue:0},b:'mixed'},{t:"Nah — I'm chaotic myself, I find it charming",w:{red:0,yellow:3,green:0,blue:0},b:'high_yellow'},{t:"Mild discomfort but I adapt without making a fuss",w:{red:0,yellow:0,green:2,blue:1},b:'high_green'},{t:"Yes. It genuinely stresses me out.",w:{red:0,yellow:0,green:0,blue:3},b:'high_blue'}]},
+    {cat:'how you think',text:"Do you prefer reading, watching, or listening when you want to learn something?",opts:[{t:"Watching — I want the condensed version fast",w:{red:3,yellow:0,green:0,blue:0},b:'mixed'},{t:"Listening — podcasts while I'm doing something else",w:{red:0,yellow:2,green:1,blue:0},b:'high_yellow'},{t:"Watching — but slowly, I like to pause and think",w:{red:0,yellow:0,green:2,blue:1},b:'high_green'},{t:"Reading — I need to go at my own pace and re-read",w:{red:0,yellow:0,green:0,blue:3},b:'high_blue'}]},
+  ],
+  mixed:[
+    {cat:'your everyday rhythm',text:"Are you someone who replies to messages instantly or do you need a moment?",opts:[{t:"Instantly if it's important — I don't let things pile up",w:{red:3,yellow:0,green:0,blue:0},b:'high_red'},{t:"Instantly — I love the back-and-forth",w:{red:0,yellow:3,green:0,blue:0},b:'high_yellow'},{t:"When I'm ready — I don't like feeling rushed",w:{red:0,yellow:0,green:3,blue:0},b:'high_green'},{t:"When I have something worth saying",w:{red:0,yellow:0,green:0,blue:3},b:'high_blue'}]},
+    {cat:'how you enjoy life',text:"Would you rather spend a Saturday doing something or genuinely doing nothing?",opts:[{t:"Doing something — downtime makes me restless",w:{red:3,yellow:0,green:0,blue:0},b:'high_red'},{t:"Doing something — preferably with people and spontaneity",w:{red:0,yellow:3,green:0,blue:0},b:'high_yellow'},{t:"Nothing — I genuinely love a slow day",w:{red:0,yellow:0,green:3,blue:0},b:'high_green'},{t:"Doing something solo — a project, a book, a walk alone",w:{red:0,yellow:0,green:0,blue:3},b:'high_blue'}]},
+    {cat:'how you think',text:"Are you someone who makes quick decisions or needs time to sit with it?",opts:[{t:"Quick — decide fast and correct if wrong",w:{red:3,yellow:0,green:0,blue:0},b:'high_red'},{t:"Quick — I go with how I feel in the moment",w:{red:0,yellow:3,green:0,blue:0},b:'high_yellow'},{t:"I sit with it — I want to make sure no one gets affected badly",w:{red:0,yellow:0,green:3,blue:0},b:'high_green'},{t:"I take a while — I want to understand every angle first",w:{red:0,yellow:0,green:0,blue:3},b:'high_blue'}]},
+    {cat:'how you work',text:"Do you work better with music on or in total silence?",opts:[{t:"Music — energetic, keeps me moving",w:{red:2,yellow:1,green:0,blue:0},b:'high_red'},{t:"Music — specifically something with good vibes",w:{red:0,yellow:3,green:0,blue:0},b:'high_yellow'},{t:"Soft background sounds — not silence, not loud",w:{red:0,yellow:0,green:3,blue:0},b:'high_green'},{t:"Silence — anything else pulls my attention",w:{red:0,yellow:0,green:0,blue:3},b:'high_blue'}]},
+    {cat:'small joys',text:"Do you have a hobby that surprises people when they find out?",opts:[{t:"Something physical or competitive — people expect something quieter",w:{red:3,yellow:0,green:0,blue:0},b:'mixed'},{t:"Something artistic or performative — people don't expect the depth",w:{red:0,yellow:3,green:0,blue:0},b:'high_yellow'},{t:"Something gentle — gardening, baking, crafts",w:{red:0,yellow:0,green:3,blue:0},b:'high_green'},{t:"Something niche and nerdy — I know a lot about one very specific thing",w:{red:0,yellow:0,green:0,blue:3},b:'high_blue'}]},
+  ]
+};
 
-    function getQ() {
-      if (qi === 0) return OPEN;
-      const pool = QB[bias] || QB.mixed;
-      const avail = pool.filter(q => !used.includes(q.text));
-      if (!avail.length) {
-        const all = Object.values(QB).flat();
-        const fb = all.filter(q => !used.includes(q.text));
-        return fb[Math.floor(Math.random() * fb.length)] || pool[0];
-      }
-      return avail[Math.floor(Math.random() * avail.length)];
-    }
+const JOKES={red:"Quick note — you picked the decisive answer every time without pausing. Which is very on brand. You probably also already have a plan for what you're doing after this.",yellow:"I could feel the energy through the screen. You probably also had music on, and have already told at least one person they should try this before you even finished.",green:"You took a small moment on a few of those, didn't you? Wanted to make sure the answer was kind. There was no unkind answer. You're fine. Everyone's fine. It's all fine.",blue:"You were mentally auditing this quiz while taking it. The irony is this might be the most self-aware ten minutes of your week, and you did it entirely through vibes."};
+const MASCOT_LINE={red:"Zip has been on fire this whole time. Literally.",yellow:"Zip has been floating on your energy. You two are the same person.",green:"Gloop felt very seen. Very calm. Very earth.",blue:"Gloop appreciates the depth. He's been flowing quietly this whole time."};
+const CAREERS={red:{why:"You do your best work when stakes are real and results are visible. You need ownership and a clear finish line.",tags:["Entrepreneur","Sales director","Executive leadership","Consulting","Sports coaching","Real estate","Emergency services"]},yellow:{why:"You thrive where people, energy, and creativity are the actual product. Give you a room and a reason — you'll outperform everyone.",tags:["Marketing & brand","PR & communications","Teaching","Creative direction","Hosting","Community building","Startup culture"]},green:{why:"People trust you without you trying. You shine where your patience creates safety for others.",tags:["Counselling","Social work","Human resources","Nursing","Operations","Community leadership","Education"]},blue:{why:"You do your best work when precision matters more than speed. You belong somewhere your rigor is respected.",tags:["Data & analytics","Engineering","Research","Law","Finance","Medicine","Systems design"]}};
+const RELWATCH={red:[{h:"Another strong Red",b:"Two people who both need to lead. You'll respect each other — and clash constantly. Needs very clear lanes long term."},{h:"A very passive Green",b:"They'll accommodate you without saying so. You'll mistake silence for harmony until resentment surfaces."}],yellow:[{h:"Deep Blue personalities",b:"They want precision and stillness. You want movement. They'll find you scattered; you'll find them cold."},{h:"Another Yellow",b:"Chaotic fun at first. Someone has to handle the boring necessary things. In this pairing it tends to be nobody."}],green:[{h:"Dominant Red personalities",b:"Their directness will feel like pressure and you'll absorb it without saying anything. This erodes silently over years."},{h:"Another Green",b:"So conflict-avoidant that neither raises important things. Things go unsaid and the relationship slowly drifts."}],blue:[{h:"Spontaneous Yellow types",b:"Their unpredictability reads as chaos to you. Patience is required every single day."},{h:"Fast-moving Red personalities",b:"They decide in seconds; you need time. Mutual respect makes this work. Without it, exhausting."}]};
+const RELGOOD={red:[{h:"Yellow — the energizer",b:"They bring warmth to your drive. You move them forward; they soften your edges."},{h:"Blue — the architect",b:"They back your instincts with rigor. Frustrating short-term, brilliant long-term."}],yellow:[{h:"Green — the anchor",b:"They give you the stability you crave under all that energy. Beautifully complementary."},{h:"Red — the pioneer",b:"They match your pace. You make them more human; they help you finish what you start."}],green:[{h:"Yellow — the energizer",b:"They pull you into life. You ground them. The warmth is natural and unforced."},{h:"Blue — the architect",b:"Slow, thoughtful, no drama. Disagreements are rare and handled with care."}],blue:[{h:"Green — the anchor",b:"Quiet, consistent, low-drama. Conversations go deep; comfort is genuine."},{h:"Another Blue",b:"You understand each other's pace completely. Intellectually and emotionally hard to beat."}]};
+const GROWTH={red:"You are capable of extraordinary things — and deep down you know it. The question worth sitting with: are you building something, or running from stillness? The people who love you most don't need to be impressed. They just want to be seen by you.",yellow:"You make every room better simply by being in it. But underneath all that brightness there is a quieter version of you that doesn't always get airtime. That version is worth knowing too.",green:"You give so naturally that people forget to ask how you are — and you let them forget. Your needs are just as real as everyone else's. You don't have to earn your place in the room.",blue:"You are one of the clearest thinkers in any space you enter. But the life you're mapping so carefully doesn't always wait for the perfect plan. Sometimes the very best next step is just a step."};
 
-    function startQuiz() {
-      document.getElementById('s-intro').classList.remove('active');
-      const qscreen = document.getElementById('s-quiz');
-      qscreen.classList.add('active');
-      CL.forEach(c => sc[c] = 0);
-      used.length = 0; qi = 0; bias = 'open';
-      renderQ(getQ());
-    }
+const GLOOP=(a)=>`<svg viewBox="0 0 120 150" fill="none" xmlns="http://www.w3.org/2000/svg"><path class="${a}" d="M20,140 L20,50 Q20,10 60,10 Q100,10 100,50 L100,140 Z" fill="#A78BFA" stroke="#7C3AED" stroke-width="1.5"/><circle cx="45" cy="45" r="13" fill="white"/><circle cx="48" cy="48" r="3" fill="#4C1D95"/><circle cx="75" cy="45" r="13" fill="white"/><circle cx="78" cy="48" r="3" fill="#4C1D95"/><path d="M48,68 Q60,78 73,68" fill="none" stroke="#7C3AED" stroke-width="2" stroke-linecap="round"/><g class="ah"><circle cx="10" cy="100" r="8" fill="#A78BFA" stroke="#7C3AED" stroke-width="1.5"/><circle cx="110" cy="100" r="8" fill="#A78BFA" stroke="#7C3AED" stroke-width="1.5"/></g></svg>`;
+const ZIP=(a,ha)=>`<svg viewBox="0 0 140 150" fill="none" xmlns="http://www.w3.org/2000/svg"><path class="${a}" d="M30,130 Q20,100 30,60 Q40,20 80,30 Q120,40 110,80 Q100,120 120,140 Q70,150 30,130" fill="#7C3AED" stroke="#4C1D95" stroke-width="2"/><circle cx="55" cy="65" r="17" fill="white"/><circle cx="58" cy="68" r="4" fill="#1E1B4B"/><circle cx="90" cy="70" r="17" fill="white"/><circle cx="93" cy="73" r="4" fill="#1E1B4B"/><path d="M45,95 Q75,130 105,90" fill="white" stroke="#4C1D95" stroke-width="2"/><path d="M45,95 Q75,130 105,90" fill="#F87171" stroke="none"/><g class="${ha}"><path d="M15,80 Q5,80 5,95 Q5,110 15,110 Z" fill="#7C3AED" stroke="#4C1D95" stroke-width="1.5"/><path d="M125,80 Q135,80 135,95 Q135,110 125,110 Z" fill="#7C3AED" stroke="#4C1D95" stroke-width="1.5"/></g></svg>`;
+const MASCOT_SVG={red:ZIP('azf','ahf'),yellow:ZIP('aza','ah'),green:GLOOP('ag'),blue:GLOOP('agw')};
 
-    function renderQ(q) {
-      cur = q;
-      used.push(q.text);
-      const pct = Math.round((qi / TOTAL) * 100);
-      document.getElementById('prog-fill').style.width = pct + '%';
-      document.getElementById('prog-num').textContent = (qi + 1) + ' / ' + TOTAL;
-      const moods = ['just getting started', 'warming up a little', 'getting somewhere', 'almost there', 'one more…'];
-      document.getElementById('prog-mood').textContent = moods[Math.min(Math.floor(qi / 3), 4)];
-      document.getElementById('q-cat').textContent = q.cat;
+// ── NAVIGATION ────────────────────────────────────────────────────────────────
+function showScreen(s){
+  ['intro','quiz','results','analytics'].forEach(x=>{
+    document.getElementById('screen-'+x).style.display='none';
+    const n=document.getElementById('nav-'+x);
+    if(n)n.classList.remove('active');
+  });
+  document.getElementById('screen-'+s).style.display='block';
+  const n=document.getElementById('nav-'+s);
+  if(n)n.classList.add('active');
+  document.getElementById('rp-intro').style.display='none';
+  document.getElementById('rp-quiz').style.display='none';
+  document.getElementById('rp-results').style.display='none';
+  if(s==='intro'){document.getElementById('rp-intro').style.display='block';updateSidebarDefault();}
+  else if(s==='quiz'){document.getElementById('rp-quiz').style.display='block';updateSidebarQuiz();}
+  else if(s==='results'){if(hasResults)document.getElementById('rp-results').style.display='block';else{document.getElementById('rp-intro').style.display='block';}updateSidebarDefault();}
+  else if(s==='analytics'){document.getElementById('rp-intro').style.display='block';loadAnalytics();updateSidebarDefault();}
+}
 
-      const qt = document.getElementById('q-text');
-      qt.style.opacity = '0';
-      qt.style.transform = 'translateY(8px)';
-      qt.textContent = q.text;
-      setTimeout(() => { qt.style.transition = 'opacity .3s ease, transform .3s ease'; qt.style.opacity = '1'; qt.style.transform = 'translateY(0)'; }, 30);
+function updateSidebarDefault(){
+  document.getElementById('sidebar-title').textContent='What element are you?';
+  document.getElementById('sidebar-progress').style.display='none';
+  document.getElementById('sidebar-mascot').innerHTML=GLOOP('ag');
+}
+function updateSidebarQuiz(){
+  document.getElementById('sidebar-title').style.display='none';
+  document.getElementById('sidebar-progress').style.display='flex';
+  updateSidebarBars();
+}
+function updateSidebarBars(){
+  const t=tot();
+  CL.forEach(c=>{
+    const pct=Math.round((sc[c]/t)*100);
+    document.getElementById('sp-'+c).style.width=pct+'%';
+  });
+}
 
-      const opts = document.getElementById('opts');
-      opts.innerHTML = '';
-      q.opts.forEach(o => {
-        const btn = document.createElement('button');
-        btn.className = 'opt';
-        btn.innerHTML = `<span class="opt-dot"></span>${o.t}`;
-        btn.onclick = () => pick(o, btn);
-        opts.appendChild(btn);
-      });
-    }
+// ── QUIZ LOGIC ────────────────────────────────────────────────────────────────
+function getQ(){
+  if(qi===0)return OPEN;
+  const pool=QB[bias]||QB.mixed;
+  const avail=pool.filter(q=>!used.includes(q.text));
+  if(!avail.length){const all=Object.values(QB).flat();const fb=all.filter(q=>!used.includes(q.text));return fb[Math.floor(Math.random()*fb.length)]||pool[0];}
+  return avail[Math.floor(Math.random()*avail.length)];
+}
 
-    function pick(o, btn) {
-      // find which index this option was in the question
-      const optIndex = cur.opts.indexOf(o);
-      answerVector.push(optIndex);
+function beginQuiz(){
+  CL.forEach(c=>sc[c]=0);used.length=0;av.length=0;qi=0;bias='open';hasResults=false;
+  showScreen('quiz');renderQ(getQ());
+}
 
-      document.querySelectorAll('.opt').forEach(b => { b.onclick = null; b.style.opacity = '.38'; b.style.transform = ''; });
-      btn.style.opacity = '1';
-      btn.style.borderColor = '#1C1917';
-      btn.querySelector('.opt-dot').style.background = '#1C1917';
-      btn.querySelector('.opt-dot').style.borderColor = '#1C1917';
-      CL.forEach(c => sc[c] += (o.w[c] || 0));
-      bias = o.b;
-      qi++;
-      if (qi >= TOTAL) {
-        setTimeout(showDash, 420);
-      } else {
-        setTimeout(() => renderQ(getQ()), 320);
-      }
-    }
+const COLORS=['c-red','c-yellow','c-green','c-blue'];
+const OPT_ICONS=['<path d="M13 10V3L4 14h7v7l9-11h-7z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>','<path d="M17.657 18.657A8 8 0 016.343 7.343" stroke="white" stroke-width="1.5" stroke-linecap="round"/><path d="M9.879 5.172a8 8 0 0111 9.949" stroke="white" stroke-width="1.5" stroke-linecap="round"/>','<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" stroke="white" stroke-width="1.5"/><path d="M8 12h8M12 8v8" stroke="white" stroke-width="1.5" stroke-linecap="round"/>','<path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8a19.79 19.79 0 01-3.07-8.67A2 2 0 012 .18h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.37 7.5A16 16 0 0013.13 14.26l.88-.88a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 15.5v1.42z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'];
 
-    function showDash() {
-      // ── POST results to backend ───────────────────────────────────────────
-      const payload = {
-        session_id: SESSION_ID,
-        answers: answerVector,
-        color_scores: { red: sc.red, yellow: sc.yellow, green: sc.green, blue: sc.blue },
-        dominant_color: dom(),
-        secondary_color: [...CL].sort((a, b) => sc[b] - sc[a])[1]
-      };
+function renderQ(q){
+  cur=q;used.push(q.text);
+  document.getElementById('q-cat').textContent=q.cat;
+  document.getElementById('q-count').textContent=(qi+1)+' / '+TOTAL;
+  const qt=document.getElementById('q-text');
+  qt.style.opacity='0';qt.textContent=q.text;
+  setTimeout(()=>{qt.style.transition='opacity .3s ease';qt.style.opacity='1';},20);
+  const opts=document.getElementById('opts');opts.innerHTML='';
+  q.opts.forEach((o,i)=>{
+    const btn=document.createElement('button');
+    btn.className='opt-card '+COLORS[i];
+    btn.innerHTML=`<div class="opt-bg-shape"></div><div class="opt-text">${o.t}</div><div class="opt-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none">${OPT_ICONS[i]}</svg></div>`;
+    btn.onclick=()=>pick(o,btn);
+    opts.appendChild(btn);
+  });
+  updateRpLive();
+}
 
-      fetch('http://127.0.0.1:8000/quiz/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      })
-        .then(res => res.json())
-        .then(data => console.log('Quiz saved:', data))
-        .catch(err => console.warn('Could not save quiz result:', err));
+function pick(o,btn){
+  av.push(cur.opts.indexOf(o));
+  document.querySelectorAll('.opt-card').forEach(b=>{b.onclick=null;b.style.opacity='.4';b.style.transform='';});
+  btn.classList.add('selected');btn.style.opacity='1';
+  CL.forEach(c=>sc[c]+=(o.w[c]||0));
+  bias=o.b;qi++;
+  updateSidebarBars();updateRpLive();updateQuizOverlay();
+  if(qi>=TOTAL){setTimeout(showResults,450);}
+  else{setTimeout(()=>renderQ(getQ()),340);}
+}
 
-      // ── rest of your existing showDash() code below ───────────────────────
-      document.getElementById('s-quiz').classList.remove('active');
-      document.getElementById('s-dash').classList.add('active');
-      const d = dom();
-      const sorted = [...CL].sort((a, b) => sc[b] - sc[a]);
-      const sec = sorted[1];
-      const t = tot();
-      const c = CM[d];
+function updateRpLive(){
+  const t=tot();
+  CL.forEach(c=>{
+    const pct=Math.round((sc[c]/t)*100);
+    document.getElementById('rp-'+c).style.width=pct+'%';
+    document.getElementById('rp-'+c+'-pct').textContent=pct+'%';
+  });
+  const d=dom();
+  const el=EL[d];
+  document.getElementById('rp-leading').textContent=el.sym+' '+el.name+' — '+CM[d].name;
+  document.getElementById('rp-leading').style.color=el.hex;
+}
 
-      // joke
-      document.getElementById('joke-wrap').innerHTML =
-        `<div class="joke-card" style="background:${c.light};color:${c.dark}">
-       <div class="joke-text">${JOKES[d]}</div>
-     </div>`;
+function updateQuizOverlay(){
+  const t=tot();const d=dom();const str=sc[d]/t;
+  if(str>0.35){const ov=document.getElementById('quiz-overlay');ov.style.background=EL[d].overlay;ov.style.opacity=Math.min(str*1.5,1);}
+}
 
-      // result card
-      document.getElementById('result-wrap').innerHTML =
-        `<div class="result-card" style="background:${c.light}">
-       <div class="result-eyebrow" style="color:${c.dark}">${c.label} · ${c.name}</div>
-       <div class="result-name" style="color:${c.dark}">You're a ${c.name} with a ${CM[sec].label} edge.</div>
-       <div class="result-body" style="color:${c.dark}">That means you ${d === 'red' ? 'move fast and get things done' : d === 'yellow' ? 'light up rooms and bring people together' : d === 'green' ? 'hold space and keep everything steady' : 'think deeply and get things right'} — and your ${CM[sec].label} side means you also ${sec === 'red' ? 'know how to push when it really matters' : sec === 'yellow' ? 'bring more warmth than people expect' : sec === 'green' ? 'genuinely care how people feel along the way' : 'need things to make sense before you move'}.</div>
-     </div>`;
+// ── RESULTS ───────────────────────────────────────────────────────────────────
+function showResults(){
+  hasResults=true;
+  stopEl();
+  document.getElementById('quiz-overlay').style.opacity=0;
+  const d=dom();
+  const sorted=[...CL].sort((a,b)=>sc[b]-sc[a]);
+  const sec=sorted[1];
+  const t=tot();
+  const el=EL[d];
 
-      // quad
-      const quad = document.getElementById('quad');
-      quad.innerHTML = '';
-      sorted.forEach(col => {
-        const pct = Math.round((sc[col] / t) * 100);
-        const op = 0.22 + (pct / 100) * 0.78;
-        const cell = document.createElement('div');
-        cell.className = 'qcell';
-        cell.style.background = CM[col].hex;
-        cell.style.opacity = op;
-        cell.innerHTML = `<div class="qcell-name" style="color:#fff">${CM[col].label}</div><div class="qcell-pct" style="color:#fff">${pct}%</div>`;
-        quad.appendChild(cell);
-      });
+  fetch('http://127.0.0.1:8000/quiz/submit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_id:SESSION_ID,answers:av,color_scores:{red:sc.red,yellow:sc.yellow,green:sc.green,blue:sc.blue},dominant_color:d,secondary_color:sec})}).then(r=>r.json()).then(data=>console.log('Saved:',data)).catch(e=>console.warn('Backend offline:',e));
 
-      // bars
-      const bars = document.getElementById('bars');
-      bars.innerHTML = '';
-      sorted.forEach(col => {
-        const pct = Math.round((sc[col] / t) * 100);
-        const row = document.createElement('div');
-        row.className = 'bar-row';
-        row.innerHTML = `<span class="bar-lbl">${CM[col].label}</span><div class="bar-track"><div class="bar-fill" style="background:${CM[col].hex}" data-p="${pct}"></div></div><span class="bar-pct">${pct}%</span>`;
-        bars.appendChild(row);
-      });
-      setTimeout(() => document.querySelectorAll('.bar-fill').forEach(el => el.style.width = el.dataset.p + '%'), 150);
+  showScreen('results');
+  startEl(d);
+  updateSidebarMascot(d);
 
-      // careers
-      const cd = CAREERS[d];
-      document.getElementById('careers').innerHTML =
-        `<div class="icard">
-       <div class="icard-head">Why these fit you</div>
-       <div class="icard-body">${cd.why}</div>
-       <div class="tags">${cd.tags.map(tg => `<span class="tag" style="background:${c.light};color:${c.dark}">${tg}</span>`).join('')}</div>
-     </div>`;
+  // Title
+  document.getElementById('res-title').innerHTML=`You're <em style="color:${el.hex}">${CM[d].name}</em><br>with a ${CM[sec].label} edge.`;
 
-      // relationships — watchout
-      const rw = document.getElementById('rel-watch');
-      rw.innerHTML = '';
-      RELWATCH[d].forEach(r => {
-        rw.innerHTML += `<div class="wcard" style="border-left-color:#E85D4A;background:white">
-      <div class="wcard-head">⚠ ${r.h}</div>
-      <div class="wcard-body">${r.b}</div>
-    </div>`;
-      });
+  // Score cards
+  const grid=document.getElementById('results-grid');grid.innerHTML='';
+  sorted.forEach(c=>{
+    const pct=Math.round((sc[c]/t)*100);
+    const div=document.createElement('div');div.className='res-card '+c;
+    div.innerHTML=`<div class="res-bg"></div><div><div class="res-label">${EL[c].sym} ${EL[c].name}</div><div class="res-pct">${pct}%</div><div class="res-name">${CM[c].name}</div></div>`;
+    grid.appendChild(div);
+  });
 
-      // relationships — good
-      const rg = document.getElementById('rel-good');
-      rg.innerHTML = '';
-      RELGOOD[d].forEach(r => {
-        rg.innerHTML += `<div class="wcard" style="border-left-color:${c.hex};background:white">
-      <div class="wcard-head" style="color:${c.dark}">✓ ${r.h}</div>
-      <div class="wcard-body">${r.b}</div>
-    </div>`;
-      });
+  // Bars
+  const bars=document.getElementById('res-bars');bars.innerHTML='';
+  sorted.forEach(c=>{
+    const pct=Math.round((sc[c]/t)*100);
+    const row=document.createElement('div');row.className='bar-row';
+    row.innerHTML=`<span class="bar-lbl">${EL[c].sym} ${CM[c].label}</span><div class="bar-track"><div class="bar-fill" style="background:${EL[c].hex}" data-p="${pct}"></div></div><span class="bar-pct">${pct}%</span>`;
+    bars.appendChild(row);
+  });
+  setTimeout(()=>document.querySelectorAll('.bar-fill').forEach(el=>el.style.width=el.dataset.p+'%'),100);
 
-      // growth
-      document.getElementById('growth').innerHTML =
-        `<div class="growth-card" style="background:${c.light}">
-       <div class="growth-text" style="color:${c.dark}">"${GROWTH[d]}"</div>
-     </div>`;
-    }
+  // Careers
+  const cd=CAREERS[d];
+  document.getElementById('res-careers').innerHTML=`<div class="insight-card"><div class="insight-head">Why these fit you</div><div class="insight-body">${cd.why}</div><div class="tag-wrap">${cd.tags.map(tg=>`<span class="tag" style="background:${EL[d].light};color:${EL[d].dark}">${tg}</span>`).join('')}</div></div>`;
 
-    function restart() {
-      document.getElementById('s-dash').classList.remove('active');
-      document.getElementById('s-intro').classList.add('active');
-      CL.forEach(c => sc[c] = 0);
-      qi = 0; used.length = 0; bias = 'open';
-      answerVector.length = 0;
-      SESSION_ID = generateUUID();   // ← generates a fresh ID for each new attempt
-    }
-  </script>
+  // Watch out
+  const rw=document.getElementById('res-watch');rw.innerHTML='';
+  RELWATCH[d].forEach(r=>{rw.innerHTML+=`<div class="watch-card" style="border-left-color:#F87171"><div class="watch-head">⚠ ${r.h}</div><div class="watch-body">${r.b}</div></div>`;});
+
+  // Good match
+  const rg=document.getElementById('res-good');rg.innerHTML='';
+  RELGOOD[d].forEach(r=>{rg.innerHTML+=`<div class="watch-card" style="border-left-color:${el.hex}"><div class="watch-head" style="color:${el.dark}">✓ ${r.h}</div><div class="watch-body">${r.b}</div></div>`;});
+
+  // Growth
+  document.getElementById('res-growth').innerHTML=`<div class="growth-card" style="background:${el.light}"><div class="growth-text" style="color:${el.dark}">"${GROWTH[d]}"</div></div>`;
+
+  // Right panel
+  document.getElementById('rp-mascot-wrap').innerHTML=`${MASCOT_SVG[d]}<div class="mascot-speech">${JOKES[d]}</div>`;
+  document.getElementById('rp-element-badge').innerHTML=`<div class="element-badge" style="background:${el.light};color:${el.dark}">${el.sym} ${el.name} — ${CM[d].name}</div>`;
+  document.getElementById('rp-mascot-line').textContent=MASCOT_LINE[d];
+}
+
+function updateSidebarMascot(d){
+  document.getElementById('sidebar-title').textContent=EL[d].sym+' '+EL[d].name;
+  document.getElementById('sidebar-title').style.display='block';
+  document.getElementById('sidebar-progress').style.display='none';
+  document.getElementById('sidebar-mascot').innerHTML=MASCOT_SVG[d];
+}
+
+function restart(){
+  stopEl();CL.forEach(c=>sc[c]=0);used.length=0;av.length=0;qi=0;bias='open';hasResults=false;SESSION_ID=generateUUID();
+  document.getElementById('quiz-overlay').style.opacity=0;
+  showScreen('intro');updateSidebarDefault();
+}
+
+// ── ANALYTICS ────────────────────────────────────────────────────────────────
+let distChart=null,scatterChart=null;
+
+function loadAnalytics(){
+  fetch('http://127.0.0.1:8000/analytics')
+  .then(r=>{if(!r.ok)throw new Error(r.status);return r.json();})
+  .then(data=>{renderAnalytics(data);})
+  .catch(()=>{
+    document.getElementById('stat-total').textContent='—';
+    document.getElementById('stat-combo').textContent='Need 5+ responses';
+    document.getElementById('stat-conf').textContent='—';
+    renderNoDataCharts();
+  });
+}
+
+function renderAnalytics(data){
+  document.getElementById('stat-total').textContent=data.total_responses||'0';
+  document.getElementById('stat-combo').textContent=(data.most_common_combination||'—').replace('_',' × ');
+  const conf=data.confidence_stats?.mean_confidence;
+  document.getElementById('stat-conf').textContent=conf?Math.round(conf*100)+'%':'—';
+
+  // Distribution chart
+  const dist=data.color_distribution||{};
+  const distData=[dist.red||0,dist.yellow||0,dist.green||0,dist.blue||0];
+  if(distChart)distChart.destroy();
+  distChart=new Chart(document.getElementById('dist-chart'),{
+    type:'bar',
+    data:{labels:['🔥 Fire','💨 Air','🌿 Earth','💧 Water'],datasets:[{data:distData,backgroundColor:['#F87171','#F59E0B','#10B981','#3B82F6'],borderRadius:8,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'rgba(0,0,0,0.05)'},ticks:{font:{size:11}}},x:{grid:{display:false},ticks:{font:{size:12}}}}}
+  });
+
+  // Heatmap
+  if(data.correlation_data&&data.correlation_data.length>0){renderHeatmap(data.correlation_data);}
+
+  // Scatter (PCA + KMeans)
+  if(data.cluster_points&&data.cluster_points.length>0){renderScatter(data.cluster_points);}
+  else renderNoScatter();
+}
+
+function renderHeatmap(corr){
+  const wrap=document.getElementById('heatmap-wrap');
+  const colors=['#F87171','#F59E0B','#10B981','#3B82F6'];
+  const labels=['🔥','💨','🌿','💧'];
+  let html='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px">';
+  html+='<tr><th style="padding:4px 6px;color:var(--ink-m)">Q#</th>';
+  labels.forEach((l,i)=>html+=`<th style="padding:4px 8px;color:${colors[i]}">${l}</th>`);
+  html+='</tr>';
+  corr.forEach((row,i)=>{
+    html+=`<tr><td style="padding:4px 6px;color:var(--ink-m);font-weight:500">Q${i+1}</td>`;
+    ['red','yellow','green','blue'].forEach((c,ci)=>{
+      const v=row[c]||0;const abs=Math.abs(v);const bg=abs>0.3?`${colors[ci]}${Math.round(abs*200).toString(16).padStart(2,'0')}`:'#F9FAFB';
+      html+=`<td style="padding:4px 8px;background:${bg};border-radius:4px;text-align:center;font-weight:500">${v.toFixed(2)}</td>`;
+    });
+    html+='</tr>';
+  });
+  html+='</table></div>';
+  wrap.innerHTML=html;
+}
+
+function renderScatter(pts){
+  const colorMap={red:'#F87171',yellow:'#F59E0B',green:'#10B981',blue:'#3B82F6'};
+  const datasets=[];const clusterColors=['#7C3AED','#F59E0B','#10B981','#F87171'];
+  const byCl={};pts.forEach(p=>{if(!byCl[p.cluster])byCl[p.cluster]=[];byCl[p.cluster].push({x:p.x,y:p.y,dc:p.dominant_color,cur:p.is_current_user});});
+  Object.keys(byCl).forEach(k=>{
+    datasets.push({label:'Cluster '+k,data:byCl[k].map(p=>({x:p.x,y:p.y})),backgroundColor:byCl[k].map(p=>p.cur?'#1E1B4B':colorMap[p.dc]||clusterColors[k]||'#9CA3AF'),pointRadius:byCl[k].map(p=>p.cur?8:5),pointHoverRadius:7});
+  });
+  if(scatterChart)scatterChart.destroy();
+  scatterChart=new Chart(document.getElementById('scatter-chart'),{type:'scatter',data:{datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:p=>`Cluster ${p.dataset.label.split(' ')[1]}`}}},scales:{x:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{font:{size:10}}},y:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{font:{size:10}}}}}});
+}
+
+function renderNoDataCharts(){
+  if(distChart)distChart.destroy();
+  distChart=new Chart(document.getElementById('dist-chart'),{type:'bar',data:{labels:['🔥 Fire','💨 Air','🌿 Earth','💧 Water'],datasets:[{data:[0,0,0,0],backgroundColor:['#F87171','#F59E0B','#10B981','#3B82F6'],borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true},x:{grid:{display:false}}}}});
+  renderNoScatter();
+}
+function renderNoScatter(){
+  if(scatterChart)scatterChart.destroy();
+  scatterChart=new Chart(document.getElementById('scatter-chart'),{type:'scatter',data:{datasets:[{label:'No data',data:[],backgroundColor:'#E5E7EB'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+  const wrap=document.getElementById('scatter-chart').parentNode;
+  const nd=document.createElement('div');nd.className='no-data';nd.innerHTML='<div class="no-data-icon">🔬</div>Train models to see user clusters<br><small>Needs 5+ responses + POST /ml/train</small>';
+  wrap.appendChild(nd);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+showScreen('intro');
+</script>
 </body>
-
 </html>

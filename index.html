@@ -6,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="static/favicon.ico">
     <title>Bens Basil | Portfolio</title>
-
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,400;1,500&display=swap"
+        rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -21,7 +22,8 @@
                         }
                     },
                     fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', 'sans-serif']
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        playfair: ['"Playfair Display"', 'serif']
                     },
                     transitionTimingFunction: { 'premium': 'cubic-bezier(0.22, 1, 0.36, 1)' }
                 }
@@ -213,26 +215,11 @@
                         <span class="text-brand-green">& MLOps Engineer.</span>
                     </h1>
 
-                    <p class="gsap-reveal text-sm md:text-lg text-gray-300 font-medium max-w-2xl leading-relaxed mb-8 drop-shadow-md"
-                        data-splitting>
-                        Building scalable web applications and deploying high-performance Machine Learning models.
-                        Specialist in FastAPI, Django, and LLM-driven solutions.
+                    <p class="gsap-reveal mt-12 text-stone-400 text-xl md:text-3xl font-medium leading-relaxed max-w-xl border-l border-white/10 pl-6"
+                        style="font-family: 'Playfair Display', serif; font-style: italic;" data-splitting>
+                        “Crafting tech that feels natural and easy to use.”
                     </p>
 
-                    <div class="reveal delay-300 flex flex-wrap items-center justify-end gap-3 md:gap-4 max-w-3xl">
-                        <a href="#projects"
-                            class="px-6 py-3 md:px-8 md:py-4 rounded-full font-bold text-[10px] md:text-xs tracking-[0.2em] uppercase text-white border border-white/20 hover:bg-white hover:text-brand-dark transition-all duration-300 bg-transparent backdrop-blur-sm whitespace-nowrap">
-                            View My Projects
-                        </a>
-                        <a href="CV_Bens_Basil.pdf" target="_blank"
-                            class="px-6 py-3 md:px-8 md:py-4 rounded-full font-bold text-[10px] md:text-xs tracking-[0.2em] uppercase text-white border border-white/20 hover:bg-white hover:text-brand-dark transition-all duration-300 bg-transparent backdrop-blur-sm whitespace-nowrap">
-                            Download Resume
-                        </a>
-                        <a href="contact.html"
-                            class="px-6 py-3 md:px-8 md:py-4 rounded-full font-bold text-[10px] md:text-xs tracking-[0.2em] uppercase text-white border border-white/20 hover:bg-white hover:text-brand-dark transition-all duration-300 bg-transparent backdrop-blur-sm whitespace-nowrap">
-                            Let's Connect on Upwork
-                        </a>
-                    </div>
                 </div>
             </div>
         </section>

@@ -6,3 +6,7 @@ pydantic
 email-validator
 fastapi-mail
 python-dotenv
+scikit-learn
+pandas
+joblib
+numpy

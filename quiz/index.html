@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>What color are you?</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --cream: #FAF7F2;
+      --ink: #1C1917;
+      --ink-soft: #57534E;
+      --ink-muted: #A8A29E;
+      --border: #E7E2D9;
+      --red: #C0392B;
+      --red-bg: #FDF0EF;
+      --red-mid: #E85D4A;
+      --yellow: #B45309;
+      --yellow-bg: #FFFBEB;
+      --yellow-mid: #F59E0B;
+      --green: #166534;
+      --green-bg: #F0FDF4;
+      --green-mid: #22C55E;
+      --blue: #1E3A8A;
+      --blue-bg: #EFF6FF;
+      --blue-mid: #3B82F6;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* subtle grain texture */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── SCREENS ── */
+    .screen {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .screen.active {
+      display: flex;
+      animation: fadeUp .45s ease both;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ── INTRO ── */
+    .intro-top {
+      margin-top: 3rem;
+      margin-bottom: 2rem;
+    }
+
+    .eyebrow {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      margin-bottom: .75rem;
+    }
+
+    .intro-title {
+      font-family: 'Lora', serif;
+      font-size: clamp(28px, 6vw, 38px);
+      font-weight: 400;
+      line-height: 1.25;
+      margin-bottom: 1rem;
+      color: var(--ink);
+    }
+
+    .intro-title em {
+      font-style: italic;
+    }
+
+    .intro-sub {
+      font-size: 15px;
+      line-height: 1.8;
+      color: var(--ink-soft);
+      margin-bottom: 2rem;
+      max-width: 440px;
+    }
+
+    .color-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 2.5rem;
+    }
+
+    .color-pill {
+      font-size: 12px;
+      font-weight: 500;
+      padding: 6px 14px;
+      border-radius: 20px;
+      letter-spacing: .02em;
+    }
+
+    .btn-start {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--ink);
+      color: var(--cream);
+      border: none;
+      border-radius: 40px;
+      padding: 14px 28px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: transform .15s, opacity .15s;
+      width: fit-content;
+    }
+
+    .btn-start:hover {
+      opacity: .88;
+      transform: translateY(-1px);
+    }
+
+    .btn-start svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .deco-line {
+      width: 48px;
+      height: 2px;
+      background: var(--ink-muted);
+      border-radius: 2px;
+      margin: 2.5rem 0;
+      opacity: .3;
+    }
+
+    /* ── PROGRESS ── */
+    .prog-wrap {
+      margin-bottom: 2rem;
+    }
+
+    .prog-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: .6rem;
+    }
+
+    .prog-mood {
+      font-size: 12px;
+      color: var(--ink-muted);
+      font-style: italic;
+      font-family: 'Lora', serif;
+    }
+
+    .prog-num {
+      font-size: 12px;
+      color: var(--ink-muted);
+      font-weight: 500;
+    }
+
+    .prog-track {
+      height: 2px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .prog-fill {
+      height: 100%;
+      background: var(--ink);
+      border-radius: 2px;
+      transition: width .6s cubic-bezier(.4, 0, .2, 1);
+      width: 0%;
+    }
+
+    /* ── QUESTION ── */
+    .q-category {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      margin-bottom: .75rem;
+    }
+
+    .q-text {
+      font-family: 'Lora', serif;
+      font-size: clamp(18px, 4vw, 22px);
+      font-weight: 400;
+      line-height: 1.5;
+      color: var(--ink);
+      margin-bottom: 2rem;
+    }
+
+    /* ── OPTIONS ── */
+    .opts {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .opt {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 18px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--ink-soft);
+      text-align: left;
+      cursor: pointer;
+      transition: border-color .15s, background .15s, color .15s, transform .12s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .opt:hover {
+      border-color: var(--ink);
+      color: var(--ink);
+      transform: translateX(3px);
+    }
+
+    .opt-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      border: 1.5px solid var(--border);
+      transition: background .15s, border-color .15s;
+    }
+
+    .opt:hover .opt-dot {
+      border-color: var(--ink);
+      background: var(--ink);
+    }
+
+    /* ── DASHBOARD ── */
+    .dash-header {
+      margin-bottom: 2rem;
+    }
+
+    .joke-card {
+      border-radius: 16px;
+      padding: 16px 20px;
+      font-family: 'Lora', serif;
+      font-size: 14px;
+      font-style: italic;
+      line-height: 1.8;
+      margin-bottom: 1.75rem;
+      position: relative;
+    }
+
+    .joke-card::before {
+      content: '"';
+      font-size: 48px;
+      line-height: 1;
+      position: absolute;
+      top: 8px;
+      left: 14px;
+      opacity: .2;
+      font-family: 'Lora', serif;
+    }
+
+    .joke-text {
+      padding-left: 8px;
+    }
+
+    .result-card {
+      border-radius: 20px;
+      padding: 22px 22px 18px;
+      margin-bottom: 1rem;
+    }
+
+    .result-eyebrow {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .result-name {
+      font-family: 'Lora', serif;
+      font-size: 24px;
+      font-weight: 400;
+      margin-bottom: 8px;
+    }
+
+    .result-body {
+      font-size: 13.5px;
+      line-height: 1.75;
+      opacity: .85;
+    }
+
+    .section-label {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      margin-bottom: .75rem;
+      margin-top: 1.75rem;
+    }
+
+    /* color quad */
+    .quad {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: .5rem;
+    }
+
+    .qcell {
+      border-radius: 14px;
+      padding: 14px;
+      text-align: center;
+      transition: transform .2s;
+    }
+
+    .qcell:hover {
+      transform: scale(1.02);
+    }
+
+    .qcell-name {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    .qcell-pct {
+      font-size: 26px;
+      font-weight: 400;
+      font-family: 'Lora', serif;
+      margin-top: 3px;
+    }
+
+    /* bars */
+    .bar-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .bar-lbl {
+      font-size: 12px;
+      color: var(--ink-muted);
+      min-width: 56px;
+    }
+
+    .bar-track {
+      flex: 1;
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      width: 0%;
+      transition: width 1s cubic-bezier(.4, 0, .2, 1);
+    }
+
+    .bar-pct {
+      font-size: 12px;
+      color: var(--ink-muted);
+      min-width: 32px;
+      text-align: right;
+    }
+
+    /* insight cards */
+    .icard {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px 18px;
+      margin-bottom: 10px;
+    }
+
+    .icard-head {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+
+    .icard-body {
+      font-size: 13.5px;
+      color: var(--ink-soft);
+      line-height: 1.75;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .tag {
+      font-size: 11px;
+      font-weight: 500;
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+
+    /* watch cards */
+    .wcard {
+      background: white;
+      border: 1px solid var(--border);
+      border-left: 3px solid;
+      border-radius: 0 14px 14px 0;
+      padding: 14px 16px;
+      margin-bottom: 9px;
+    }
+
+    .wcard-head {
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 5px;
+    }
+
+    .wcard-body {
+      font-size: 13.5px;
+      color: var(--ink-soft);
+      line-height: 1.75;
+    }
+
+    /* growth */
+    .growth-card {
+      border-radius: 16px;
+      padding: 18px 20px;
+      margin-top: .25rem;
+    }
+
+    .growth-text {
+      font-family: 'Lora', serif;
+      font-size: 15px;
+      font-style: italic;
+      line-height: 1.85;
+      color: var(--ink);
+    }
+
+    .restart-btn {
+      width: 100%;
+      margin-top: 2rem;
+      padding: 13px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 40px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: var(--ink-muted);
+      cursor: pointer;
+      transition: background .15s, color .15s;
+    }
+
+    .restart-btn:hover {
+      background: white;
+      color: var(--ink);
+    }
+
+    /* fade-in stagger for dashboard cards */
+    .fade-in {
+      animation: fadeUp .4s ease both;
+    }
+
+    .fade-in:nth-child(1) {
+      animation-delay: .05s;
+    }
+
+    .fade-in:nth-child(2) {
+      animation-delay: .12s;
+    }
+
+    .fade-in:nth-child(3) {
+      animation-delay: .19s;
+    }
+
+    .fade-in:nth-child(4) {
+      animation-delay: .26s;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+
+    <!-- ── INTRO ── -->
+    <div class="screen active" id="s-intro">
+      <div class="intro-top">
+        <div class="eyebrow">personality colors</div>
+        <h1 class="intro-title">Hey — just a few<br><em>everyday questions.</em></h1>
+        <p class="intro-sub">No right or wrong answers. Just pick what feels most like you. By the end you'll see
+          yourself in color — and get honest reflections on who you are, where you thrive, and who you naturally click
+          with.</p>
+        <div class="color-row">
+          <span class="color-pill" style="background:var(--red-bg);color:var(--red)">Red — the pioneer</span>
+          <span class="color-pill" style="background:var(--yellow-bg);color:var(--yellow)">Yellow — the energizer</span>
+          <span class="color-pill" style="background:var(--green-bg);color:var(--green)">Green — the anchor</span>
+          <span class="color-pill" style="background:var(--blue-bg);color:var(--blue)">Blue — the architect</span>
+        </div>
+        <button class="btn-start" onclick="startQuiz()">
+          Let's go
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ── QUIZ ── -->
+    <div class="screen" id="s-quiz">
+      <div class="prog-wrap">
+        <div class="prog-top">
+          <span class="prog-mood" id="prog-mood">just getting started</span>
+          <span class="prog-num" id="prog-num">1 / 12</span>
+        </div>
+        <div class="prog-track">
+          <div class="prog-fill" id="prog-fill"></div>
+        </div>
+      </div>
+      <div class="q-category" id="q-cat"></div>
+      <div class="q-text" id="q-text"></div>
+      <div class="opts" id="opts"></div>
+    </div>
+
+    <!-- ── DASHBOARD ── -->
+    <div class="screen" id="s-dash">
+      <div id="joke-wrap"></div>
+      <div id="result-wrap"></div>
+      <div class="section-label">your color breakdown</div>
+      <div class="quad" id="quad"></div>
+      <div class="section-label">how each color shows up</div>
+      <div class="bar-list" id="bars"></div>
+      <div class="section-label">where you'll thrive — careers</div>
+      <div id="careers"></div>
+      <div class="section-label">relationships to watch out for</div>
+      <div id="rel-watch"></div>
+      <div class="section-label">where you naturally click</div>
+      <div id="rel-good"></div>
+      <div class="section-label">one thing worth sitting with</div>
+      <div id="growth"></div>
+      <button class="restart-btn" onclick="restart()">↺ have another go</button>
+    </div>
+
+  </div>
+
+  <script>
+    // generate a random UUID for anonymous session tracking
+    function generateUUID() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        const r = Math.random() * 16 | 0;
+        const v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
+
+    // create session ID once when page loads, reuse for this attempt
+    const SESSION_ID = generateUUID();
+
+    const CM = {
+      red: { label: 'Red', hex: '#E85D4A', light: '#FDF0EF', dark: '#C0392B', name: 'The Pioneer', mid: '#E85D4A' },
+      yellow: { label: 'Yellow', hex: '#F59E0B', light: '#FFFBEB', dark: '#B45309', name: 'The Energizer', mid: '#F59E0B' },
+      green: { label: 'Green', hex: '#22C55E', light: '#F0FDF4', dark: '#166534', name: 'The Anchor', mid: '#22C55E' },
+      blue: { label: 'Blue', hex: '#3B82F6', light: '#EFF6FF', dark: '#1E3A8A', name: 'The Architect', mid: '#3B82F6' },
+    };
+    const CL = ['red', 'yellow', 'green', 'blue'];
+    const sc = { red: 0, yellow: 0, green: 0, blue: 0 };
+    let qi = 0, bias = 'open', cur = null;
+    const used = [];
+    const answerVector = []; // stores numeric choice index (0-3) for each question
+    const TOTAL = 12;
+
+    // ── QUESTION BANK ──
+    const OPEN = {
+      cat: 'how you spend your time',
+      text: "How do you usually spend a Sunday when nobody needs anything from you?",
+      opts: [
+        { t: "Something productive — I'd feel restless otherwise", w: { red: 3, yellow: 0, green: 0, blue: 0 }, b: 'high_red' },
+        { t: "Out somewhere — coffee, shops, just being around life", w: { red: 0, yellow: 3, green: 0, blue: 0 }, b: 'high_yellow' },
+        { t: "Quietly at home, slow and no plans", w: { red: 0, yellow: 0, green: 3, blue: 0 }, b: 'high_green' },
+        { t: "Down a rabbit hole of something I'm curious about", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
+      ]
+    };
+
+    const QB = {
+      high_red: [
+        {
+          cat: 'your everyday rhythm',
+          text: "Are you a morning person or do you come alive at night?",
+          opts: [
+            { t: "Morning — I like getting ahead of the day", w: { red: 3, yellow: 0, green: 0, blue: 0 }, b: 'high_red' },
+            { t: "Morning only if I have something to look forward to", w: { red: 1, yellow: 2, green: 0, blue: 0 }, b: 'high_yellow' },
+            { t: "Neither really — I just go at my own pace", w: { red: 0, yellow: 0, green: 3, blue: 0 }, b: 'high_green' },
+            { t: "Night — that's when my brain actually works", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
+          ]
+        },
+        {
+          cat: 'how you work',
+          text: "Do you make your bed in the morning or is that just not a thing for you?",
+          opts: [
+            { t: "Every single day without thinking about it", w: { red: 3, yellow: 0, green: 0, blue: 1 }, b: 'high_red' },
+            { t: "Sometimes, when the mood strikes", w: { red: 0, yellow: 2, green: 1, blue: 0 }, b: 'high_yellow' },
+            { t: "Nope — no one's going to see it anyway", w: { red: 0, yellow: 1, green: 2, blue: 0 }, b: 'high_green' },
+            { t: "Only if I have guests coming — otherwise why bother", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
+          ]
+        },
+        {
+          cat: 'how you work',
+          text: "Do you like being told exactly what to do or do you prefer figuring it out yourself?",
+          opts: [
+            { t: "Figure it out — being over-directed slows me down", w: { red: 3, yellow: 0, green: 0, blue: 0 }, b: 'high_red' },
+            { t: "A rough idea is fine, I'll improvise the rest", w: { red: 0, yellow: 3, green: 0, blue: 0 }, b: 'high_yellow' },
+            { t: "I like knowing expectations — I don't want to disappoint", w: { red: 0, yellow: 0, green: 3, blue: 0 }, b: 'high_green' },
+            { t: "Clear instructions please — I want to do it properly", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
+          ]
+        },
+        {
+          cat: 'small joys',
+          text: "What's something you're weirdly good at that surprises people?",
+          opts: [
+            { t: "Reading a room and knowing exactly what to do", w: { red: 3, yellow: 0, green: 0, blue: 0 }, b: 'mixed' },
+            { t: "Making anyone feel instantly comfortable", w: { red: 0, yellow: 3, green: 0, blue: 0 }, b: 'high_yellow' },
+            { t: "Remembering small details about people", w: { red: 0, yellow: 0, green: 3, blue: 0 }, b: 'high_green' },
+            { t: "Finding patterns in things others miss", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
+          ]
+        },
+      ],
+      high_yellow: [
+        {
+          cat: 'how you enjoy life',
+          text: "How much do you enjoy going out — shopping, wandering, being somewhere busy?",
+          opts: [
+            { t: "Love it. Outside is honestly where I feel most alive.", w: { red: 0, yellow: 3, green: 0, blue: 0 }, b: 'high_yellow' },
+            { t: "I enjoy it with a purpose — not just aimless wandering", w: { red: 2, yellow: 1, green: 0, blue: 0 }, b: 'high_red' },
+            { t: "Sometimes nice, sometimes draining — depends on the day", w: { red: 0, yellow: 0, green: 2, blue: 1 }, b: 'high_green' },
+            { t: "I could honestly skip most of it — online exists", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
+          ]
+        },
+        {
+          cat: 'about people',
+          text: "Do you like meeting new people or is your current circle honestly enough?",
+          opts: [
+            { t: "I like useful connections — quality over numbers", w: { red: 2, yellow: 1, green: 0, blue: 0 }, b: 'high_red' },
+            { t: "I genuinely love meeting new people — always", w: { red: 0, yellow: 3, green: 0, blue: 0 }, b: 'high_yellow' },
+            { t: "My current circle is everything — I don't need more", w: { red: 0, yellow: 0, green: 3, blue: 0 }, b: 'high_green' },
+            { t: "New people are draining unless there's real depth", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
+          ]
+        },
+        {
+          cat: 'about people',
+          text: "When you're with a group, are you usually the one talking or the one listening?",
+          opts: [
+            { t: "Talking — and steering things in a direction", w: { red: 2, yellow: 1, green: 0, blue: 0 }, b: 'high_red' },
+            { t: "Talking — and making everyone laugh somehow", w: { red: 0, yellow: 3, green: 0, blue: 0 }, b: 'high_yellow' },
+            { t: "Listening — I take everything in first", w: { red: 0, yellow: 0, green: 2, blue: 1 }, b: 'high_green' },
+            { t: "Listening — and only speaking when I have something real to add", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
+          ]
+        },
+        {
+          cat: 'about people',
+          text: "Do you gossip a little with close people — or do you keep things to yourself?",
+          opts: [
+            { t: "No, I don't see the point — too much to do", w: { red: 3, yellow: 0, green: 0, blue: 0 }, b: 'high_red' },
+            { t: "Yes and I love it — it's called staying connected", w: { red: 0, yellow: 3, green: 0, blue: 0 }, b: 'high_yellow' },
+            { t: "Only with my very few trusted people — and it's gentle", w: { red: 0, yellow: 0, green: 3, blue: 0 }, b: 'high_green' },
+            { t: "I listen more than I share in those conversations", w: { red: 0, yellow: 0, green: 1, blue: 2 }, b: 'high_blue' },
+          ]
+        },
+      ],
+      high_green: [
+        {
+          cat: 'your everyday rhythm',
+          text: "Do you eat the same things on repeat or do you like trying new food?",
+          opts: [
+            { t: "Variety — I get bored quickly", w: { red: 2, yellow: 1, green: 0, blue: 0 }, b: 'high_red' },
+            { t: "I love trying new places and cuisines", w: { red: 0, yellow: 3, green: 0, blue: 0 }, b: 'high_yellow' },
+            { t: "Honestly? Same comforting things most of the time", w: { red: 0, yellow: 0, green: 3, blue: 0 }, b: 'high_green' },
+            { t: "Depends — I research it thoroughly before trying anything new", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
+          ]
+        },
+        {
+          cat: 'about people',
+          text: "Are you the one in your group who remembers everyone's birthdays?",
+          opts: [
+            { t: "No — I'm focused on bigger things", w: { red: 3, yellow: 0, green: 0, blue: 0 }, b: 'high_red' },
+            { t: "Yes and I love making a big thing of it", w: { red: 0, yellow: 3, green: 0, blue: 0 }, b: 'high_yellow' },
+            { t: "Yes — I'd feel awful forgetting", w: { red: 0, yellow: 0, green: 3, blue: 0 }, b: 'high_green' },
+            { t: "I have it in my calendar — I don't trust memory", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
+          ]
+        },
+        {
+          cat: 'how you enjoy life',
+          text: "Do you like when people drop by unannounced or do you need a heads-up?",
+          opts: [
+            { t: "Fine with me if it's quick", w: { red: 2, yellow: 1, green: 0, blue: 0 }, b: 'high_red' },
+            { t: "Love it — the more the merrier honestly", w: { red: 0, yellow: 3, green: 0, blue: 0 }, b: 'high_yellow' },
+            { t: "I love it if I'm ready — but I'm always ready for the right people", w: { red: 0, yellow: 0, green: 3, blue: 0 }, b: 'high_green' },
+            { t: "Please warn me — I need to mentally prepare", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
+          ]
+        },
+        {
+          cat: 'small joys',
+          text: "What kind of weather genuinely makes you happy?",
+          opts: [
+            { t: "Clear and bright — good weather means getting things done", w: { red: 3, yellow: 0, green: 0, blue: 0 }, b: 'mixed' },
+            { t: "Warm and breezy — perfect for being outside with people", w: { red: 0, yellow: 3, green: 0, blue: 0 }, b: 'high_yellow' },
+            { t: "Soft rain and cool air — ideal for staying in", w: { red: 0, yellow: 0, green: 3, blue: 0 }, b: 'high_green' },
+            { t: "Overcast and quiet — perfect thinking weather", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
+          ]
+        },
+      ],
+      high_blue: [
+        {
+          cat: 'how you think',
+          text: "When you have a free hour, how often do you end up reading or going down a rabbit hole?",
+          opts: [
+            { t: "Rarely — I'd use it for something productive", w: { red: 3, yellow: 0, green: 0, blue: 0 }, b: 'high_red' },
+            { t: "I'd rather spend it with someone", w: { red: 0, yellow: 2, green: 1, blue: 0 }, b: 'high_yellow' },
+            { t: "Sometimes — if something earlier sparked a thought", w: { red: 0, yellow: 0, green: 1, blue: 2 }, b: 'high_green' },
+            { t: "Almost always — I can't help it", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
+          ]
+        },
+        {
+          cat: 'how you think',
+          text: "When you're curious about something, do you look it up immediately or just wonder about it?",
+          opts: [
+            { t: "I move on — there are more pressing things", w: { red: 3, yellow: 0, green: 0, blue: 0 }, b: 'high_red' },
+            { t: "I ask someone — talking it through is more fun", w: { red: 0, yellow: 3, green: 0, blue: 0 }, b: 'high_yellow' },
+            { t: "I wonder about it for a while before looking", w: { red: 0, yellow: 0, green: 2, blue: 1 }, b: 'high_green' },
+            { t: "I look it up immediately — I need to know now", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
+          ]
+        },
+        {
+          cat: 'how you work',
+          text: "Does a cluttered desk or messy shared folder actually bother you?",
+          opts: [
+            { t: "Only when it slows things down", w: { red: 3, yellow: 0, green: 0, blue: 0 }, b: 'mixed' },
+            { t: "Nah — I'm chaotic myself, I find it charming", w: { red: 0, yellow: 3, green: 0, blue: 0 }, b: 'high_yellow' },
+            { t: "Mild discomfort but I adapt without making a fuss", w: { red: 0, yellow: 0, green: 2, blue: 1 }, b: 'high_green' },
+            { t: "Yes. It genuinely stresses me out.", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
+          ]
+        },
+        {
+          cat: 'how you think',
+          text: "Do you prefer reading, watching, or listening when you want to learn something?",
+          opts: [
+            { t: "Watching — I want the condensed version fast", w: { red: 3, yellow: 0, green: 0, blue: 0 }, b: 'mixed' },
+            { t: "Listening — podcasts while I'm doing something else", w: { red: 0, yellow: 2, green: 1, blue: 0 }, b: 'high_yellow' },
+            { t: "Watching — but slowly, I like to pause and think", w: { red: 0, yellow: 0, green: 2, blue: 1 }, b: 'high_green' },
+            { t: "Reading — I need to go at my own pace and re-read", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
+          ]
+        },
+      ],
+      mixed: [
+        {
+          cat: 'your everyday rhythm',
+          text: "Are you someone who replies to messages instantly or do you need a moment?",
+          opts: [
+            { t: "Instantly if it's important — I don't let things pile up", w: { red: 3, yellow: 0, green: 0, blue: 0 }, b: 'high_red' },
+            { t: "Instantly — I love the back-and-forth", w: { red: 0, yellow: 3, green: 0, blue: 0 }, b: 'high_yellow' },
+            { t: "When I'm ready — I don't like feeling rushed", w: { red: 0, yellow: 0, green: 3, blue: 0 }, b: 'high_green' },
+            { t: "When I have something worth saying", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
+          ]
+        },
+        {
+          cat: 'how you enjoy life',
+          text: "Would you rather spend a Saturday doing something or genuinely doing nothing?",
+          opts: [
+            { t: "Doing something — downtime makes me restless", w: { red: 3, yellow: 0, green: 0, blue: 0 }, b: 'high_red' },
+            { t: "Doing something — preferably with people and spontaneity", w: { red: 0, yellow: 3, green: 0, blue: 0 }, b: 'high_yellow' },
+            { t: "Nothing — I genuinely love a slow day", w: { red: 0, yellow: 0, green: 3, blue: 0 }, b: 'high_green' },
+            { t: "Doing something solo — a project, a book, a walk alone", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
+          ]
+        },
+        {
+          cat: 'how you think',
+          text: "Are you someone who makes quick decisions or needs time to sit with it?",
+          opts: [
+            { t: "Quick — decide fast and correct if wrong", w: { red: 3, yellow: 0, green: 0, blue: 0 }, b: 'high_red' },
+            { t: "Quick — I go with how I feel in the moment", w: { red: 0, yellow: 3, green: 0, blue: 0 }, b: 'high_yellow' },
+            { t: "I sit with it — I want to make sure no one gets affected badly", w: { red: 0, yellow: 0, green: 3, blue: 0 }, b: 'high_green' },
+            { t: "I take a while — I want to understand every angle first", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
+          ]
+        },
+        {
+          cat: 'how you work',
+          text: "Do you work better with music on or in total silence?",
+          opts: [
+            { t: "Music — energetic, keeps me moving", w: { red: 2, yellow: 1, green: 0, blue: 0 }, b: 'high_red' },
+            { t: "Music — specifically something with good vibes", w: { red: 0, yellow: 3, green: 0, blue: 0 }, b: 'high_yellow' },
+            { t: "Soft background sounds — not silence, not loud", w: { red: 0, yellow: 0, green: 3, blue: 0 }, b: 'high_green' },
+            { t: "Silence — anything else pulls my attention", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
+          ]
+        },
+        {
+          cat: 'small joys',
+          text: "Do you have a hobby or interest that surprises people when they find out?",
+          opts: [
+            { t: "Something physical or competitive — people expect something quieter", w: { red: 3, yellow: 0, green: 0, blue: 0 }, b: 'mixed' },
+            { t: "Something artistic or performative — people don't expect the depth", w: { red: 0, yellow: 3, green: 0, blue: 0 }, b: 'high_yellow' },
+            { t: "Something gentle — gardening, baking, crafts", w: { red: 0, yellow: 0, green: 3, blue: 0 }, b: 'high_green' },
+            { t: "Something niche and nerdy — I know a lot about one very specific thing", w: { red: 0, yellow: 0, green: 0, blue: 3 }, b: 'high_blue' },
+          ]
+        },
+      ]
+    };
+
+    const JOKES = {
+      red: "Quick observation — you picked the decisive answer every time without pausing. Which is very on brand. You also probably already have a plan for what you're doing after this.",
+      yellow: "I could feel the energy through the screen. You probably also had music on while doing this, and have already told at least one person they should try it before you even finished.",
+      green: "You took a small moment on a few of those, didn't you? Wanted to make sure the answer was kind somehow. There was no unkind answer. You're fine. Everyone's fine. It's all fine.",
+      blue: "You were mentally auditing this quiz while taking it — I could tell. The irony is this might be the most self-aware ten minutes of your week, and you did it entirely through vibes.",
+    };
+
+    const CAREERS = {
+      red: { why: "You do your best work when stakes are real and results are visible. Bureaucracy, slow consensus, and vague goals will drain you fast. You need ownership and a clear finish line.", tags: ["Entrepreneur", "Sales director", "Executive leadership", "Consulting", "Sports coaching", "Real estate", "Emergency services"] },
+      yellow: { why: "You thrive where people, energy, and creativity are the actual product. Isolated, repetitive work will quietly crush you. Give you a room and a reason — you'll outperform everyone.", tags: ["Marketing & brand", "PR & communications", "Teaching & training", "Creative direction", "Hosting & presenting", "Community building", "Startup culture"] },
+      green: { why: "People trust you without you trying. You shine in roles where your patience, warmth, and steadiness create safety for others. High-pressure, cutthroat environments will quietly wear you thin.", tags: ["Counselling & therapy", "Social work", "Human resources", "Nursing & care", "Operations management", "Community leadership", "Early years education"] },
+      blue: { why: "You do your best work when precision and depth matter more than speed. Vague briefs, chaotic systems, and fuzzy goals will genuinely stress you. You belong somewhere your rigor is respected.", tags: ["Data & analytics", "Engineering", "Research & academia", "Law & compliance", "Finance & auditing", "Medicine", "Systems design"] },
+    };
+
+    const RELWATCH = {
+      red: [
+        { h: "Another strong Red", b: "Two people who both need to lead and be right. You'll respect each other enormously — and clash constantly. Long term this needs very clear lanes, or it slowly erodes." },
+        { h: "A very passive Green", b: "They'll keep accommodating you without saying so — and you'll mistake the silence for harmony. By the time resentment surfaces on their side, a lot has already quietly built up." },
+      ],
+      yellow: [
+        { h: "Deep Blue personalities", b: "They want depth, precision, and stillness. You want movement, lightness, and spontaneity. They'll find you scattered; you'll find them cold. Not impossible — but it takes daily effort from both." },
+        { h: "Another Yellow", b: "Chaotic fun at first. But someone has to handle the boring, unglamorous, necessary things. In this pairing, it tends to be nobody — and that catches up eventually." },
+      ],
+      green: [
+        { h: "Dominant Red personalities", b: "Their directness will feel like pressure, and you'll absorb it without saying anything. Over years this erodes silently — and you may not speak up until real damage is already done." },
+        { h: "Another Green", b: "So conflict-avoidant that neither of you raises important things. Things go unsaid. The relationship drifts slowly without either of you meaning it to." },
+      ],
+      blue: [
+        { h: "Spontaneous Yellow types", b: "Their unpredictability will read as chaos to you. You'll analyse while they're three moves ahead on instinct alone. Not incompatible — but genuine patience is required every single day." },
+        { h: "Fast-moving Red personalities", b: "They decide in seconds; you need time. They'll call you slow; you'll call them reckless. Mutual respect makes this work beautifully. Without it, it's quietly exhausting for both." },
+      ],
+    };
+
+    const RELGOOD = {
+      red: [
+        { h: "Yellow — the energizer", b: "They bring warmth and human connection to your drive. You move them forward; they soften your edges. A genuinely powerful pair when the respect is mutual and real." },
+        { h: "Blue — the architect", b: "They back your instincts with rigor. You act; they check. Frustrating in the short term, brilliant over the long run — one of the most complementary pairings." },
+      ],
+      yellow: [
+        { h: "Green — the anchor", b: "They give you the stability you actually crave underneath all that energy. You pull them out of their shell. Beautifully complementary — one of your very best long-term pairings." },
+        { h: "Red — the pioneer", b: "They match your pace and add direction. You make them more human and warm; they help you actually finish what you start." },
+      ],
+      green: [
+        { h: "Yellow — the energizer", b: "They pull you gently into life. You ground them when things get chaotic. The warmth between you is natural and completely unforced — often a deeply happy pairing." },
+        { h: "Blue — the architect", b: "Slow, thoughtful, no unnecessary drama. You both value peace and depth over performance. Disagreements are rare — and when they happen, handled with real care." },
+      ],
+      blue: [
+        { h: "Green — the anchor", b: "Quiet, consistent, low-drama. Neither of you is performing for the other. Conversations go somewhere real; comfort is genuine. One of your very best long-term matches." },
+        { h: "Another Blue", b: "You understand each other's pace and need for depth completely. Can become a little insular over time — but intellectually and emotionally, genuinely hard to beat." },
+      ],
+    };
+
+    const GROWTH = {
+      red: "You are capable of extraordinary things — and deep down you know it. The question worth sitting with is this: are you building something, or running from stillness? The people who love you most don't need to be impressed. They just want to be seen by you.",
+      yellow: "You make every room better simply by being in it. But underneath all that brightness there is a quieter version of you that doesn't always get airtime. That version is worth knowing too.",
+      green: "You give so naturally that people forget to ask how you are — and you let them forget. Your needs are just as real as everyone else's. You don't have to earn your place in the room.",
+      blue: "You are one of the clearest thinkers in any space you enter. But the life you're mapping so carefully doesn't always wait for the perfect plan. Sometimes the very best next step is just a step.",
+    };
+
+    // ── LOGIC ──
+    function dom() { return CL.reduce((a, b) => sc[a] >= sc[b] ? a : b); }
+    function tot() { return CL.reduce((s, c) => s + sc[c], 0) || 1; }
+
+    function getQ() {
+      if (qi === 0) return OPEN;
+      const pool = QB[bias] || QB.mixed;
+      const avail = pool.filter(q => !used.includes(q.text));
+      if (!avail.length) {
+        const all = Object.values(QB).flat();
+        const fb = all.filter(q => !used.includes(q.text));
+        return fb[Math.floor(Math.random() * fb.length)] || pool[0];
+      }
+      return avail[Math.floor(Math.random() * avail.length)];
+    }
+
+    function startQuiz() {
+      document.getElementById('s-intro').classList.remove('active');
+      const qscreen = document.getElementById('s-quiz');
+      qscreen.classList.add('active');
+      CL.forEach(c => sc[c] = 0);
+      used.length = 0; qi = 0; bias = 'open';
+      renderQ(getQ());
+    }
+
+    function renderQ(q) {
+      cur = q;
+      used.push(q.text);
+      const pct = Math.round((qi / TOTAL) * 100);
+      document.getElementById('prog-fill').style.width = pct + '%';
+      document.getElementById('prog-num').textContent = (qi + 1) + ' / ' + TOTAL;
+      const moods = ['just getting started', 'warming up a little', 'getting somewhere', 'almost there', 'one more…'];
+      document.getElementById('prog-mood').textContent = moods[Math.min(Math.floor(qi / 3), 4)];
+      document.getElementById('q-cat').textContent = q.cat;
+
+      const qt = document.getElementById('q-text');
+      qt.style.opacity = '0';
+      qt.style.transform = 'translateY(8px)';
+      qt.textContent = q.text;
+      setTimeout(() => { qt.style.transition = 'opacity .3s ease, transform .3s ease'; qt.style.opacity = '1'; qt.style.transform = 'translateY(0)'; }, 30);
+
+      const opts = document.getElementById('opts');
+      opts.innerHTML = '';
+      q.opts.forEach(o => {
+        const btn = document.createElement('button');
+        btn.className = 'opt';
+        btn.innerHTML = `<span class="opt-dot"></span>${o.t}`;
+        btn.onclick = () => pick(o, btn);
+        opts.appendChild(btn);
+      });
+    }
+
+    function pick(o, btn) {
+      // find which index this option was in the question
+      const optIndex = cur.opts.indexOf(o);
+      answerVector.push(optIndex);
+
+      document.querySelectorAll('.opt').forEach(b => { b.onclick = null; b.style.opacity = '.38'; b.style.transform = ''; });
+      btn.style.opacity = '1';
+      btn.style.borderColor = '#1C1917';
+      btn.querySelector('.opt-dot').style.background = '#1C1917';
+      btn.querySelector('.opt-dot').style.borderColor = '#1C1917';
+      CL.forEach(c => sc[c] += (o.w[c] || 0));
+      bias = o.b;
+      qi++;
+      if (qi >= TOTAL) {
+        setTimeout(showDash, 420);
+      } else {
+        setTimeout(() => renderQ(getQ()), 320);
+      }
+    }
+
+    function showDash() {
+      // ── POST results to backend ───────────────────────────────────────────
+      const payload = {
+        session_id: SESSION_ID,
+        answers: answerVector,
+        color_scores: { red: sc.red, yellow: sc.yellow, green: sc.green, blue: sc.blue },
+        dominant_color: dom(),
+        secondary_color: [...CL].sort((a, b) => sc[b] - sc[a])[1]
+      };
+
+      fetch('http://127.0.0.1:8000/quiz/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+        .then(res => res.json())
+        .then(data => console.log('Quiz saved:', data))
+        .catch(err => console.warn('Could not save quiz result:', err));
+
+      // ── rest of your existing showDash() code below ───────────────────────
+      document.getElementById('s-quiz').classList.remove('active');
+      document.getElementById('s-dash').classList.add('active');
+      const d = dom();
+      const sorted = [...CL].sort((a, b) => sc[b] - sc[a]);
+      const sec = sorted[1];
+      const t = tot();
+      const c = CM[d];
+
+      // joke
+      document.getElementById('joke-wrap').innerHTML =
+        `<div class="joke-card" style="background:${c.light};color:${c.dark}">
+       <div class="joke-text">${JOKES[d]}</div>
+     </div>`;
+
+      // result card
+      document.getElementById('result-wrap').innerHTML =
+        `<div class="result-card" style="background:${c.light}">
+       <div class="result-eyebrow" style="color:${c.dark}">${c.label} · ${c.name}</div>
+       <div class="result-name" style="color:${c.dark}">You're a ${c.name} with a ${CM[sec].label} edge.</div>
+       <div class="result-body" style="color:${c.dark}">That means you ${d === 'red' ? 'move fast and get things done' : d === 'yellow' ? 'light up rooms and bring people together' : d === 'green' ? 'hold space and keep everything steady' : 'think deeply and get things right'} — and your ${CM[sec].label} side means you also ${sec === 'red' ? 'know how to push when it really matters' : sec === 'yellow' ? 'bring more warmth than people expect' : sec === 'green' ? 'genuinely care how people feel along the way' : 'need things to make sense before you move'}.</div>
+     </div>`;
+
+      // quad
+      const quad = document.getElementById('quad');
+      quad.innerHTML = '';
+      sorted.forEach(col => {
+        const pct = Math.round((sc[col] / t) * 100);
+        const op = 0.22 + (pct / 100) * 0.78;
+        const cell = document.createElement('div');
+        cell.className = 'qcell';
+        cell.style.background = CM[col].hex;
+        cell.style.opacity = op;
+        cell.innerHTML = `<div class="qcell-name" style="color:#fff">${CM[col].label}</div><div class="qcell-pct" style="color:#fff">${pct}%</div>`;
+        quad.appendChild(cell);
+      });
+
+      // bars
+      const bars = document.getElementById('bars');
+      bars.innerHTML = '';
+      sorted.forEach(col => {
+        const pct = Math.round((sc[col] / t) * 100);
+        const row = document.createElement('div');
+        row.className = 'bar-row';
+        row.innerHTML = `<span class="bar-lbl">${CM[col].label}</span><div class="bar-track"><div class="bar-fill" style="background:${CM[col].hex}" data-p="${pct}"></div></div><span class="bar-pct">${pct}%</span>`;
+        bars.appendChild(row);
+      });
+      setTimeout(() => document.querySelectorAll('.bar-fill').forEach(el => el.style.width = el.dataset.p + '%'), 150);
+
+      // careers
+      const cd = CAREERS[d];
+      document.getElementById('careers').innerHTML =
+        `<div class="icard">
+       <div class="icard-head">Why these fit you</div>
+       <div class="icard-body">${cd.why}</div>
+       <div class="tags">${cd.tags.map(tg => `<span class="tag" style="background:${c.light};color:${c.dark}">${tg}</span>`).join('')}</div>
+     </div>`;
+
+      // relationships — watchout
+      const rw = document.getElementById('rel-watch');
+      rw.innerHTML = '';
+      RELWATCH[d].forEach(r => {
+        rw.innerHTML += `<div class="wcard" style="border-left-color:#E85D4A;background:white">
+      <div class="wcard-head">⚠ ${r.h}</div>
+      <div class="wcard-body">${r.b}</div>
+    </div>`;
+      });
+
+      // relationships — good
+      const rg = document.getElementById('rel-good');
+      rg.innerHTML = '';
+      RELGOOD[d].forEach(r => {
+        rg.innerHTML += `<div class="wcard" style="border-left-color:${c.hex};background:white">
+      <div class="wcard-head" style="color:${c.dark}">✓ ${r.h}</div>
+      <div class="wcard-body">${r.b}</div>
+    </div>`;
+      });
+
+      // growth
+      document.getElementById('growth').innerHTML =
+        `<div class="growth-card" style="background:${c.light}">
+       <div class="growth-text" style="color:${c.dark}">"${GROWTH[d]}"</div>
+     </div>`;
+    }
+
+    function restart() {
+      document.getElementById('s-dash').classList.remove('active');
+      document.getElementById('s-intro').classList.add('active');
+      CL.forEach(c => sc[c] = 0);
+      qi = 0; used.length = 0; bias = 'open';
+      answerVector.length = 0;
+      SESSION_ID = generateUUID();   // ← generates a fresh ID for each new attempt
+    }
+  </script>
+</body>
+
+</html>

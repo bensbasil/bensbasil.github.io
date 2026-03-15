@@ -16,5 +16,8 @@ __pycache__/
 *.db
 *.sqlite3
 
-# Node
 node_modules/
+
+# Trained ML Models
+backend/ml/models/*.pkl
+backend/ml/models/*.joblib

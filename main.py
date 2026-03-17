@@ -57,7 +57,34 @@ async def load_projects():
             container.innerHTML = "<p class='text-gray-500 reveal delay-100'>Check back soon for new projects.</p>"
             return
             
-        html = ""
+        html = """
+        <a href='./quiz/index.html'
+        class='group relative bg-white rounded-2xl border border-black/10 overflow-hidden hover:-translate-y-1 transition-transform duration-200 block no-underline'>
+        <div class='p-8 flex items-start gap-5'>
+            <div class='w-[72px] h-[72px] rounded-2xl bg-brand-dark flex-shrink-0 overflow-hidden border border-black/10'>
+                <img src='./quiz/icon.png' alt='Quiz app icon' class='w-full h-full object-cover' />
+            </div>
+            <div class='flex-1 min-w-0'>
+                <p class='text-xs font-bold tracking-widest uppercase text-gray-400 mb-1'>Quiz App</p>
+                <h3 class='text-2xl font-black text-brand-dark tracking-tighter leading-tight mb-1'>The Knowledge Quiz</h3>
+                <p class='text-sm text-gray-500 leading-relaxed'>Test your knowledge with timed rounds, score tracking, and instant feedback.</p>
+            </div>
+        </div>
+        <div class='mx-8 border-t border-black/[0.06]'></div>
+        <div class='px-8 py-4 flex items-center justify-between'>
+            <div class='flex gap-2'>
+                <span class='text-xs font-medium bg-brand-green/10 text-brand-green px-3 py-1 rounded-full'>JavaScript</span>
+                <span class='text-xs font-medium bg-black/5 text-gray-500 px-3 py-1 rounded-full'>HTML/CSS</span>
+            </div>
+            <span class='text-sm font-bold text-brand-dark flex items-center gap-1'>
+                Play
+                <svg class='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                    <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2.5' d='M17 8l4 4m0 0l-4 4m4-4H3'/>
+                </svg>
+            </span>
+        </div>
+    </a>
+    """
         delay = 100
         for p in projects:
             title = p.get('title', 'Project')

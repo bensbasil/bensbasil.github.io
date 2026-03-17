@@ -398,7 +398,7 @@
         <section id="projects" class="py-32 bg-brand-light relative">
             <div class="max-w-[90rem] mx-auto px-6 md:px-12">
 
-                <!-- Header stays clean, no card inside here -->
+                <!-- Header -->
                 <div
                     class="reveal mb-24 flex flex-col md:flex-row md:items-end justify-between border-b border-black/10 pb-12">
                     <div>
@@ -416,11 +416,10 @@
                     </a>
                 </div>
 
-                <!-- Card goes HERE inside the grid -->
-                <div id="projects-container" class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+                <!-- ✅ Static cards (PyScript won't touch this) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 mb-8">
                     <a href="./quiz/index.html"
                         class="group relative bg-white rounded-2xl border border-black/10 overflow-hidden hover:-translate-y-1 transition-transform duration-200 block no-underline">
-
                         <div class="p-8 flex items-start gap-5">
                             <div
                                 class="w-[72px] h-[72px] rounded-2xl bg-brand-dark flex-shrink-0 overflow-hidden border border-black/10">
@@ -436,9 +435,7 @@
                                 </p>
                             </div>
                         </div>
-
                         <div class="mx-8 border-t border-black/[0.06]"></div>
-
                         <div class="px-8 py-4 flex items-center justify-between">
                             <div class="flex gap-2">
                                 <span
@@ -456,6 +453,11 @@
                             </span>
                         </div>
                     </a>
+                </div>
+
+                <!-- ✅ PyScript fills this separately -->
+                <div id="projects-container" class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+                    <div class="text-gray-400 italic font-medium animate-pulse">Loading project data...</div>
                 </div>
 
             </div>

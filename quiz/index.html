@@ -638,7 +638,7 @@ function showResults(){
   const t=tot();
   const el=EL[d];
 
-  fetch('http://127.0.0.1:8000/quiz/submit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_id:SESSION_ID,answers:av,color_scores:{red:sc.red,yellow:sc.yellow,green:sc.green,blue:sc.blue},dominant_color:d,secondary_color:sec})}).then(r=>r.json()).then(data=>console.log('Saved:',data)).catch(e=>console.warn('Backend offline:',e));
+  fetch('https://api.bensbasil.in/quiz/submit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_id:SESSION_ID,answers:av,color_scores:{red:sc.red,yellow:sc.yellow,green:sc.green,blue:sc.blue},dominant_color:d,secondary_color:sec})}).then(r=>r.json()).then(data=>console.log('Saved:',data)).catch(e=>console.warn('Backend offline:',e));
 
   showScreen('results');
   startEl(d);
@@ -704,7 +704,7 @@ function restart(){
 let distChart=null,scatterChart=null;
 
 function loadAnalytics(){
-  fetch('http://127.0.0.1:8000/analytics')
+  fetch('https://api.bensbasil.in/analytics')
   .then(r=>{if(!r.ok)throw new Error(r.status);return r.json();})
   .then(data=>{renderAnalytics(data);})
   .catch(()=>{

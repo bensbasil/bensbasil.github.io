@@ -95,6 +95,7 @@ def create_contact_submission(
 @app.post("/quiz/submit", response_model=schemas.QuizSubmitResponse)
 def submit_quiz(
     payload: schemas.QuizSubmitRequest,
+    background_tasks: BackgroundTasks,  
     db: Session = Depends(get_db)
 ):
     # check for duplicate session — one submission per quiz attempt
@@ -116,6 +117,11 @@ def submit_quiz(
     db.add(db_response)
     db.commit()
     db.refresh(db_response)
+
+    all_responses = db.query(models.QuizResponse).all()
+    if len(all_responses) >= 5:
+        from ml.trainer import train_all
+        background_tasks.add_task(train_all, all_responses)
 
     return schemas.QuizSubmitResponse(
         success    = True,

@@ -2255,7 +2255,33 @@
       document.getElementById('rp-results').style.display = 'none';
       if (s === 'guide') { document.getElementById('rp-intro').style.display = 'block'; updateSidebarDefault(); showColor('red'); }
       else if (s === 'quiz') { document.getElementById('rp-quiz').style.display = 'block'; updateSidebarQuiz(); }
-      else if (s === 'results') { if (hasResults) document.getElementById('rp-results').style.display = 'block'; else document.getElementById('rp-intro').style.display = 'block'; updateSidebarDefault(); }
+      else if (s === 'results') {
+        if (hasResults) {
+          document.getElementById('rp-results').style.display = 'block';
+        } else if (currentUser && currentUser.dominant_color) {
+          // logged in with saved profile — restore and show
+          CL.forEach(c => sc[c] = (currentUser.color_scores?.[c] || 0));
+          hasResults = true;
+          showResults();
+          return;
+        } else if (!currentUser) {
+          // not logged in — show sign in popup
+          document.getElementById('rp-intro').style.display = 'block';
+          document.getElementById('auth-step-signin').style.display = 'block';
+          document.getElementById('auth-step-password').style.display = 'none';
+          document.getElementById('auth-step-success').style.display = 'none';
+          document.getElementById('auth-result-preview').innerHTML = `
+      <div class="auth-result-icon" style="background:var(--purple-l)">🔒</div>
+      <div class="auth-result-info">
+        <div class="auth-result-label">Sign in to view</div>
+        <div class="auth-result-name">Your saved color profile</div>
+      </div>`;
+          document.getElementById('auth-backdrop').style.display = 'flex';
+        } else {
+          document.getElementById('rp-intro').style.display = 'block';
+        }
+        updateSidebarDefault();
+      }
       else if (s === 'analytics') { document.getElementById('rp-intro').style.display = 'block'; loadAnalytics(); updateSidebarDefault(); }
     }
 

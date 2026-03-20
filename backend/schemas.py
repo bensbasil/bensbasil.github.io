@@ -71,22 +71,21 @@ class AnalyticsResponse(BaseModel):
     most_common_combination: str
     rarest_color: str
 
-
 class GoogleAuthRequest(BaseModel):
-    google_token: str
-    quiz_result: Optional[Dict] = None
-
+    google_token: str                          # ID token from Google Sign-In
+    quiz_result: Optional[Dict] = None         # attach quiz result on first login
+ 
 class SetPasswordRequest(BaseModel):
     email: str
-    password: str
-
+    password: str = Field(..., min_length=4)
+ 
 class SaveResultRequest(BaseModel):
     email: str
     dominant_color: str
     secondary_color: str
     color_scores: Dict[str, int]
     answer_vector: List[int]
-
+ 
 class UserProfileResponse(BaseModel):
     email: str
     display_name: Optional[str] = None
@@ -96,6 +95,6 @@ class UserProfileResponse(BaseModel):
     color_scores: Optional[Dict] = None
     has_password: bool = False
     is_new_user: bool = False
-
+ 
     class Config:
         from_attributes = True

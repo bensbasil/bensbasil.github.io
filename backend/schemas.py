@@ -1,6 +1,6 @@
 from pydantic import BaseModel, EmailStr, Field
 from datetime import datetime
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 
 
 # ── existing contact schemas ────────────────────────────────────────────────
@@ -70,3 +70,32 @@ class AnalyticsResponse(BaseModel):
     model_trained: bool
     most_common_combination: str
     rarest_color: str
+
+
+class GoogleAuthRequest(BaseModel):
+    google_token: str
+    quiz_result: Optional[Dict] = None
+
+class SetPasswordRequest(BaseModel):
+    email: str
+    password: str
+
+class SaveResultRequest(BaseModel):
+    email: str
+    dominant_color: str
+    secondary_color: str
+    color_scores: Dict[str, int]
+    answer_vector: List[int]
+
+class UserProfileResponse(BaseModel):
+    email: str
+    display_name: Optional[str] = None
+    avatar_url: Optional[str] = None
+    dominant_color: Optional[str] = None
+    secondary_color: Optional[str] = None
+    color_scores: Optional[Dict] = None
+    has_password: bool = False
+    is_new_user: bool = False
+
+    class Config:
+        from_attributes = True

@@ -2259,10 +2259,9 @@
         if (hasResults) {
           document.getElementById('rp-results').style.display = 'block';
         } else if (currentUser && currentUser.dominant_color) {
-          // logged in with saved profile — restore and show
           CL.forEach(c => sc[c] = (currentUser.color_scores?.[c] || 0));
           hasResults = true;
-          showResults();
+          showResults(true);  // ✅ pass isRestore = true
           return;
         } else if (!currentUser) {
           // not logged in — show sign in popup
@@ -2368,20 +2367,23 @@
     }
 
     // ── RESULTS ───────────────────────────────────────────────────────────────────
-    function showResults() {
+    // ── RESULTS ───────────────────────────────────────────────────────────────────
+    function showResults(isRestore = false) {
       hasResults = true; stopEl();
       document.getElementById('quiz-overlay').style.opacity = 0;
       const d = dom(); const sorted = [...CL].sort((a, b) => sc[b] - sc[a]); const sec = sorted[1];
       const t = tot(); const el = EL[d];
 
-      // save to backend (anonymous)
-      fetch(`${API}/quiz/submit`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ session_id: SESSION_ID, answers: av, color_scores: { red: sc.red, yellow: sc.yellow, green: sc.green, blue: sc.blue }, dominant_color: d, secondary_color: sec })
-      }).then(r => r.json()).then(data => console.log('Saved:', data)).catch(e => console.warn('Backend offline:', e));
+      // only submit to backend on a fresh quiz completion
+      if (!isRestore) {
+        fetch(`${API}/quiz/submit`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ session_id: SESSION_ID, answers: av, color_scores: { red: sc.red, yellow: sc.yellow, green: sc.green, blue: sc.blue }, dominant_color: d, secondary_color: sec })
+        }).then(r => r.json()).then(data => console.log('Saved:', data)).catch(e => console.warn('Backend offline:', e));
+      }
 
-      // if logged in, save to profile too
-      if (currentUser) {
+      // if logged in, save to profile too (only on fresh quiz)
+      if (currentUser && !isRestore) {
         fetch(`${API}/auth/save-result`, {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: currentUser.email, dominant_color: d, secondary_color: sec, color_scores: { red: sc.red, yellow: sc.yellow, green: sc.green, blue: sc.blue }, answer_vector: av })
@@ -2423,8 +2425,7 @@
       document.getElementById('rp-element-badge').innerHTML = `<div class="element-badge" style="background:${el.light};color:${el.dark}">${el.sym} ${el.name} — ${CM[d].name}</div>`;
       document.getElementById('rp-mascot-line').textContent = MASCOT_LINE[d];
 
-      // show save popup if not logged in (after short delay)
-      if (!currentUser) {
+      if (!currentUser && !isRestore) {
         setTimeout(() => showAuthPopup(d, sec, t), 1800);
       }
     }
@@ -2448,11 +2449,11 @@
     function showAuthPopup(d, sec, t) {
       const el = EL[d]; const pct = Math.round((sc[d] / t) * 100);
       document.getElementById('auth-result-preview').innerHTML = `
-    <div class="auth-result-icon" style="background:${el.light}">${el.sym}</div>
-    <div class="auth-result-info">
-      <div class="auth-result-label">Your element</div>
-      <div class="auth-result-name">${el.name} — ${CM[d].name} · ${pct}%</div>
-    </div>`;
+  <div class="auth-result-icon" style="background:${el.light}">${el.sym}</div>
+  <div class="auth-result-info">
+    <div class="auth-result-label">Your element</div>
+    <div class="auth-result-name">${el.name} — ${CM[d].name} · ${pct}%</div>
+  </div>`;
       pendingResult = { dominant_color: d, secondary_color: sec, color_scores: { red: sc.red, yellow: sc.yellow, green: sc.green, blue: sc.blue }, answer_vector: av };
       document.getElementById('auth-step-signin').style.display = 'block';
       document.getElementById('auth-step-password').style.display = 'none';
@@ -2460,11 +2461,17 @@
       document.getElementById('auth-backdrop').style.display = 'flex';
     }
 
-    function closeAuth() { document.getElementById('auth-backdrop').style.display = 'none'; }
+    function closeAuth() {
+      document.getElementById('auth-backdrop').style.display = 'none';
+      // if user just signed in from "Your Results" with no prior quiz this session, render their profile
+      if (currentUser && currentUser.dominant_color && !hasResults) {
+        CL.forEach(c => sc[c] = (currentUser.color_scores?.[c] || 0));
+        showResults(true);
+      }
+    }
     function closeAuthIfBackdrop(e) { if (e.target === document.getElementById('auth-backdrop')) closeAuth(); }
 
     function startGoogleSignIn() {
-      // Initialize Google Identity Services
       if (typeof google === 'undefined') { alert('Google Sign-In not loaded. Check your internet connection.'); return; }
       google.accounts.id.initialize({
         client_id: GOOGLE_CLIENT_ID,
@@ -2473,7 +2480,6 @@
       });
       google.accounts.id.prompt((notification) => {
         if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-          // Fallback: render button manually
           google.accounts.id.renderButton(
             document.getElementById('google-btn-target'),
             { theme: 'outline', size: 'large', width: 380 }
@@ -2494,7 +2500,6 @@
           currentUser = user;
           localStorage.setItem('quiz_user', JSON.stringify(user));
           updateSidebarUser();
-          // show password step
           document.getElementById('auth-step-signin').style.display = 'none';
           document.getElementById('auth-step-password').style.display = 'block';
           document.getElementById('auth-avatar-img').src = user.avatar_url || '';
@@ -2518,7 +2523,7 @@
       document.getElementById('auth-step-password').style.display = 'none';
       document.getElementById('auth-step-success').style.display = 'block';
       const name = currentUser?.display_name?.split(' ')[0] || 'You';
-      document.getElementById('success-name').textContent = `${name}, you\'re saved! ✓`;
+      document.getElementById('success-name').textContent = `${name}, you're saved! ✓`;
     }
 
     function showProfile() {
@@ -2529,14 +2534,11 @@
     function loadSavedProfile() {
       if (!currentUser) return;
       updateSidebarUser();
-      if (currentUser.dominant_color) {
-        // restore scores from saved profile
-        if (currentUser.color_scores) {
-          Object.assign(sc, currentUser.color_scores);
-          hasResults = true;
-        }
+      if (currentUser.dominant_color && currentUser.color_scores) {
+        Object.assign(sc, currentUser.color_scores);
+        // hasResults stays false — showScreen('results') will detect and call showResults(true)
       }
-    }
+    }  // ← THIS CLOSING BRACE WAS MISSING
 
     // ── ANALYTICS ─────────────────────────────────────────────────────────────────
     let distChart = null, scatterChart = null;

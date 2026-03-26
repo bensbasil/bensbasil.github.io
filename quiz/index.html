@@ -1589,9 +1589,19 @@
 
     @media(max-width:800px) {
       .shell {
-        grid-template-columns: 1fr;
+        display: flex;
+        flex-direction: column;
         height: auto;
         overflow: auto;
+      }
+
+      .sidebar {
+        order: 2;
+        margin-top: 20px;
+      }
+
+      .main {
+        order: 1;
       }
 
       .right-panel {

@@ -58,7 +58,7 @@ async def load_projects():
             return
             
         html = """
-        <a href='./quiz/index.html'
+        <a href='./quiz/'
         class='group relative bg-white rounded-2xl border border-black/10 overflow-hidden hover:-translate-y-1 transition-transform duration-200 block no-underline'>
         <div class='p-8 flex items-start gap-5'>
             <div class='w-[72px] h-[72px] rounded-2xl bg-brand-dark flex-shrink-0 overflow-hidden border border-black/10'>

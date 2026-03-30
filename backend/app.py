@@ -14,6 +14,7 @@ from typing import Optional, Dict
 import bcrypt
 from google.oauth2 import id_token
 from google.auth.transport import requests as grequests
+from prometheus_fastapi_instrumentator import Instrumentator
 
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "513027492748-8mja1qbgip3k0ernd217a2ido6sc18gu.apps.googleusercontent.com")
 
@@ -52,6 +53,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Instrument the app for Prometheus metrics
+Instrumentator().instrument(app).expose(app)
 
 
 # ── existing contact route ────────────────────────────────────────────────────

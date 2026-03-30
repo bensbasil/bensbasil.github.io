@@ -10,3 +10,6 @@ scikit-learn
 pandas
 joblib
 numpy
+mlflow
+psycopg2-binary
+prometheus-fastapi-instrumentator

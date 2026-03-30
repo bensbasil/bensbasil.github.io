@@ -1,6 +1,8 @@
 import numpy as np
 import joblib
 import os
+import mlflow
+import mlflow.sklearn
 from sklearn.naive_bayes import GaussianNB
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.cluster import KMeans
@@ -11,6 +13,10 @@ from sklearn.metrics import accuracy_score
 
 # where trained models get saved
 MODELS_DIR = os.path.join(os.path.dirname(__file__), "models")
+
+# Setup MLflow Tracking
+mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI", "http://localhost:5000"))
+mlflow.set_experiment("Knowledge_Quiz_Scoring")
 
 
 def build_feature_matrix(responses):
@@ -73,6 +79,10 @@ def train_naive_bayes(X, y):
     joblib.dump(clf, os.path.join(MODELS_DIR, "naive_bayes.joblib"))
     joblib.dump(le,  os.path.join(MODELS_DIR, "label_encoder.joblib"))
 
+    if mlflow.active_run():
+        mlflow.log_metric("nb_accuracy", accuracy)
+        mlflow.sklearn.log_model(clf, "naive_bayes_model")
+
     return {"model": "naive_bayes", "accuracy": round(accuracy, 3)}
 
 
@@ -107,6 +117,10 @@ def train_decision_tree(X, y):
     importances = clf.feature_importances_.tolist()
     joblib.dump(importances, os.path.join(MODELS_DIR, "feature_importances.joblib"))
 
+    if mlflow.active_run():
+        mlflow.log_metric("dt_accuracy", accuracy)
+        mlflow.sklearn.log_model(clf, "decision_tree_model")
+
     return {"model": "decision_tree", "accuracy": round(accuracy, 3)}
 
 
@@ -123,6 +137,11 @@ def train_kmeans(X, n_clusters=4):
     km.fit(X)
 
     joblib.dump(km, os.path.join(MODELS_DIR, "kmeans.joblib"))
+
+    if mlflow.active_run():
+        mlflow.log_param("kmeans_clusters", k)
+        mlflow.log_metric("kmeans_inertia", km.inertia_)
+        mlflow.sklearn.log_model(km, "kmeans_model")
 
     return {"model": "kmeans", "n_clusters": k, "inertia": round(km.inertia_, 2)}
 
@@ -141,6 +160,12 @@ def train_pca(X):
     joblib.dump(pca, os.path.join(MODELS_DIR, "pca.joblib"))
 
     explained = pca.explained_variance_ratio_.tolist()
+    
+    if mlflow.active_run():
+        mlflow.log_param("pca_components", n_components)
+        mlflow.log_metric("pca_explained_variance", sum(explained))
+        mlflow.sklearn.log_model(pca, "pca_transformer")
+
     return {"model": "pca", "explained_variance": [round(v, 3) for v in explained]}
 
 
@@ -183,11 +208,12 @@ def train_all(responses):
     X, y_dominant, y_secondary = build_feature_matrix(responses)
 
     results = []
-    results.append(train_naive_bayes(X, y_dominant))
-    results.append(train_decision_tree(X, y_dominant))
-    results.append(train_kmeans(X))
-    results.append(train_pca(X))
-    compute_correlations(X, y_dominant)
+    with mlflow.start_run(run_name="Quiz_Model_Training"):
+        results.append(train_naive_bayes(X, y_dominant))
+        results.append(train_decision_tree(X, y_dominant))
+        results.append(train_kmeans(X))
+        results.append(train_pca(X))
+        compute_correlations(X, y_dominant)
 
     # pick best accuracy from the supervised models
     supervised = [r for r in results if "accuracy" in r]

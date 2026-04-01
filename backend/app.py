@@ -9,12 +9,36 @@ import os
 import models
 import schemas
 from database import engine, get_db
-from ml.predictor import get_analytics, score_response
+from ml.predictor import get_analytics
+from utils.model_loader import model_loader
+from retrain_scheduler import start_scheduler
+from prometheus_client import Counter, Histogram, Gauge
 from typing import Optional, Dict
 import bcrypt
 from google.oauth2 import id_token
 from google.auth.transport import requests as grequests
 from prometheus_fastapi_instrumentator import Instrumentator
+
+# Define Prometheus Custom Metrics
+prediction_requests_total = Counter(
+    "prediction_requests_total",
+    "Total number of prediction requests",
+    ["model_type", "result"]
+)
+prediction_confidence_histogram = Histogram(
+    "prediction_confidence_histogram",
+    "Histogram of prediction confidences",
+    ["model_type"]
+)
+active_model_version = Gauge(
+    "active_model_version",
+    "Currently active ML model version",
+    ["model_type"]
+)
+db_response_count = Gauge(
+    "db_response_count",
+    "Total response rows in the database"
+)
 
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "513027492748-8mja1qbgip3k0ernd217a2ido6sc18gu.apps.googleusercontent.com")
 
@@ -56,6 +80,10 @@ app.add_middleware(
 
 # Instrument the app for Prometheus metrics
 Instrumentator().instrument(app).expose(app)
+
+@app.on_event("startup")
+def startup_event():
+    start_scheduler()
 
 
 # ── existing contact route ────────────────────────────────────────────────────
@@ -129,10 +157,7 @@ def submit_quiz(
     db.commit()
     db.refresh(db_response)
 
-    all_responses = db.query(models.QuizResponse).all()
-    if len(all_responses) >= 5:
-        from ml.trainer import train_all
-        background_tasks.add_task(train_all, all_responses)
+    db_response_count.set(db.query(models.QuizResponse).count())
 
     return schemas.QuizSubmitResponse(
         success    = True,
@@ -155,6 +180,51 @@ def get_analytics_data(
         )
 
     return get_analytics(all_responses, current_session_id=session_id)
+
+@app.post("/predict/stress", response_model=schemas.StressResult)
+def predict_stress(payload: schemas.StressPredictRequest, db: Session = Depends(get_db)):
+    # Update total DB response track
+    response_count = db.query(models.QuizResponse).count()
+    db_response_count.set(response_count)
+    
+    # Check model
+    if not model_loader.models_exist():
+        raise HTTPException(status_code=503, detail="Stress model not yet trained")
+    
+    # Track version
+    active_model_version.labels(model_type="stress").set(model_loader.stress_version or 0)
+    
+    # Format X vector
+    total = sum(payload.color_scores.values()) or 1
+    scores = payload.color_scores
+    score_vector = [
+        scores.get("red", 0) / total,
+        scores.get("yellow", 0) / total,
+        scores.get("green", 0) / total,
+        scores.get("blue", 0) / total,
+    ]
+    X = [payload.answers + score_vector]
+    
+    label, conf = model_loader.predict_stress(X)
+    
+    prediction_requests_total.labels(model_type="stress", result=label).inc()
+    prediction_confidence_histogram.labels(model_type="stress").observe(conf)
+    
+    # Stress Descriptions
+    DESCRIPTIONS = {
+        "red": "You become forceful, quick-tempered, and focus heavily on results over people to maintain control.",
+        "yellow": "You act emotionally expressive, disorganized, and try to talk your way out of difficult situations.",
+        "green": "You go quiet, over-accommodate, and avoid conflict to keep the peace \u2014 often at your own expense.",
+        "blue": "You get perfectionistic, defensive, and withdraw into analysis paralysis trying to avoid mistakes."
+    }
+    desc = DESCRIPTIONS.get(label, "You shift to this type under pressure.")
+    
+    return schemas.StressResult(
+        stress_type=label,
+        stress_label=label.capitalize(),
+        stress_description=desc,
+        confidence=conf
+    )
 
 @app.post("/auth/google", response_model=schemas.UserProfileResponse)
 def google_auth(payload: schemas.GoogleAuthRequest, db: Session = Depends(get_db)):
@@ -256,29 +326,18 @@ def get_profile(email: str, db: Session = Depends(get_db)):
     )
 
 
-@app.post("/ml/train")
-def train_models(db: Session = Depends(get_db)):
-    all_responses = db.query(models.QuizResponse).all()
-
-    if len(all_responses) < 5:
-        raise HTTPException(
-            status_code=202,
-            detail="Need at least 5 responses to train models."
-        )
-
-    from ml.trainer import train_all
-    result = train_all(all_responses)
-
-    return {
-        "success": True,
-        "responses_used": len(all_responses),
-        "models_trained": result["models_trained"],
-        "accuracy": result["accuracy"]
-    }
-
-
 # ── health check ──────────────────────────────────────────────────────────────
 
 @app.get("/health")
-def health_check():
-    return {"status": "ok"}
+def health_check(db: Session = Depends(get_db)):
+    responses = db.query(models.QuizResponse).count()
+    latest_meta = db.query(models.ModelMeta).order_by(models.ModelMeta.trained_at.desc()).first()
+    last_trained = latest_meta.trained_at if latest_meta else None
+    
+    return {
+        "status": "ok",
+        "primary_model_version": model_loader.primary_version,
+        "stress_model_version": model_loader.stress_version,
+        "total_responses": responses,
+        "last_trained_at": last_trained
+    }

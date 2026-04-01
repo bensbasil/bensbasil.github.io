@@ -24,6 +24,18 @@ class ContactSubmissionResponse(BaseModel):
 
 # ── quiz schemas ─────────────────────────────────────────────────────────────
 
+class StressPredictRequest(BaseModel):
+    answers: List[int] = Field(..., min_length=10, max_length=15)
+    color_scores: Dict[str, int]
+    dominant_color: str
+    secondary_color: str
+
+class StressResult(BaseModel):
+    stress_type: str
+    stress_label: str
+    stress_description: str
+    confidence: float
+
 class QuizSubmitRequest(BaseModel):
     session_id: str = Field(..., min_length=36, max_length=36)
     answers: List[int] = Field(..., min_length=10, max_length=15)
@@ -70,6 +82,7 @@ class AnalyticsResponse(BaseModel):
     model_trained: bool
     most_common_combination: str
     rarest_color: str
+    stress_distribution: Optional[Dict[str, int]] = Field(default=None)
 
 class GoogleAuthRequest(BaseModel):
     google_token: str                          # ID token from Google Sign-In

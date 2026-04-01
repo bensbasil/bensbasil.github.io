@@ -13,3 +13,6 @@ numpy
 mlflow
 psycopg2-binary
 prometheus-fastapi-instrumentator
+apscheduler
+
+pytz

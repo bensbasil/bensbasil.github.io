@@ -1838,6 +1838,7 @@
           <div id="res-good"></div>
           <div class="section-label">one thing worth sitting with</div>
           <div id="res-growth"></div>
+          <div id="stress-card" class="insight-card" style="display:none; margin-top:20px; border:1px solid var(--purple-l);"></div>
           <button class="restart-btn" onclick="restart()">↺ Take it again</button>
         </div>
       </div>
@@ -2464,6 +2465,30 @@
       document.getElementById('rp-mascot-wrap').innerHTML = `${MASCOT_SVG[d]}<div class="mascot-speech">${JOKES[d]}</div>`;
       document.getElementById('rp-element-badge').innerHTML = `<div class="element-badge" style="background:${el.light};color:${el.dark}">${el.sym} ${el.name} — ${CM[d].name}</div>`;
       document.getElementById('rp-mascot-line').textContent = MASCOT_LINE[d];
+
+      // Request stress prediction dynamically
+      fetch(`${API}/predict/stress`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ answers: av, color_scores: { red: sc.red, yellow: sc.yellow, green: sc.green, blue: sc.blue }, dominant_color: d, secondary_color: sec })
+      })
+      .then(r => r.json())
+      .then(data => {
+         const sr = document.getElementById('stress-card');
+         if(sr && data.stress_type) {
+            let elSym = EL[data.stress_type].sym;
+            sr.innerHTML = `
+               <div style="font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 4px;">Under Pressure, You Shift Toward ${elSym} ${data.stress_label}</div>
+               <div style="font-size: 13px; color: var(--ink-s); line-height: 1.7; margin-bottom: 12px;">${data.stress_description}</div>
+               <div class="bar-row">
+                  <span class="bar-lbl" style="min-width:70px;">Confidence</span>
+                  <div class="bar-track" style="margin-left: 10px;"><div class="bar-fill" style="background:var(--purple); width:${Math.round(data.confidence * 100)}%"></div></div>
+                  <span class="bar-pct">${Math.round(data.confidence * 100)}%</span>
+               </div>
+            `;
+            sr.style.display = 'block';
+         }
+      })
+      .catch(e => console.warn('Backend stress model offline:', e));
 
       if (!currentUser && !isRestore) {
         setTimeout(() => showAuthPopup(d, sec, t), 1800);

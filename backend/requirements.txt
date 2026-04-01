@@ -7,12 +7,10 @@ email-validator
 fastapi-mail
 python-dotenv
 scikit-learn
-pandas
 joblib
 numpy
-mlflow
+mlflow-skinny
 psycopg2-binary
 prometheus-fastapi-instrumentator
 apscheduler
-
 pytz

@@ -19,12 +19,18 @@ class MilvusRetrieval:
             logger.error(f"Failed to connect to Milvus Lite: {str(e)}")
             return False
 
+    def _get_client(self):
+        if self.client is None:
+            self.client = MilvusClient(uri=self.db_path)
+        return self.client
+
     async def create_collection(self):
-        if self.client.has_collection(collection_name=self.collection_name):
+        client = self._get_client()
+        if client.has_collection(collection_name=self.collection_name):
             logger.info(f"Collection {self.collection_name} already exists.")
             return
             
-        self.client.create_collection(
+        client.create_collection(
             collection_name=self.collection_name,
             dimension=384,
             metric_type="COSINE",
@@ -42,7 +48,7 @@ class MilvusRetrieval:
                 "metadata": json.dumps({"page": c.get("page"), "section": c.get("section"), "keywords": c.get("keywords")})
             })
             
-        res = self.client.insert(
+        res = self._get_client().insert(
             collection_name=self.collection_name,
             data=data
         )
@@ -55,7 +61,7 @@ class MilvusRetrieval:
         filters: Optional[str] = None
     ) -> List[Dict]:
         
-        search_res = self.client.search(
+        search_res = self._get_client().search(
             collection_name=self.collection_name,
             data=[query_embedding],
             limit=top_k,

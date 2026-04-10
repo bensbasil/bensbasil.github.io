@@ -45,7 +45,8 @@ export default function Sidebar({ documents, onUploadSuccess }) {
 
     try {
       // Typically fetch from backend
-      const res = await fetch("http://localhost:8000/api/documents/upload", {
+      const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+      const res = await fetch(`${API_BASE}/api/documents/upload`, {
         method: "POST",
         body: formData,
       });

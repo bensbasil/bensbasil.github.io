@@ -2,8 +2,7 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     DATABASE_URL: str = "postgresql://admin:adminpassword@localhost:5432/portfolio_db"
-    MILVUS_HOST: str = "localhost"
-    MILVUS_PORT: int = 19530
+    MILVUS_DB_PATH: str = "./milvus_demo.db"
     GEMINI_API_KEY: str = "your-api-key-here"
     EMBEDDING_MODEL: str = "sentence-transformers/all-MiniLM-L6-v2"
     PROMETHEUS_PORT: int = 8001

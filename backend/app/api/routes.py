@@ -20,7 +20,7 @@ router = APIRouter()
 # Services (in a real app, inject these via Depends)
 pdf_processor = PDFProcessor(settings.EMBEDDING_MODEL)
 embedding_service = EmbeddingService(settings.EMBEDDING_MODEL)
-retrieval_service = MilvusRetrieval(settings.MILVUS_HOST, settings.MILVUS_PORT)
+retrieval_service = MilvusRetrieval(settings.MILVUS_DB_PATH)
 llm_service = MedicalRAGLLM(settings.GEMINI_API_KEY)
 analytics_service = AnalyticsService(settings.PROMETHEUS_PORT)
 

@@ -71,9 +71,14 @@ async def query(request: QueryRequest):
     # 3. Stream answer
     async def generate():
         tokens = 0
-        async for token in llm_service.generate_answer(request.question, retrieved_chunks):
-            tokens += 1
-            yield token.encode("utf-8")
+        try:
+            async for token in llm_service.generate_answer(request.question, retrieved_chunks):
+                tokens += 1
+                yield token.encode("utf-8")
+        except Exception as e:
+            error_msg = f"\n\n⚠️ Backend error: {str(e)}"
+            yield error_msg.encode("utf-8")
+            return
             
         # 4. Record analytics
         response_time_ms = (time.time() - start_time) * 1000

@@ -84,10 +84,7 @@ Instrumentator().instrument(app).expose(app)
 def root():
     return {"message": "API is running"}
 
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
 @app.on_event("startup")
 def startup_event():
     start_scheduler()

@@ -1,5 +1,5 @@
 # Environments
-.env
+.env*
 .venv/
 env/
 venv/
@@ -15,6 +15,7 @@ __pycache__/
 # Database
 *.db
 *.sqlite3
+backend/chroma_db/
 
 node_modules/
 

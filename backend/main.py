@@ -81,6 +81,10 @@ app.add_middleware(
 # Instrument the app for Prometheus metrics
 Instrumentator().instrument(app).expose(app)
 
+@app.get("/")
+def root():
+    return {"message": "API is running"}
+
 @app.on_event("startup")
 def startup_event():
     start_scheduler()

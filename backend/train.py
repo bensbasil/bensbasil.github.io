@@ -2,8 +2,6 @@ import os
 import glob
 import numpy as np
 import joblib
-import mlflow
-import mlflow.sklearn
 from datetime import datetime
 from sklearn.naive_bayes import GaussianNB
 from sklearn.linear_model import LogisticRegression
@@ -25,8 +23,7 @@ PRIMARY_TO_STRESS_MAP = {
 MODELS_DIR = os.path.join(os.path.dirname(__file__), "ml", "models")
 MAX_VERSIONS = 5
 
-mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI", "http://localhost:5000"))
-mlflow.set_experiment("Knowledge_Quiz_Scoring")
+
 
 def derive_stress_type(color_scores, dominant_color, secondary_color):
     """
@@ -98,66 +95,56 @@ def run_training():
         X, y_dominant, y_stress = build_feature_matrix(responses)
         new_version = get_next_version(db)
         
-        with mlflow.start_run(run_name=f"Training_V{new_version}"):
-            # 1) Train Primary Model (GaussianNB)
-            le_primary = LabelEncoder()
-            y_dom_encoded = le_primary.fit_transform(y_dominant)
-            
-            clf_primary = GaussianNB()
-            if sample_count < 10:
-                clf_primary.fit(X, y_dom_encoded)
-                acc_primary = 1.0
-            else:
-                X_train, X_test, y_train, y_test = train_test_split(X, y_dom_encoded, test_size=0.2, random_state=42)
-                clf_primary.fit(X_train, y_train)
-                acc_primary = accuracy_score(y_test, clf_primary.predict(X_test))
-            
-            # 2) Train Stress Model (LogisticRegression)
-            le_stress = LabelEncoder()
-            y_stress_encoded = le_stress.fit_transform(y_stress)
-            
-            clf_stress = LogisticRegression(max_iter=1000)
-            if sample_count < 10:
-                clf_stress.fit(X, y_stress_encoded)
-                acc_stress = 1.0
-            else:
-                X_train_s, X_test_s, y_train_s, y_test_s = train_test_split(X, y_stress_encoded, test_size=0.2, random_state=42)
-                clf_stress.fit(X_train_s, y_train_s)
-                acc_stress = accuracy_score(y_test_s, clf_stress.predict(X_test_s))
+        # 1) Train Primary Model (GaussianNB)
+        le_primary = LabelEncoder()
+        y_dom_encoded = le_primary.fit_transform(y_dominant)
+        
+        clf_primary = GaussianNB()
+        if sample_count < 10:
+            clf_primary.fit(X, y_dom_encoded)
+            acc_primary = 1.0
+        else:
+            X_train, X_test, y_train, y_test = train_test_split(X, y_dom_encoded, test_size=0.2, random_state=42)
+            clf_primary.fit(X_train, y_train)
+            acc_primary = accuracy_score(y_test, clf_primary.predict(X_test))
+        
+        # 2) Train Stress Model (LogisticRegression)
+        le_stress = LabelEncoder()
+        y_stress_encoded = le_stress.fit_transform(y_stress)
+        
+        clf_stress = LogisticRegression(max_iter=1000)
+        if sample_count < 10:
+            clf_stress.fit(X, y_stress_encoded)
+            acc_stress = 1.0
+        else:
+            X_train_s, X_test_s, y_train_s, y_test_s = train_test_split(X, y_stress_encoded, test_size=0.2, random_state=42)
+            clf_stress.fit(X_train_s, y_train_s)
+            acc_stress = accuracy_score(y_test_s, clf_stress.predict(X_test_s))
 
-            # Logging metrics
-            mlflow.log_metric("primary_nb_acc", acc_primary)
-            mlflow.log_metric("stress_lr_acc", acc_stress)
-            mlflow.log_param("version", new_version)
-            mlflow.log_param("sample_count", sample_count)
-
-            mlflow.sklearn.log_model(clf_primary, "model_primary")
-            mlflow.sklearn.log_model(clf_stress, "model_stress")
-            
-            # Save Pickles
-            joblib.dump({"model": clf_primary, "le": le_primary}, os.path.join(MODELS_DIR, f"model_primary_v{new_version}.pkl"))
-            joblib.dump({"model": clf_stress, "le": le_stress}, os.path.join(MODELS_DIR, f"model_stress_v{new_version}.pkl"))
-            
-            # Update DB Metadata limits
-            db.add(ModelMeta(
-                version=new_version,
-                model_type="primary",
-                accuracy=acc_primary,
-                sample_count=sample_count
-            ))
-            db.add(ModelMeta(
-                version=new_version,
-                model_type="stress",
-                accuracy=acc_stress,
-                sample_count=sample_count
-            ))
-            db.commit()
-            
-            # Cleanup old
-            cleanup_old_models(db, "primary")
-            cleanup_old_models(db, "stress")
-            
-            print(f"Successfully trained version {new_version}. DB updated.")
+        # Save Pickles
+        joblib.dump({"model": clf_primary, "le": le_primary}, os.path.join(MODELS_DIR, f"model_primary_v{new_version}.pkl"))
+        joblib.dump({"model": clf_stress, "le": le_stress}, os.path.join(MODELS_DIR, f"model_stress_v{new_version}.pkl"))
+        
+        # Update DB Metadata
+        db.add(ModelMeta(
+            version=new_version,
+            model_type="primary",
+            accuracy=acc_primary,
+            sample_count=sample_count
+        ))
+        db.add(ModelMeta(
+            version=new_version,
+            model_type="stress",
+            accuracy=acc_stress,
+            sample_count=sample_count
+        ))
+        db.commit()
+        
+        # Cleanup old
+        cleanup_old_models(db, "primary")
+        cleanup_old_models(db, "stress")
+        
+        print(f"V{new_version} trained | Primary acc: {acc_primary:.3f} | Stress acc: {acc_stress:.3f} | Samples: {sample_count}")
             
     except Exception as e:
         print(f"Error during training: {e}")

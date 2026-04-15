@@ -32,7 +32,7 @@ export default function Chat() {
     setMessages(prev => [...prev, { id: assistantMsgId, role: 'assistant', content: '' }]);
 
     try {
-      const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+      const API_BASE = import.meta.env.VITE_API_BASE_URL || "https://api.bensbasil.in";
       const response = await fetch(`${API_BASE}/api/query`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

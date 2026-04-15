@@ -64,10 +64,9 @@ conf = ConnectionConfig(
 app = FastAPI(title="Portfolio Backend API")
 
 origins = [
-    "http://localhost",
-    "http://localhost:8000",
-    "http://127.0.0.1:8000",
-    "*"
+    "https://bensbasil.in",
+    "https://www.bensbasil.in",
+    "https://bensbasil.github.io"
 ]
 
 app.add_middleware(

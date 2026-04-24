@@ -1,4 +1,5 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from typing import Optional
 
 class Settings(BaseSettings):
     DATABASE_URL: str = "postgresql://admin:adminpassword@localhost:5432/portfolio_db"
@@ -8,16 +9,14 @@ class Settings(BaseSettings):
     PROMETHEUS_PORT: int = 8001
     LOG_LEVEL: str = "INFO"
 
-    # ✅ ADD THESE
-    MAIL_USERNAME: str
-    MAIL_PASSWORD: str
-    MAIL_FROM: str
-    MAIL_PORT: int
-    MAIL_SERVER: str
-    MAIL_FROM_NAME: str
+    # Mail settings
+    MAIL_USERNAME: Optional[str] = None
+    MAIL_PASSWORD: Optional[str] = None
+    MAIL_FROM: Optional[str] = None
+    MAIL_PORT: int = 587
+    MAIL_SERVER: str = "smtp.gmail.com"
+    MAIL_FROM_NAME: str = "Portfolio Contact Form"
 
-    class Config:
-        env_file = ".env"
-
+    model_config = SettingsConfigDict(env_file="/home/ec2-user/bensbasil.github.io/.env", extra="ignore")
 
 settings = Settings()

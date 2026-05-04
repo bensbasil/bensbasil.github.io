@@ -61,7 +61,7 @@ class MilvusRetrieval:
         )
 
     async def insert_chunks(
-        self, chunks_with_embeddings: List[Dict], document_id: str
+        self, chunks_with_embeddings: List[Dict], document_id: str, user_id: str = "anonymous"
     ) -> List[str]:
         col = self._get_collection()
 
@@ -74,6 +74,7 @@ class MilvusRetrieval:
             metadatas.append(
                 {
                     "document_id": document_id,
+                    "user_id": user_id,
                     "page": str(c.get("page") or ""),
                     "section": str(c.get("section") or ""),
                     "keywords": json.dumps(c.get("keywords") or []),
@@ -86,7 +87,7 @@ class MilvusRetrieval:
             documents=documents,
             metadatas=metadatas,
         )
-        logger.info(f"Inserted {len(ids)} chunks for document '{document_id}'.")
+        logger.info(f"Inserted {len(ids)} chunks for document '{document_id}' (user: {user_id}).")
         return ids
 
     async def delete_document(self, document_id: str):
@@ -99,13 +100,15 @@ class MilvusRetrieval:
         query_embedding: List[float],
         top_k: int = 5,
         filters: Optional[str] = None,
+        user_id: Optional[str] = None,
     ) -> List[Dict]:
         col = self._get_collection()
 
+        # Always scope to the requesting user if provided
         where = None
-        if filters:
-            # Basic support: pass a dict filter through the 'filters' arg
-            # (callers can pass a JSON string like '{"document_id": "xyz"}')
+        if user_id and user_id != "anonymous":
+            where = {"user_id": user_id}
+        elif filters:
             try:
                 where = json.loads(filters)
             except Exception:
@@ -137,7 +140,6 @@ class MilvusRetrieval:
                 {
                     "text": doc,
                     "document_id": meta.get("document_id"),
-                    # ChromaDB cosine distance → similarity score
                     "score": 1.0 - dist,
                     "section": meta.get("section") or None,
                     "page": meta.get("page") or None,
@@ -146,3 +148,4 @@ class MilvusRetrieval:
             )
 
         return parsed_results
+

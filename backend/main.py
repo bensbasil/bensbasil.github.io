@@ -66,7 +66,15 @@ app = FastAPI(title="Portfolio Backend API")
 origins = [
     "https://bensbasil.in",
     "https://www.bensbasil.in",
-    "https://bensbasil.github.io"
+    "https://bensbasil.github.io",
+    "http://127.0.0.1:5500",
+    "http://localhost:5500",
+    "http://127.0.0.1:8000",
+    "http://localhost:8000",
+    "http://127.0.0.1:8001",
+    "http://localhost:8001",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
 ]
 
 app.add_middleware(
@@ -82,7 +90,7 @@ Instrumentator().instrument(app).expose(app)
 
 @app.get("/")
 def root():
-    return {"message": "API is running"}
+    return {"message": "Portfolio API is running", "docs": "/docs", "health": "/health"}
 
 
 @app.on_event("startup")

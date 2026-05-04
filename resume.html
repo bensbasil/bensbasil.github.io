@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bens Basil — Resume</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset & Base ───────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #090c12;
+      --bg2:       #0e1320;
+      --surface:   rgba(255,255,255,0.04);
+      --border:    rgba(255,255,255,0.08);
+      --border-h:  rgba(99,230,190,0.35);
+      --cyan:      #63e6be;
+      --cyan-dim:  rgba(99,230,190,0.15);
+      --cyan-glow: rgba(99,230,190,0.06);
+      --white:     #f0f4f8;
+      --muted:     #6b7a8f;
+      --tag-bg:    rgba(99,230,190,0.08);
+      --tag-border:rgba(99,230,190,0.25);
+      --mono:      'Space Mono', monospace;
+      --sans:      'DM Sans', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: var(--sans);
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Background Mesh ───────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 70% 50% at 10% 20%, rgba(99,230,190,0.05) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 60% at 90% 80%, rgba(56,130,230,0.05) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    /* ── Grid Noise ────────────────────────────────────────── */
+    body::after {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background-image:
+        linear-gradient(rgba(99,230,190,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(99,230,190,0.02) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+    }
+
+    /* ── Layout ────────────────────────────────────────────── */
+    .page {
+      position: relative; z-index: 1;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 64px 32px 80px;
+    }
+
+    /* ── Header ────────────────────────────────────────────── */
+    .header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: start;
+      gap: 32px;
+      margin-bottom: 56px;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    .header-left {}
+
+    .name {
+      font-family: var(--mono);
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      color: var(--white);
+      margin-bottom: 6px;
+    }
+
+    .name span {
+      color: var(--cyan);
+    }
+
+    .title {
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--cyan);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+
+    .contact-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 20px;
+    }
+
+    .contact-item {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .contact-item a {
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .contact-item a:hover { color: var(--cyan); }
+
+    .contact-item .dot {
+      width: 4px; height: 4px;
+      background: var(--cyan);
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .header-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 10px;
+    }
+
+    .download-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: var(--cyan-dim);
+      border: 1px solid var(--border-h);
+      border-radius: 6px;
+      color: var(--cyan);
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+    .download-btn:hover {
+      background: rgba(99,230,190,0.22);
+      box-shadow: 0 0 20px rgba(99,230,190,0.15);
+    }
+
+    .availability {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .avail-dot {
+      width: 7px; height: 7px;
+      background: #4ade80;
+      border-radius: 50%;
+      box-shadow: 0 0 8px rgba(74,222,128,0.6);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* ── Section ───────────────────────────────────────────── */
+    .section {
+      margin-bottom: 44px;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .section-label span {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--cyan);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .section-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, var(--border-h), transparent);
+    }
+
+    /* ── Summary Card ──────────────────────────────────────── */
+    .summary-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 2px solid var(--cyan);
+      border-radius: 8px;
+      padding: 20px 24px;
+      color: #b0bec9;
+      font-size: 14.5px;
+      line-height: 1.75;
+      backdrop-filter: blur(8px);
+    }
+
+    /* ── Skills ────────────────────────────────────────────── */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px;
+    }
+
+    .skill-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 18px;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .skill-block:hover {
+      border-color: var(--border-h);
+      background: var(--cyan-glow);
+    }
+
+    .skill-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--cyan);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .skill-value {
+      font-size: 13px;
+      color: #a0b2c0;
+      line-height: 1.5;
+    }
+
+    /* ── Experience / Projects ──────────────────────────────── */
+    .entry {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin-bottom: 12px;
+      backdrop-filter: blur(8px);
+      transition: border-color 0.25s, transform 0.25s;
+    }
+    .entry:hover {
+      border-color: var(--border-h);
+      transform: translateX(3px);
+    }
+
+    .entry-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .entry-title {
+      font-family: var(--sans);
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--white);
+    }
+
+    .entry-date {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      flex-shrink: 0;
+      padding-top: 2px;
+    }
+
+    .entry-sub {
+      font-size: 13px;
+      color: var(--cyan);
+      margin-bottom: 12px;
+      font-weight: 500;
+    }
+
+    .entry-meta {
+      font-size: 12px;
+      color: var(--muted);
+      font-family: var(--mono);
+      margin-bottom: 10px;
+    }
+
+    .entry ul {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .entry ul li {
+      font-size: 13.5px;
+      color: #9aaab8;
+      padding-left: 16px;
+      position: relative;
+      line-height: 1.6;
+    }
+
+    .entry ul li::before {
+      content: '—';
+      position: absolute;
+      left: 0;
+      color: var(--cyan);
+      font-size: 11px;
+      top: 3px;
+    }
+
+    /* ── Tags ──────────────────────────────────────────────── */
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 14px;
+    }
+
+    .tag {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--cyan);
+      background: var(--tag-bg);
+      border: 1px solid var(--tag-border);
+      border-radius: 4px;
+      padding: 2px 8px;
+      letter-spacing: 0.04em;
+    }
+
+    .live-link {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      text-decoration: none;
+      border-bottom: 1px dashed rgba(99,230,190,0.3);
+      transition: color 0.2s;
+      margin-top: 6px;
+      display: inline-block;
+    }
+    .live-link:hover { color: var(--cyan); }
+
+    /* ── Education ─────────────────────────────────────────── */
+    .edu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+
+    .edu-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 18px;
+      transition: border-color 0.2s;
+    }
+    .edu-card:hover { border-color: var(--border-h); }
+
+    .edu-degree {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--white);
+      margin-bottom: 3px;
+    }
+
+    .edu-school {
+      font-size: 12.5px;
+      color: var(--cyan);
+      margin-bottom: 3px;
+    }
+
+    .edu-date {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* ── Footer ────────────────────────────────────────────── */
+    .footer {
+      text-align: center;
+      margin-top: 60px;
+      padding-top: 28px;
+      border-top: 1px solid var(--border);
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .footer a {
+      color: var(--cyan);
+      text-decoration: none;
+    }
+
+    /* ── Animations ────────────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .section:nth-child(2)  { animation-delay: 0.08s; }
+    .section:nth-child(3)  { animation-delay: 0.14s; }
+    .section:nth-child(4)  { animation-delay: 0.20s; }
+    .section:nth-child(5)  { animation-delay: 0.26s; }
+    .section:nth-child(6)  { animation-delay: 0.32s; }
+    .section:nth-child(7)  { animation-delay: 0.38s; }
+
+    /* ── Print ─────────────────────────────────────────────── */
+    @media print {
+      body { background: #fff; color: #111; }
+      body::before, body::after { display: none; }
+      .header-right { display: none; }
+      .entry, .skill-block, .edu-card, .summary-card {
+        background: #f8f8f8 !important;
+        border-color: #ddd !important;
+        break-inside: avoid;
+      }
+      .entry:hover { transform: none; }
+      .name, .section-label span { color: #111 !important; }
+      .entry-title, .edu-degree { color: #111 !important; }
+      .name span, .title, .skill-label, .entry-sub, .edu-school, .tag, .live-link {
+        color: #0a6e53 !important;
+      }
+    }
+
+    /* ── Mobile ────────────────────────────────────────────── */
+    @media (max-width: 600px) {
+      .page { padding: 40px 18px 60px; }
+      .header { grid-template-columns: 1fr; gap: 20px; }
+      .header-right { align-items: flex-start; flex-direction: row; }
+      .skills-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ══ HEADER ══════════════════════════════════════════════ -->
+  <header class="header">
+    <div class="header-left">
+      <h1 class="name">BENS <span>BASIL</span></h1>
+      <p class="title">AI/ML Engineer &amp; Full-Stack Developer</p>
+      <div class="contact-grid">
+        <div class="contact-item"><span class="dot"></span>Thiruvananthapuram, KL, India</div>
+        <div class="contact-item"><span class="dot"></span><a href="mailto:bensdbasil@gmail.com">bensdbasil@gmail.com</a></div>
+        <div class="contact-item"><span class="dot"></span>+91 70123 52863</div>
+        <div class="contact-item"><span class="dot"></span><a href="https://bensbasil.in" target="_blank">bensbasil.in</a></div>
+        <div class="contact-item"><span class="dot"></span><a href="https://github.com/bensbasil" target="_blank">github.com/bensbasil</a></div>
+        <div class="contact-item"><span class="dot"></span><a href="https://linkedin.com/in/bensbasil" target="_blank">linkedin.com/in/bensbasil</a></div>
+      </div>
+    </div>
+    <div class="header-right">
+      <a class="download-btn" href="javascript:window.print()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        DOWNLOAD PDF
+      </a>
+      <div class="availability">
+        <span class="avail-dot"></span>
+        Open to opportunities
+      </div>
+    </div>
+  </header>
+
+  <!-- ══ SUMMARY ═════════════════════════════════════════════ -->
+  <section class="section">
+    <div class="section-label">
+      <span>Profile</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="summary-card">
+      AI/ML Engineer and Full-Stack Developer with hands-on experience building and shipping production-grade machine learning systems, intelligent backend APIs, and MLOps pipelines. Proficient in Python, FastAPI, Scikit-learn, MLflow, PySpark, and React — with a proven ability to take models from prototype to fully monitored, cloud-deployed production. Experienced in vector database integration, RAG architectures, LLM orchestration, and automated retraining workflows. Strong communicator who translates complex ML outputs into actionable, business-relevant solutions.
+    </div>
+  </section>
+
+  <!-- ══ SKILLS ═══════════════════════════════════════════════ -->
+  <section class="section">
+    <div class="section-label">
+      <span>Technical Skills</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="skills-grid">
+      <div class="skill-block">
+        <div class="skill-label">Languages &amp; Frameworks</div>
+        <div class="skill-value">Python, SQL, PySpark, FastAPI, SQLAlchemy, React/Vite</div>
+      </div>
+      <div class="skill-block">
+        <div class="skill-label">Machine Learning</div>
+        <div class="skill-value">Scikit-learn, GaussianNB, KMeans, Random Forest, PCA, TF-IDF, Isolation Forest, HuggingFace Embeddings</div>
+      </div>
+      <div class="skill-block">
+        <div class="skill-label">MLOps &amp; Pipelines</div>
+        <div class="skill-value">MLflow, APScheduler (auto-retraining), Prometheus, Evidently AI drift detection, GitHub Actions CI/CD</div>
+      </div>
+      <div class="skill-block">
+        <div class="skill-label">AI &amp; LLM Integration</div>
+        <div class="skill-value">Claude API, Gemini Flash, RAG architecture, Milvus vector DB, section-aware document chunking</div>
+      </div>
+      <div class="skill-block">
+        <div class="skill-label">Databases &amp; Storage</div>
+        <div class="skill-value">PostgreSQL, Milvus (384-dim cosine similarity), Alembic migrations, Pydantic schema validation</div>
+      </div>
+      <div class="skill-block">
+        <div class="skill-label">Cloud &amp; DevOps</div>
+        <div class="skill-value">AWS EC2, Docker, GitHub Actions, containerized deployment, Databricks Lakehouse patterns</div>
+      </div>
+      <div class="skill-block">
+        <div class="skill-label">Frontend</div>
+        <div class="skill-value">Tailwind CSS, Lucide, Chart.js (radar/donut), WebSocket streaming, responsive design</div>
+      </div>
+      <div class="skill-block">
+        <div class="skill-label">Languages</div>
+        <div class="skill-value">English, Malayalam, Hindi, German</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ EXPERIENCE ════════════════════════════════════════════ -->
+  <section class="section">
+    <div class="section-label">
+      <span>Experience</span>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="entry">
+      <div class="entry-header">
+        <div class="entry-title">AI/ML Engineer — Freelance</div>
+        <div class="entry-date">2024 – Present</div>
+      </div>
+      <div class="entry-sub">Independent · Thiruvananthapuram, India</div>
+      <ul>
+        <li>Designed and shipped multiple end-to-end ML and AI systems, managing full lifecycle from architecture to cloud deployment.</li>
+        <li>Built a production MLOps platform with automated retraining, MLflow versioning, Prometheus monitoring, and GitHub Actions CI/CD deployed on AWS EC2.</li>
+        <li>Developed a Medical RAG backend integrating Milvus, HuggingFace embeddings, Claude API, and PostgreSQL — 8 production REST endpoints with full observability.</li>
+        <li>Engineered a real-time inference dashboard supporting three concurrent ML models with WebSocket streaming and Evidently AI drift detection.</li>
+        <li>Delivered full-stack web applications using React/Vite/Tailwind, translating business requirements into polished, production-quality frontends.</li>
+      </ul>
+    </div>
+
+    <div class="entry">
+      <div class="entry-header">
+        <div class="entry-title">Junior Accountant</div>
+        <div class="entry-date">2019 – 2024</div>
+      </div>
+      <div class="entry-sub">Devaja Traders</div>
+      <ul>
+        <li>Managed financial data pipelines for inventory, billing, and reconciliation; developed structured reporting workflows reducing manual effort by 40%.</li>
+        <li>Applied data analysis to identify cost variances and operational inefficiencies, translating findings into actionable business recommendations.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══ PROJECTS ══════════════════════════════════════════════ -->
+  <section class="section">
+    <div class="section-label">
+      <span>Key Projects</span>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="entry">
+      <div class="entry-header">
+        <div class="entry-title">DISC Personality Engine — Live MLOps System</div>
+        <div class="entry-date">2024</div>
+      </div>
+      <a class="live-link" href="https://bensbasil.in/quiz" target="_blank">→ bensbasil.in/quiz</a>
+      <ul style="margin-top:10px">
+        <li>Decoupled ML training pipeline (feature engineering, training, serving); APScheduler automated retraining with drift triggers; MLflow experiment tracking and model registry.</li>
+        <li>Full Prometheus instrumentation — inference latency, prediction drift, request volume; zero-downtime CI/CD via Docker + GitHub Actions on AWS EC2.</li>
+        <li>Extended classifier to predict stress-type segments alongside DISC profiles; resolved Pydantic schema gap suppressing model confidence stats (now 91%).</li>
+      </ul>
+      <div class="tags">
+        <span class="tag">Python</span><span class="tag">Scikit-learn</span><span class="tag">MLflow</span>
+        <span class="tag">Prometheus</span><span class="tag">APScheduler</span><span class="tag">Docker</span>
+        <span class="tag">GitHub Actions</span><span class="tag">AWS EC2</span>
+      </div>
+    </div>
+
+    <div class="entry">
+      <div class="entry-header">
+        <div class="entry-title">Medical Document Intelligence — RAG Backend</div>
+        <div class="entry-date">2024</div>
+      </div>
+      <a class="live-link" href="https://bensbasil.in/medical-rag-app" target="_blank">→ bensbasil.in/medical-rag-app</a>
+      <ul style="margin-top:10px">
+        <li>Production-grade RAG backend with 8 REST endpoints; Milvus vector DB with cosine similarity search and 384-dim HuggingFace embeddings over PostgreSQL metadata layer.</li>
+        <li>Section-aware PDF chunking with source attribution and confidence scores; multi-model backend switching between Claude API and Gemini Flash at runtime.</li>
+        <li>Alembic-managed schema migrations; zero manual SQL patches across all environment deployments.</li>
+      </ul>
+      <div class="tags">
+        <span class="tag">FastAPI</span><span class="tag">Milvus</span><span class="tag">Claude API</span>
+        <span class="tag">PostgreSQL</span><span class="tag">HuggingFace</span><span class="tag">SQLAlchemy</span>
+        <span class="tag">Alembic</span><span class="tag">React</span>
+      </div>
+    </div>
+
+    <div class="entry">
+      <div class="entry-header">
+        <div class="entry-title">Real-Time ML Inference Dashboard</div>
+        <div class="entry-date">2024</div>
+      </div>
+      <ul>
+        <li>Three concurrent ML models (Random Forest, TF-IDF+LR, Isolation Forest) with WebSocket streaming, real-time Prometheus metrics, and Evidently AI drift detection.</li>
+        <li>Query log analysis and inference pipeline profiling to identify and resolve throughput bottlenecks in high-frequency prediction workloads.</li>
+      </ul>
+      <div class="tags">
+        <span class="tag">Python</span><span class="tag">WebSockets</span><span class="tag">Prometheus</span>
+        <span class="tag">Evidently AI</span><span class="tag">React</span><span class="tag">Recharts</span>
+      </div>
+    </div>
+
+    <div class="entry">
+      <div class="entry-header">
+        <div class="entry-title">SkillLens — AI Career Intelligence Platform</div>
+        <div class="entry-date">2024</div>
+      </div>
+      <div class="entry-meta">Team project · Frontend contribution</div>
+      <ul>
+        <li>Built the frontend dashboard with Chart.js radar/donut visualizations and an AI feedback panel with model-toggle support across Hugging Face and Gemini backends.</li>
+      </ul>
+      <div class="tags">
+        <span class="tag">React</span><span class="tag">Chart.js</span><span class="tag">Gemini API</span>
+        <span class="tag">HuggingFace</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ EDUCATION ════════════════════════════════════════════ -->
+  <section class="section">
+    <div class="section-label">
+      <span>Education &amp; Certifications</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="edu-grid">
+      <div class="edu-card">
+        <div class="edu-degree">Bachelor of Computer Applications (BCA)</div>
+        <div class="edu-school">IGNOU</div>
+        <div class="edu-date">2023 – 2025 &nbsp;·&nbsp; CGPA 7.97/10</div>
+      </div>
+      <div class="edu-card">
+        <div class="edu-degree">Google Advanced Data Analytics</div>
+        <div class="edu-school">Google / Coursera</div>
+        <div class="edu-date">2025 &nbsp;·&nbsp; Professional Certificate</div>
+      </div>
+      <div class="edu-card">
+        <div class="edu-degree">12th — CBSE</div>
+        <div class="edu-school">Kendriya Vidyalaya Pangode</div>
+        <div class="edu-date">Thiruvananthapuram</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ FOOTER ════════════════════════════════════════════════ -->
+  <footer class="footer">
+    <p>© 2025 Bens Basil &nbsp;·&nbsp; <a href="https://bensbasil.in">bensbasil.in</a> &nbsp;·&nbsp; Built with intention.</p>
+  </footer>
+
+</div>
+</body>
+</html>

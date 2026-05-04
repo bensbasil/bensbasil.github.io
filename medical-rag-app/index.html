@@ -2,11 +2,23 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/medical-rag-app/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>medical-rag-app</title>
-    <script type="module" crossorigin src="/medical-rag-app/assets/index-CfuUCOK2.js"></script>
-    <link rel="stylesheet" crossorigin href="/medical-rag-app/assets/index-DYkd6bsw.css">
+    <title>MedLit RAG | Clinical Intelligence</title>
+    <!-- Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script>
+      if (['localhost', '127.0.0.1'].includes(window.location.hostname)) {
+        const originalFetch = window.fetch.bind(window);
+        window.fetch = (input, init) => {
+          if (typeof input === 'string' && input.startsWith('https://api.bensbasil.in')) {
+            input = input.replace('https://api.bensbasil.in', 'http://127.0.0.1:8002');
+          }
+          return originalFetch(input, init);
+        };
+      }
+    </script>
+    <script type="module" src="/src/main.jsx"></script>
   </head>
   <body>
     <div id="root"></div>

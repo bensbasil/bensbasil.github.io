@@ -1,24 +1,51 @@
 # Environments
-.env*
+.env
+.env.*
+!.env.example
 .venv/
 env/
 venv/
 ENV/
 env.bak/
 venv.bak/
+backend/venv/
 
 # FastAPI / Python
 __pycache__/
 *.py[cod]
 *$py.class
+.pytest_cache/
 
 # Database
 *.db
 *.sqlite3
 backend/chroma_db/
 
+# Node / frontend build tooling
 node_modules/
+*/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+/package-lock.json
+
+# GitHub Pages keeps the built Medical RAG app here.
+# Keep editable React/Vite source in apps-src/medical-rag/ instead.
+medical-rag-app/src/
+medical-rag-app/package.json
+medical-rag-app/package-lock.json
+medical-rag-app/vite.config.js
+
+# Runtime logs
+*.log
+*.err.log
 
 # Trained ML Models
 backend/ml/models/*.pkl
 backend/ml/models/*.joblib
+
+# Local OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

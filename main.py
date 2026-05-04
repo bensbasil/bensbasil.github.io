@@ -4,6 +4,12 @@ import asyncio
 import json
 from pyodide.http import pyfetch
 
+API_BASE = (
+    "http://127.0.0.1:8000"
+    if window.location.hostname in ("localhost", "127.0.0.1")
+    else "https://api.bensbasil.in"
+)
+
 # --- Contact Form Logic ---
 @when("submit", "#contact-form")
 async def handle_contact_submit(event):
@@ -20,7 +26,7 @@ async def handle_contact_submit(event):
     
     try:
         response = await pyfetch(
-            "https://api.bensbasil.in/contact",
+            f"{API_BASE}/contact",
             method="POST",
             headers={
                 "Content-Type": "application/json"

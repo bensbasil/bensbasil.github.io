@@ -5,8 +5,7 @@ import uuid
 import time
 from app.models.schemas import (
     DocumentUpload, DocumentResponse, DeleteResponse, 
-    QueryRequest, QueryFeedback, FeedbackResponse,
-    HealthCheck, AnalyticsResponse
+    QueryRequest, HealthCheck
 )
 from app.services.pdf_processor import PDFProcessor
 from app.services.embeddings import EmbeddingService
@@ -19,13 +18,19 @@ router = APIRouter()
 
 # Services (in a real app, inject these via Depends)
 pdf_processor = PDFProcessor(settings.EMBEDDING_MODEL)
-embedding_service = EmbeddingService(settings.EMBEDDING_MODEL)
+embedding_service = None
 retrieval_service = MilvusRetrieval(settings.MILVUS_DB_PATH)
 llm_service = MedicalRAGLLM(settings.GEMINI_API_KEY)
 analytics_service = AnalyticsService(settings.PROMETHEUS_PORT)
 
 # In-memory document cache to allow UI to visually render lists without Postgres hooked up
 mock_documents = []
+
+def get_embedding_service() -> EmbeddingService:
+    global embedding_service
+    if embedding_service is None:
+        embedding_service = EmbeddingService(settings.EMBEDDING_MODEL)
+    return embedding_service
 
 async def process_document_background(file_path: str, document_id: str):
     # Dummy read of a pre-saved file for this exercise, or just fake extraction for the skeleton
@@ -39,6 +44,7 @@ async def upload_document(
 ):
     document_id = str(uuid.uuid4())
     chunks = await pdf_processor.process_medical_pdf(file, document_id)
+    embedding_service = get_embedding_service()
     embedded_chunks = await embedding_service.embed_chunks(chunks)
     await retrieval_service.insert_chunks(embedded_chunks, document_id)
     
@@ -59,6 +65,7 @@ async def query(request: QueryRequest):
     start_time = time.time()
     
     # 1. Embed question
+    embedding_service = get_embedding_service()
     query_embedding = await embedding_service.embed_text(request.question)
     
     # 2. Search Milvus
@@ -94,15 +101,12 @@ async def list_documents():
 
 @router.delete("/api/documents/{document_id}", response_model=DeleteResponse)
 async def delete_document(document_id: str):
+    global mock_documents
+    mock_documents = [doc for doc in mock_documents if doc["id"] != document_id]
+    await retrieval_service.delete_document(document_id)
     return {"status": "deleted", "document_id": document_id}
 
-@router.post("/api/query/{query_id}/feedback", response_model=FeedbackResponse)
-async def submit_feedback(query_id: str, feedback: QueryFeedback):
-    return {"status": "recorded", "query_id": query_id}
 
-@router.get("/api/metrics", response_model=AnalyticsResponse)
-async def get_metrics():
-    return await analytics_service.get_query_analytics()
 
 @router.get("/api/health", response_model=HealthCheck)
 async def health_check():

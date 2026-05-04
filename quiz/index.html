@@ -2087,7 +2087,9 @@
 
   <script>
     // ── CONFIG ────────────────────────────────────────────────────────────────────
-    const API = 'https://api.bensbasil.in';
+    const API = ['localhost', '127.0.0.1'].includes(window.location.hostname)
+      ? 'http://127.0.0.1:8000'
+      : 'https://api.bensbasil.in';
     const GOOGLE_CLIENT_ID = '513027492748-8mja1qbgip3k0ernd217a2ido6sc18gu.apps.googleusercontent.com';
 
     // ── SESSION & USER ────────────────────────────────────────────────────────────

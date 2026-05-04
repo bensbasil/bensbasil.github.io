@@ -89,6 +89,11 @@ class MilvusRetrieval:
         logger.info(f"Inserted {len(ids)} chunks for document '{document_id}'.")
         return ids
 
+    async def delete_document(self, document_id: str):
+        col = self._get_collection()
+        col.delete(where={"document_id": document_id})
+        logger.info(f"Deleted document '{document_id}' from vector store.")
+
     async def search(
         self,
         query_embedding: List[float],

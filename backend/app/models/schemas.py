@@ -49,6 +49,10 @@ class DocumentResponse(BaseModel):
     title: str
     status: str
     chunk_count: int
+    source: Optional[str] = "manual"
+    pmc_id: Optional[str] = None
+    paper_title: Optional[str] = None
+    pub_year: Optional[int] = None
 
 class DeleteResponse(BaseModel):
     status: str
@@ -64,3 +68,31 @@ class AnalyticsResponse(BaseModel):
     avg_retrieval_quality: float
     top_searched_topics: List[str]
     error_rate: float
+
+
+# ── PubMed Ingestion ──────────────────────────────────────────────────────────
+
+class IngestRequest(BaseModel):
+    topic: str
+    max_papers: int = 10
+    user_id: str = "pubmed_corpus"
+
+class IngestPaperResult(BaseModel):
+    pmc_id: str
+    title: str
+    status: str          # "ingested" | "skipped" | "failed"
+    chunk_count: int = 0
+    reason: Optional[str] = None
+
+class IngestStatusResponse(BaseModel):
+    job_id: str
+    topic: str
+    status: str          # started | running | done | failed
+    total: int
+    completed: int
+    skipped: int
+    failed: int
+    papers: List[IngestPaperResult] = []
+    error: Optional[str] = None
+    started_at: str
+    finished_at: Optional[str] = None

@@ -7,9 +7,12 @@ import time
 import os
 import shutil
 
+from app.utils.logger import logger
+
 from app.models.schemas import (
     DocumentUpload, DocumentResponse, DeleteResponse,
-    QueryRequest, HealthCheck
+    QueryRequest, HealthCheck,
+    IngestRequest, IngestStatusResponse,
 )
 from app.models.database import Document
 from app.models.db_session import get_db, init_db
@@ -18,6 +21,8 @@ from app.services.embeddings import EmbeddingService
 from app.services.retrieval import MilvusRetrieval
 from app.services.llm import MedicalRAGLLM
 from app.services.analytics import AnalyticsService
+from app.services.pubmed_scraper import PubMedScraper
+from app.services import ingest_tracker
 from app.config import settings
 
 router = APIRouter()
@@ -224,3 +229,165 @@ async def prometheus_metrics():
     from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
     from fastapi.responses import Response
     return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
+
+
+# ── PubMed Auto-Ingest ─────────────────────────────────────────────────────
+
+pubmed_scraper = PubMedScraper(api_key=getattr(settings, "NCBI_API_KEY", None))
+
+
+async def _run_ingest(job_id: str, request: IngestRequest):
+    """
+    Background task: search PubMed, download PDFs, embed and store each paper.
+    Updates the in-memory job record so the frontend can poll progress.
+    """
+    import json
+    from datetime import datetime
+
+    job = ingest_tracker.get_job(job_id)
+    if not job:
+        return
+
+    job.status = "running"
+
+    # Lazy-init a DB session for this background task
+    from app.models.db_session import SessionLocal
+    db = SessionLocal()
+
+    try:
+        # 1. Search PubMed
+        pmc_ids = await pubmed_scraper.search(request.topic, max_results=request.max_papers)
+        job.total = len(pmc_ids)
+
+        if not pmc_ids:
+            job.status = "done"
+            job.finished_at = datetime.utcnow().isoformat()
+            return
+
+        # 2. Fetch metadata for all papers in one call
+        metadata_list = await pubmed_scraper.fetch_metadata(pmc_ids)
+        meta_map = {m["pmc_id"]: m for m in metadata_list}
+
+        emb_service = get_embedding_service()
+
+        # 3. Process each paper
+        for pmc_id in pmc_ids:
+            meta = meta_map.get(pmc_id, {"pmc_id": pmc_id, "title": pmc_id, "authors": [], "pub_year": None})
+            paper_title = meta.get("title", pmc_id)
+
+            # Duplicate check: already in SQLite?
+            existing = db.query(Document).filter(Document.pmc_id == pmc_id).first()
+            if existing:
+                job.skipped += 1
+                job.papers.append({
+                    "pmc_id": pmc_id, "title": paper_title,
+                    "status": "skipped", "chunk_count": 0,
+                    "reason": "already in database",
+                })
+                continue
+
+            # Download PDF
+            pdf_bytes = await pubmed_scraper.download_pdf(pmc_id)
+            if not pdf_bytes:
+                job.failed_count += 1
+                job.papers.append({
+                    "pmc_id": pmc_id, "title": paper_title,
+                    "status": "failed", "chunk_count": 0,
+                    "reason": "no open-access PDF available",
+                })
+                continue
+
+            # Run through existing pipeline
+            try:
+                document_id = str(uuid.uuid4())
+                filename = f"{pmc_id}.pdf"
+
+                # Save raw PDF
+                file_path = os.path.join(UPLOADS_DIR, filename)
+                with open(file_path, "wb") as f:
+                    f.write(pdf_bytes)
+
+                # Chunk
+                class _FakePubMedUpload:
+                    filename = f"{pmc_id}.pdf"
+                    async def read(self_inner):
+                        return pdf_bytes
+
+                chunks = await pdf_processor.process_medical_pdf(_FakePubMedUpload(), document_id)
+
+                # Embed + store in ChromaDB
+                embedded = await emb_service.embed_chunks(chunks)
+                await retrieval_service.insert_chunks(embedded, document_id, user_id=request.user_id)
+
+                # Save metadata to SQLite
+                doc = Document(
+                    id=document_id,
+                    user_id=request.user_id,
+                    filename=filename,
+                    title=paper_title,
+                    file_path=file_path,
+                    status="processed",
+                    chunk_count=len(chunks),
+                    source="pubmed",
+                    pmc_id=pmc_id,
+                    paper_title=paper_title,
+                    authors=json.dumps(meta.get("authors", [])),
+                    pub_year=meta.get("pub_year"),
+                )
+                db.add(doc)
+                db.commit()
+
+                job.completed += 1
+                job.papers.append({
+                    "pmc_id": pmc_id, "title": paper_title,
+                    "status": "ingested", "chunk_count": len(chunks),
+                    "reason": None,
+                })
+
+            except Exception as e:
+                db.rollback()
+                job.failed_count += 1
+                job.papers.append({
+                    "pmc_id": pmc_id, "title": paper_title,
+                    "status": "failed", "chunk_count": 0,
+                    "reason": str(e),
+                })
+                logger.error(f"Ingest failed for {pmc_id}: {e}")
+
+    except Exception as e:
+        job.status = "failed"
+        job.error = str(e)
+        logger.error(f"Ingest job {job_id} crashed: {e}")
+    finally:
+        db.close()
+        if job.status == "running":
+            job.status = "done"
+        job.finished_at = datetime.utcnow().isoformat()
+
+
+@router.post("/api/ingest/pubmed")
+async def ingest_pubmed(
+    request: IngestRequest,
+    background_tasks: BackgroundTasks,
+):
+    """
+    Kick off a background PubMed ingestion job.
+    Returns immediately with a job_id for polling.
+    """
+    if not request.topic.strip():
+        raise HTTPException(status_code=400, detail="Topic cannot be empty.")
+    if request.max_papers < 1 or request.max_papers > 50:
+        raise HTTPException(status_code=400, detail="max_papers must be between 1 and 50.")
+
+    job = ingest_tracker.create_job(topic=request.topic, user_id=request.user_id)
+    background_tasks.add_task(_run_ingest, job.job_id, request)
+    return {"job_id": job.job_id, "status": "started", "message": f"Searching PubMed for '{request.topic}'..."}
+
+
+@router.get("/api/ingest/status/{job_id}")
+async def ingest_status(job_id: str):
+    """Poll the status of a running or completed ingest job."""
+    job = ingest_tracker.get_job(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found.")
+    return ingest_tracker.to_dict(job)

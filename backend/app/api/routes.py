@@ -54,6 +54,13 @@ async def upload_document(
 ):
     document_id = str(uuid.uuid4())
 
+    # If the caller is anonymous, assign a stable per-session UUID so their
+    # uploaded documents are not visible to other anonymous visitors.
+    session_token: Optional[str] = None
+    if x_user_id == "anonymous":
+        session_token = str(uuid.uuid4())
+        x_user_id = f"anon_{session_token}"
+
     # 1. Save raw PDF to local disk
     file_bytes = await file.read()
     file_path = os.path.join(UPLOADS_DIR, f"{document_id}.pdf")
@@ -100,7 +107,12 @@ async def upload_document(
     db.commit()
     db.refresh(doc)
 
-    return {"document_id": document_id, "status": "processed", "chunk_count": len(chunks)}
+    response_payload = {"document_id": document_id, "status": "processed", "chunk_count": len(chunks)}
+    if session_token:
+        # Return the generated session token so the frontend can persist it
+        # and use it on subsequent query/list/delete requests.
+        response_payload["session_token"] = session_token
+    return response_payload
 
 
 # ── List ───────────────────────────────────────────────────────────────────────
@@ -172,10 +184,15 @@ async def query(
         user_id=x_user_id,
     )
 
+    # Keep at most the last 6 messages (3 user + 3 assistant) to bound prompt size.
+    trimmed_history = (request.conversation_history or [])[-6:]
+
     async def generate():
         tokens = 0
         try:
-            async for token in llm_service.generate_answer(request.question, retrieved_chunks):
+            async for token in llm_service.generate_answer(
+                request.question, retrieved_chunks, conversation_history=trimmed_history
+            ):
                 tokens += 1
                 yield token.encode("utf-8")
         except Exception as e:

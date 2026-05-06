@@ -13,6 +13,7 @@ class QueryRequest(BaseModel):
     question: str
     top_k: int = 5
     filters: Optional[Dict] = None
+    conversation_history: Optional[List[Dict]] = []
 
 class ChunkResponse(BaseModel):
     text: str

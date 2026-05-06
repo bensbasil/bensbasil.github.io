@@ -8,6 +8,9 @@ from app.config import settings
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup: Initialize database, Milvus, embeddings model
+    from app.models.db_session import init_db
+    init_db()
+    
     retrieval_service = MilvusRetrieval(settings.MILVUS_DB_PATH)
     await retrieval_service.connect()
     await retrieval_service.create_collection()

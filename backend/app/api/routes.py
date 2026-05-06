@@ -286,34 +286,29 @@ async def _run_ingest(job_id: str, request: IngestRequest):
                 })
                 continue
 
-            # Download PDF
-            pdf_bytes = await pubmed_scraper.download_pdf(pmc_id)
-            if not pdf_bytes:
+            # Download Full Text
+            full_text = await pubmed_scraper.fetch_full_text(pmc_id)
+            if not full_text:
                 job.failed_count += 1
                 job.papers.append({
                     "pmc_id": pmc_id, "title": paper_title,
                     "status": "failed", "chunk_count": 0,
-                    "reason": "no open-access PDF available",
+                    "reason": "no open-access text available",
                 })
                 continue
 
             # Run through existing pipeline
             try:
                 document_id = str(uuid.uuid4())
-                filename = f"{pmc_id}.pdf"
+                filename = f"{pmc_id}.txt"
 
-                # Save raw PDF
+                # Save raw text
                 file_path = os.path.join(UPLOADS_DIR, filename)
-                with open(file_path, "wb") as f:
-                    f.write(pdf_bytes)
+                with open(file_path, "w", encoding="utf-8") as f:
+                    f.write(full_text)
 
-                # Chunk
-                class _FakePubMedUpload:
-                    filename = f"{pmc_id}.pdf"
-                    async def read(self_inner):
-                        return pdf_bytes
-
-                chunks = await pdf_processor.process_medical_pdf(_FakePubMedUpload(), document_id)
+                # Chunk using text directly
+                chunks = await pdf_processor.chunk_text(full_text, document_id)
 
                 # Embed + store in ChromaDB
                 embedded = await emb_service.embed_chunks(chunks)

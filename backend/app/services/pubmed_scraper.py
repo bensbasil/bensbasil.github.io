@@ -7,6 +7,7 @@ Optional: set NCBI_API_KEY in .env to raise rate limit from 3 → 10 req/sec.
 
 import asyncio
 import httpx
+import xml.etree.ElementTree as ET
 from typing import List, Dict, Optional
 from app.utils.logger import logger
 
@@ -99,35 +100,51 @@ class PubMedScraper:
 
         return papers
 
-    # ── PDF Download ──────────────────────────────────────────────────────────
+    # ── Full Text Extraction (replaces PDF Download) ─────────────────────────
 
-    async def download_pdf(self, pmc_id: str) -> Optional[bytes]:
+    async def fetch_full_text(self, pmc_id: str) -> Optional[str]:
         """
-        Download the open-access PDF for a PMC paper.
-        Returns raw bytes or None if no PDF is available.
+        Fetch the full text XML of the paper and extract paragraphs.
+        Bypasses PMC's new anti-bot PDF protections.
         """
-        url = PMC_PDF_BASE.format(pmc_id=pmc_id)
+        numeric_id = pmc_id.replace("PMC", "")
+        params = self._params({
+            "db": "pmc",
+            "id": numeric_id,
+            "retmode": "xml",
+        })
+
         await asyncio.sleep(self._delay)
 
         try:
-            async with httpx.AsyncClient(
-                timeout=60,
-                follow_redirects=True,
-                headers={"User-Agent": "MedicalRAG/1.0 (research tool; contact bensdbasil@gmail.com)"},
-            ) as client:
-                resp = await client.get(url)
-
-                # Some PMC pages redirect to an HTML page instead of a PDF
-                content_type = resp.headers.get("content-type", "")
-                if resp.status_code != 200 or "application/pdf" not in content_type:
-                    logger.warning(f"{pmc_id}: no direct PDF available (status={resp.status_code}, ct={content_type})")
+            async with httpx.AsyncClient(timeout=30) as client:
+                resp = await client.get(f"{EUTILS_BASE}/efetch.fcgi", params=params)
+                if resp.status_code != 200:
+                    logger.warning(f"{pmc_id}: failed to fetch full text (status={resp.status_code})")
                     return None
 
-                logger.info(f"{pmc_id}: downloaded {len(resp.content):,} bytes")
-                return resp.content
+                xml_data = resp.text
+                if not xml_data.strip():
+                    return None
+
+                # Extract all <p> tags
+                root = ET.fromstring(xml_data)
+                paragraphs = []
+                for p in root.iter('p'):
+                    if p.text and p.text.strip():
+                        # Extract inner text to handle bold/italic tags if needed
+                        paragraphs.append("".join(p.itertext()).strip())
+
+                if not paragraphs:
+                    logger.warning(f"{pmc_id}: no paragraphs found in XML")
+                    return None
+
+                full_text = "\n\n".join(paragraphs)
+                logger.info(f"{pmc_id}: extracted {len(paragraphs)} paragraphs of text")
+                return full_text
 
         except Exception as e:
-            logger.error(f"{pmc_id}: download failed — {e}")
+            logger.error(f"{pmc_id}: full text extraction failed — {e}")
             return None
 
     # ── Helpers ───────────────────────────────────────────────────────────────

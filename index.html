@@ -939,12 +939,12 @@
             }
 
             window.lenis = new Lenis({
-                duration: 1.25,
-                easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+                lerp: 0.06,
                 smooth: true,
-                mouseMultiplier: 0.5,
+                mouseMultiplier: 0.3,
+                wheelMultiplier: 0.3,
                 smoothTouch: false,
-                touchMultiplier: 1,
+                touchMultiplier: 0.8,
             });
 
             function raf(time) {

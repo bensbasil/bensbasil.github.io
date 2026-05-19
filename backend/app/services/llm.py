@@ -1,14 +1,29 @@
 from typing import List, Dict, Optional, AsyncGenerator
 import google.generativeai as genai
 import json
+import httpx
+import ollama
+from huggingface_hub import AsyncInferenceClient
+from app.utils.logger import logger
 
 class MedicalRAGLLM:
-    def __init__(self, api_key: str):
-        genai.configure(api_key=api_key)
+    def __init__(self, settings):
+        self.settings = settings
+        self.provider = settings.LLM_PROVIDER.lower()
         self.system_prompt = self.build_system_prompt()
-        self.model = genai.GenerativeModel(
-            model_name='models/gemini-2.5-flash'
-        )
+        
+        if self.provider == "gemini":
+            genai.configure(api_key=settings.GEMINI_API_KEY)
+            self.model = genai.GenerativeModel(
+                model_name='models/gemini-2.0-flash' # Updated to a more recent stable model
+            )
+        elif self.provider == "ollama":
+            self.ollama_client = ollama.AsyncClient(host=settings.OLLAMA_BASE_URL)
+        elif self.provider == "huggingface":
+            self.hf_client = AsyncInferenceClient(
+                model=settings.HF_MODEL,
+                token=settings.HF_API_KEY
+            )
 
     def build_system_prompt(self) -> str:
         return """
@@ -45,7 +60,6 @@ class MedicalRAGLLM:
         - DISCLAIMER: [Standard disclaimer text]
         """
 
-
     async def generate_answer(
         self,
         question: str,
@@ -60,29 +74,74 @@ class MedicalRAGLLM:
             context_block += f"--- Document {source_id} (Score: {score}) ---\n"
             context_block += f"{chunk['text']}\n\n"
 
-        prompt = f"{self.system_prompt}\n\n{context_block}\nUSER QUESTION:\n{question}"
+        prompt = f"{context_block}\nUSER QUESTION:\n{question}"
 
-        # Gemini supports chat sessions, but for RAG a single generate_content_async stream is robust
-        # If conversation_history is provided, we can build a formal chat via `start_chat()`,
-        # but for simple streaming with context, `generate_content_async` is ideal.
-        
-        contents = []
-        if conversation_history:
-            for msg in conversation_history:
-                # Map standard roles to Gemini roles ('user' or 'model')
+        if self.provider == "gemini":
+            async for token in self._generate_gemini(prompt, conversation_history):
+                yield token
+        elif self.provider == "ollama":
+            async for token in self._generate_ollama(prompt, conversation_history):
+                yield token
+        elif self.provider == "huggingface":
+            async for token in self._generate_huggingface(prompt, conversation_history):
+                yield token
+        else:
+            yield f"Error: Unknown LLM provider '{self.provider}'"
+
+    async def _generate_gemini(self, prompt: str, history: Optional[List]) -> AsyncGenerator[str, None]:
+        contents = [{"role": "user", "parts": [self.system_prompt]}] # System instructions as first turn
+        if history:
+            for msg in history:
                 role = "model" if msg["role"] == "assistant" else "user"
                 contents.append({"role": role, "parts": [msg["content"]]})
-                
+        
         contents.append({"role": "user", "parts": [prompt]})
 
-        response = await self.model.generate_content_async(
-            contents,
-            stream=True
-        )
+        try:
+            response = await self.model.generate_content_async(contents, stream=True)
+            async for chunk in response:
+                if chunk.text:
+                    yield chunk.text
+        except Exception as e:
+            logger.error(f"Gemini error: {e}")
+            yield f"\n⚠️ Gemini Error: {str(e)}"
 
-        async for chunk in response:
-            if chunk.text:
-                yield chunk.text
+    async def _generate_ollama(self, prompt: str, history: Optional[List]) -> AsyncGenerator[str, None]:
+        messages = [{"role": "system", "content": self.system_prompt}]
+        if history:
+            messages.extend(history)
+        messages.append({"role": "user", "content": prompt})
+
+        try:
+            stream = await self.ollama_client.chat(
+                model=self.settings.OLLAMA_MODEL,
+                messages=messages,
+                stream=True,
+            )
+            async for chunk in stream:
+                yield chunk['message']['content']
+        except Exception as e:
+            logger.error(f"Ollama error: {e}")
+            yield f"\n⚠️ Ollama Error: {str(e)}"
+
+    async def _generate_huggingface(self, prompt: str, history: Optional[List]) -> AsyncGenerator[str, None]:
+        messages = [{"role": "system", "content": self.system_prompt}]
+        if history:
+            messages.extend(history)
+        messages.append({"role": "user", "content": prompt})
+
+        try:
+            stream = await self.hf_client.chat_completion(
+                messages=messages,
+                max_tokens=1024,
+                stream=True
+            )
+            async for chunk in stream:
+                if chunk.choices[0].delta.content:
+                    yield chunk.choices[0].delta.content
+        except Exception as e:
+            logger.error(f"Hugging Face error: {e}")
+            yield f"\n⚠️ Hugging Face Error: {str(e)}"
 
     def parse_citations(self, response: str) -> List[Dict]:
         citations = []

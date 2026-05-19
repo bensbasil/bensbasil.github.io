@@ -1,35 +1,18 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth bg-[#F2F2F2] selection:bg-[#14D19E] selection:text-white">
+<html lang="en" class="bg-[#F2F2F2] selection:bg-[#14D19E] selection:text-white">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="static/favicon.ico">
+    <link rel="icon" type="image/svg+xml" href="static/favicon.svg">
     <title>Bens Basil | Portfolio</title>
+
+    <!-- Lenis script goes in <head>, before everything else -->
+    <script src="static/js/vendor/lenis.min.js"></script>
+
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,400;1,500&display=swap"
         rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            dark: '#111111',
-                            light: '#F2F2F2',
-                            green: '#00C0B5',
-                            coral: '#FF6B6B'
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-                        playfair: ['"Playfair Display"', 'serif']
-                    },
-                    transitionTimingFunction: { 'premium': 'cubic-bezier(0.22, 1, 0.36, 1)' }
-                }
-            }
-        }
-    </script>
+    <link rel="stylesheet" href="static/css/output.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
@@ -135,21 +118,177 @@
             transform: translateX(0);
         }
 
-        @keyframes hero-fade-in {
-            0% {
-                opacity: 0;
-            }
+        .hero-tech-visual {
+            position: absolute;
+            inset: 0 auto 0 0;
+            width: min(58vw, 920px);
+            opacity: 0.92;
+            pointer-events: none;
+            background:
+                linear-gradient(rgba(0, 192, 181, 0.08) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 192, 181, 0.08) 1px, transparent 1px);
+            background-size: 56px 56px;
+            mask-image: linear-gradient(90deg, #000 0%, #000 68%, transparent 100%);
+            -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 68%, transparent 100%);
+        }
 
+        .hero-tech-visual::before,
+        .hero-tech-visual::after {
+            content: "";
+            position: absolute;
+            border: 1px solid rgba(0, 192, 181, 0.22);
+            transform: rotate(-12deg);
+        }
+
+        .hero-tech-visual::before {
+            width: 520px;
+            height: 520px;
+            left: 12%;
+            top: 17%;
+        }
+
+        .hero-tech-visual::after {
+            width: 340px;
+            height: 340px;
+            left: 27%;
+            top: 29%;
+            border-color: rgba(255, 107, 107, 0.18);
+            animation: hero-panel-drift 10s ease-in-out infinite alternate;
+        }
+
+        .hero-node {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 128px;
+            padding: 12px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(10, 10, 10, 0.72);
+            box-shadow: 0 22px 60px rgba(0, 0, 0, 0.3);
+            color: rgba(255, 255, 255, 0.82);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+        }
+
+        .hero-node::before {
+            content: "";
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #00C0B5;
+            box-shadow: 0 0 18px rgba(0, 192, 181, 0.9);
+        }
+
+        .hero-node-api {
+            left: 14%;
+            top: 25%;
+        }
+
+        .hero-node-model {
+            left: 39%;
+            top: 39%;
+        }
+
+        .hero-node-rag {
+            left: 19%;
+            top: 57%;
+        }
+
+        .hero-node-deploy {
+            left: 43%;
+            top: 67%;
+        }
+
+        .hero-link {
+            position: absolute;
+            height: 1px;
+            transform-origin: left center;
+            background: linear-gradient(90deg, rgba(0, 192, 181, 0), rgba(0, 192, 181, 0.72), rgba(255, 107, 107, 0));
+            animation: hero-signal 2.8s ease-in-out infinite;
+        }
+
+        .hero-link-1 {
+            width: 260px;
+            left: 24%;
+            top: 33%;
+            transform: rotate(19deg);
+        }
+
+        .hero-link-2 {
+            width: 230px;
+            left: 25%;
+            top: 60%;
+            transform: rotate(-17deg);
+            animation-delay: 0.4s;
+        }
+
+        .hero-link-3 {
+            width: 210px;
+            left: 44%;
+            top: 50%;
+            transform: rotate(66deg);
+            animation-delay: 0.8s;
+        }
+
+        .hero-readout {
+            position: absolute;
+            left: 10%;
+            bottom: 11%;
+            display: grid;
+            gap: 8px;
+            width: min(360px, 44vw);
+            padding: 18px;
+            border-left: 2px solid #00C0B5;
+            background: rgba(255, 255, 255, 0.045);
+            color: rgba(255, 255, 255, 0.74);
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .hero-readout span {
+            color: #00C0B5;
+        }
+
+        @keyframes hero-signal {
+            0%,
             100% {
-                opacity: 0.7;
+                opacity: 0.24;
             }
 
-            /* Target opacity is 0.7 for the hero image */
+            50% {
+                opacity: 1;
+            }
         }
 
-        .animate-hero-fade-in {
-            animation: hero-fade-in 2s ease-out forwards;
+        @keyframes hero-panel-drift {
+            from {
+                transform: rotate(-12deg) translate3d(0, 0, 0);
+            }
+
+            to {
+                transform: rotate(-12deg) translate3d(18px, -12px, 0);
+            }
         }
+
+        @media (max-width: 900px) {
+            .hero-tech-visual {
+                width: 100%;
+                opacity: 0.28;
+                mask-image: linear-gradient(180deg, #000 0%, transparent 78%);
+                -webkit-mask-image: linear-gradient(180deg, #000 0%, transparent 78%);
+            }
+
+            .hero-node,
+            .hero-link,
+            .hero-readout {
+                display: none;
+            }
+        }
+
     </style>
 </head>
 
@@ -194,13 +333,22 @@
     </nav>
 
     <main>
-        <!-- Hero Slider Section -->
+        <!-- Hero Section -->
         <section class="relative w-full h-screen flex items-center justify-center overflow-hidden bg-black text-white">
-            <!-- Background Slider Image -->
-            <img src="static/img/me.png?v=2" alt="Bens Basil Slider"
-                class="absolute inset-0 w-full h-full object-cover object-center z-0 animate-hero-fade-in brightness-150">
-            <!-- Shadow Overlay for Text Contrast -->
-            <div class="absolute inset-0 bg-black/30 z-0"></div>
+            <div class="hero-tech-visual" aria-hidden="true">
+                <div class="hero-link hero-link-1"></div>
+                <div class="hero-link hero-link-2"></div>
+                <div class="hero-link hero-link-3"></div>
+                <div class="hero-node hero-node-api">API Layer</div>
+                <div class="hero-node hero-node-model">ML Model</div>
+                <div class="hero-node hero-node-rag">Vector RAG</div>
+                <div class="hero-node hero-node-deploy">Deploy</div>
+                <div class="hero-readout">
+                    <div><span>pipeline</span>: ingest -> embed -> retrieve -> respond</div>
+                    <div><span>stack</span>: FastAPI / React / PostgreSQL / ML Ops</div>
+                    <div><span>status</span>: production-minded systems, clean interfaces</div>
+                </div>
+            </div>
 
             <!-- Foreground Overlaid Text Elements -->
             <div class="relative z-10 w-full max-w-[90rem] mx-auto px-6 md:px-12 flex justify-end items-center h-full">
@@ -648,8 +796,10 @@
         const setupNavbarScroll = () => {
             const navbar = document.getElementById('navbar');
             const aboutSection = document.getElementById('about');
+            let ticking = false;
 
-            window.addEventListener('scroll', () => {
+            const updateNavbar = () => {
+                ticking = false;
                 if (!aboutSection || !navbar) return;
 
                 const aboutRect = aboutSection.getBoundingClientRect();
@@ -662,7 +812,15 @@
                     navbar.classList.remove('opacity-0', '-translate-y-full', 'pointer-events-none');
                     navbar.classList.add('opacity-100', 'translate-y-0');
                 }
-            });
+            };
+
+            window.addEventListener('scroll', () => {
+                if (ticking) return;
+                ticking = true;
+                requestAnimationFrame(updateNavbar);
+            }, { passive: true });
+
+            updateNavbar();
         };
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -674,6 +832,55 @@
 
     <!-- PyScript Main Logic -->
     <script type="py" src="./main.py"></script>
+
+    <!-- Lenis Initialization -->
+    <script>
+        const initLenis = () => {
+            if (typeof Lenis === 'undefined') {
+                // If the script in <head> hasn't loaded yet or failed, try fallback
+                if (!window.lenisFallbackTriggered) {
+                    window.lenisFallbackTriggered = true;
+                    const script = document.createElement('script');
+                    script.src = 'https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/bundled/lenis.min.js';
+                    script.onload = initLenis;
+                    document.head.appendChild(script);
+                }
+                return;
+            }
+
+            window.lenis = new Lenis({
+                duration: 1.25,
+                easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+                smooth: true,
+                mouseMultiplier: 0.5,
+                smoothTouch: false,
+                touchMultiplier: 1,
+            });
+
+            function raf(time) {
+                window.lenis.raf(time);
+                requestAnimationFrame(raf);
+            }
+            requestAnimationFrame(raf);
+
+            // Handle anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    const id = this.getAttribute('href');
+                    if (id === '#') return;
+                    e.preventDefault();
+                    window.lenis.scrollTo(id);
+                });
+            });
+        };
+
+        // Initialize as soon as possible but ensure Lenis is available
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initLenis);
+        } else {
+            initLenis();
+        }
+    </script>
 </body>
 
 </html>

@@ -31,7 +31,7 @@ router = APIRouter()
 pdf_processor = PDFProcessor(settings.EMBEDDING_MODEL)
 embedding_service = None
 retrieval_service = MilvusRetrieval(settings.MILVUS_DB_PATH)
-llm_service = MedicalRAGLLM(settings.GEMINI_API_KEY)
+llm_service = MedicalRAGLLM(settings)
 analytics_service = AnalyticsService(settings.PROMETHEUS_PORT)
 
 # Local uploads directory (alternative to S3)
@@ -127,7 +127,9 @@ async def list_documents(
     db: Session = Depends(get_db),
     x_user_id: Optional[str] = Header(default="anonymous"),
 ):
-    docs = db.query(Document).filter(Document.user_id == x_user_id).all()
+    docs = db.query(Document).filter(
+        (Document.user_id == x_user_id) | (Document.user_id == "pubmed_corpus")
+    ).all()
     return [
         {
             "id": str(d.id),
@@ -141,6 +143,43 @@ async def list_documents(
 
 
 # ── Delete ─────────────────────────────────────────────────────────────────────
+
+@router.delete("/api/documents/clear")
+async def clear_documents(
+    db: Session = Depends(get_db),
+    x_user_id: Optional[str] = Header(default="anonymous"),
+):
+    """
+    Clear all documents and their vector embeddings.
+    """
+    try:
+        # Delete from SQLite metadata
+        db.query(Document).delete()
+        db.commit()
+        
+        # Delete from ChromaDB
+        retrieval = MilvusRetrieval(settings.MILVUS_DB_PATH)
+        col = retrieval._get_collection()
+        # ChromaDB 'delete' with empty where={} deletes all items in collection
+        col.delete(where={})
+        
+        # Clear uploads folder
+        uploads_dir = "uploads"
+        if os.path.exists(uploads_dir):
+            for filename in os.listdir(uploads_dir):
+                file_path = os.path.join(uploads_dir, filename)
+                try:
+                    if os.path.isfile(file_path) or os.path.islink(file_path):
+                        os.unlink(file_path)
+                except Exception as e:
+                    logger.error(f"Failed to delete {file_path}: {e}")
+
+        return {"status": "success", "message": "Knowledge base cleared successfully."}
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Error clearing knowledge base: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.delete("/api/documents/{document_id}", response_model=DeleteResponse)
 async def delete_document(

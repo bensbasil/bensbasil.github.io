@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Bens Basil — Resume</title>
+  <!-- Lenis script goes in <head>, before everything else -->
+  <script src="static/js/vendor/lenis.min.js"></script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
@@ -27,8 +30,6 @@
       --mono:      'Space Mono', monospace;
       --sans:      'DM Sans', sans-serif;
     }
-
-    html { scroll-behavior: smooth; }
 
     body {
       background: var(--bg);
@@ -680,5 +681,41 @@
   </footer>
 
 </div>
+  <!-- Lenis Initialization -->
+  <script>
+    const initLenis = () => {
+        if (typeof Lenis === 'undefined') {
+            if (!window.lenisFallbackTriggered) {
+                window.lenisFallbackTriggered = true;
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/bundled/lenis.min.js';
+                script.onload = initLenis;
+                document.head.appendChild(script);
+            }
+            return;
+        }
+
+        window.lenis = new Lenis({
+            duration: 1.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            smooth: true,
+            mouseMultiplier: 1,
+            smoothTouch: false,
+            touchMultiplier: 2,
+        });
+
+        function raf(time) {
+            window.lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
+        requestAnimationFrame(raf);
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initLenis);
+    } else {
+        initLenis();
+    }
+  </script>
 </body>
 </html>

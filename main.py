@@ -136,6 +136,10 @@ async def load_projects():
         # Trigger the intersection observer manually if defined (since these are injected late)
         window.observeElements()
         
+        # Tell Lenis to recalculate page height for smooth scrolling
+        if hasattr(window, 'lenis'):
+            window.lenis.resize()
+            
     except Exception as e:
         print("Could not load projects:", e)
         container.innerHTML = "<p class='text-zinc-500'>Error loading projects.</p>"

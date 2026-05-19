@@ -104,15 +104,18 @@ class MilvusRetrieval:
     ) -> List[Dict]:
         col = self._get_collection()
 
-        # Always scope to the requesting user if provided
+        # Scope to the requesting user and the shared pubmed_corpus
         where = None
         if user_id and user_id != "anonymous":
-            where = {"user_id": user_id}
-        elif filters:
-            try:
-                where = json.loads(filters)
-            except Exception:
-                where = None
+            where = {"$or": [{"user_id": user_id}, {"user_id": "pubmed_corpus"}]}
+        else:
+            # For anonymous users, only show shared pubmed_corpus
+            where = {"user_id": "pubmed_corpus"}
+            
+        if filters:
+            # If additional filters are provided, they would need to be merged.
+            # For now, we'll just log this as a placeholder for complex filtering.
+            pass
 
         query_kwargs = dict(
             query_embeddings=[query_embedding],

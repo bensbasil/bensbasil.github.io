@@ -84,6 +84,10 @@
             opacity: 1;
             transform: translateY(0);
         }
+        
+        .gsap-reveal {
+            visibility: hidden;
+        }
 
         .delay-100 {
             transition-delay: 100ms;
@@ -824,6 +828,9 @@
                     opacity: 0,
                     overflow: "hidden"
                 });
+
+                // Now make the container visible (since words are hidden)
+                gsap.set(el, { visibility: "visible" });
 
                 // Simple scroll observer for the text animations
                 const textObserver = new IntersectionObserver((entries, observer) => {

@@ -2025,7 +2025,7 @@
           out.</div>
         <div id="auth-user-greeting"
           style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:10px 14px;background:#F9FAFB;border-radius:var(--r-md)">
-          <img id="auth-avatar-img" style="width:36px;height:36px;border-radius:50%;object-fit:cover" src="" alt="" />
+          <img id="auth-avatar-img" style="width:36px;height:36px;border-radius:50%;object-fit:cover" src="" alt="User Avatar" />
           <div>
             <div style="font-size:13px;font-weight:600;color:var(--ink)" id="auth-greeting-name">Welcome!</div>
             <div style="font-size:11px;color:var(--ink-m)" id="auth-greeting-email"></div>
@@ -2346,7 +2346,7 @@
       if (!currentUser) return;
       document.getElementById('user-pill-wrap').style.display = 'block';
       const av = document.getElementById('sidebar-avatar');
-      if (currentUser.avatar_url) { av.innerHTML = `<img src="${currentUser.avatar_url}" alt=""/>`; av.style.background = 'none'; }
+      if (currentUser.avatar_url) { av.innerHTML = `<img src="${currentUser.avatar_url}" alt="User Avatar"/>`; av.style.background = 'none'; }
       else { av.textContent = (currentUser.display_name || currentUser.email || '?')[0].toUpperCase(); }
       document.getElementById('sidebar-username').textContent = currentUser.display_name || currentUser.email;
     }

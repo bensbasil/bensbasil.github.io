@@ -94,10 +94,37 @@
             -webkit-box-shadow: 0 0 0 30px white inset !important;
             -webkit-text-fill-color: #111111 !important;
         }
+
+        @keyframes preloader-fade-in {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fade-in {
+            animation: preloader-fade-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.2s forwards;
+        }
+
+        body.loading {
+            overflow: hidden !important;
+            height: 100vh !important;
+        }
     </style>
 </head>
 
-<body class="antialiased flex flex-col min-h-screen">
+<body class="antialiased loading flex flex-col min-h-screen">
+
+    <!-- Sleek Premium Preloader -->
+    <div id="preloader" class="fixed inset-0 bg-[#111111] z-[9999] flex flex-col items-center justify-center transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]">
+        <div class="flex flex-col items-center max-w-xs w-full px-6">
+            <h2 class="text-white text-xs font-bold tracking-[0.3em] uppercase mb-4 opacity-0 animate-fade-in">
+                BENS BASIL
+            </h2>
+            <div class="w-full h-[1px] bg-white/10 overflow-hidden relative rounded-full">
+                <div id="preloader-bar" class="absolute inset-y-0 left-0 bg-brand-green w-0 transition-all duration-[2000ms] ease-out"></div>
+            </div>
+            <span id="preloader-percent" class="text-stone-500 font-mono text-[10px] mt-3 tracking-widest">0%</span>
+        </div>
+    </div>
 
     <!-- Minimalist Navigation -->
     <nav id="navbar" class="fixed top-0 w-full z-50 transition-all duration-300 bg-transparent backdrop-blur-[2px]">
@@ -266,7 +293,7 @@
         const loadPyScript = () => {
             if (window.pyscriptLoaded) return;
             window.pyscriptLoaded = true;
-            console.log("Dynamically loading PyScript to prevent thread blocking...");
+            console.log("Dynamically loading PyScript behind the preloader...");
             
             // PyScript CSS
             const link = document.createElement('link');
@@ -279,6 +306,40 @@
             script.type = 'module';
             script.src = 'https://pyscript.net/releases/2024.1.1/core.js';
             document.head.appendChild(script);
+        };
+
+        const runPreloader = () => {
+            const bar = document.getElementById('preloader-bar');
+            const percent = document.getElementById('preloader-percent');
+            const preloader = document.getElementById('preloader');
+            
+            if (!bar || !percent || !preloader) return;
+            
+            bar.style.transition = 'width 2000ms cubic-bezier(0.22, 1, 0.36, 1)';
+            setTimeout(() => {
+                bar.style.width = '100%';
+            }, 50);
+            
+            let count = 0;
+            const startTime = performance.now();
+            const duration = 2000;
+            
+            const updateCount = (timestamp) => {
+                const elapsed = timestamp - startTime;
+                count = Math.min(Math.floor((elapsed / duration) * 100), 100);
+                percent.innerText = `${count}%`;
+                
+                if (count < 100) {
+                    requestAnimationFrame(updateCount);
+                } else {
+                    setTimeout(() => {
+                        preloader.classList.add('opacity-0', 'pointer-events-none');
+                        document.body.classList.remove('loading');
+                    }, 250);
+                }
+            };
+            
+            requestAnimationFrame(updateCount);
         };
 
         // Intersection Observer logic for scroll reveals
@@ -306,10 +367,11 @@
                 }
             });
 
-            // Defer heavy PyScript initialization to prevent blocking the main thread during page load
-            window.addEventListener('load', () => {
-                setTimeout(loadPyScript, 1500);
-            });
+            runPreloader();
+            
+            // Preload heavy PyScript in the background right away while the preloader is active.
+            // This masks the compilation overhead under the 2 seconds loading screen!
+            setTimeout(loadPyScript, 200);
         });
     </script>
 

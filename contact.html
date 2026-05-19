@@ -33,9 +33,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
 
-    <!-- PyScript setup -->
-    <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
-    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+    <!-- PyScript will be loaded dynamically after page load to eliminate scroll hang & stutters -->
 
     <style>
         body {
@@ -265,6 +263,24 @@
             link.addEventListener('click', () => menu.classList.remove('active'));
         });
 
+        const loadPyScript = () => {
+            if (window.pyscriptLoaded) return;
+            window.pyscriptLoaded = true;
+            console.log("Dynamically loading PyScript to prevent thread blocking...");
+            
+            // PyScript CSS
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = 'https://pyscript.net/releases/2024.1.1/core.css';
+            document.head.appendChild(link);
+
+            // PyScript JS Module
+            const script = document.createElement('script');
+            script.type = 'module';
+            script.src = 'https://pyscript.net/releases/2024.1.1/core.js';
+            document.head.appendChild(script);
+        };
+
         // Intersection Observer logic for scroll reveals
         document.addEventListener('DOMContentLoaded', () => {
             const observer = new IntersectionObserver((entries) => {
@@ -288,6 +304,11 @@
                     navbar.classList.remove('opacity-0', '-translate-y-full', 'pointer-events-none');
                     navbar.classList.add('opacity-100', 'translate-y-0');
                 }
+            });
+
+            // Defer heavy PyScript initialization to prevent blocking the main thread during page load
+            window.addEventListener('load', () => {
+                setTimeout(loadPyScript, 1500);
             });
         });
     </script>
